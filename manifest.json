@@ -1,0 +1,10 @@
+{
+  "name": "Produtivus (protótipo)",
+  "short_name": "Produtivus",
+  "description": "A productivity application to manage tasks, calendars, and notes.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#c29d67",
+  "icons": []
+}

@@ -1,0 +1,136 @@
+/* Overlay e balões de tour (guia animado) */
+/* Overlay com "buraco" (hole) para o alvo: o blur e a escurecida não afetam a área do alvo */
+#pv-tour-overlay {
+            position: fixed;
+            inset: 0;
+            /* fallback: leve escurecido */
+            background: rgba(0, 0, 0, .35);
+            z-index: 10000;
+            display: none;
+            /* base para desenhar a máscara */
+            --hole-x: 0px;
+            --hole-y: 0px;
+            --hole-w: 0px;
+            --hole-h: 0px;
+}
+
+/* usa dois pseudo-elementos: um para a camada escura com recorte, outro para o blur ao redor */
+#pv-tour-overlay::before,
+#pv-tour-overlay::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+}
+
+/* camada escura com recorte no alvo */
+#pv-tour-overlay::before {
+            background: rgba(0, 0, 0, .45);
+            -webkit-mask:
+                        radial-gradient(8px 8px at calc(var(--hole-x) + 8px) calc(var(--hole-y) + 8px), transparent 98%, black 100%),
+                        linear-gradient(#000, #000);
+            -webkit-mask-composite: xor;
+            mask:
+                        radial-gradient(8px 8px at calc(var(--hole-x) + 8px) calc(var(--hole-y) + 8px), transparent 98%, black 100%),
+                        linear-gradient(#000, #000);
+            mask-composite: exclude;
+}
+
+/* contorno com blur para realçar o alvo sem embaçar o próprio alvo */
+#pv-tour-overlay::after {
+            background: transparent;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0);
+}
+
+#pv-tour-overlay.active {
+            display: block
+}
+
+.pv-tour-pop {
+            position: absolute;
+            max-width: 340px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, .18);
+            padding: 14px;
+            z-index: 10001;
+            border: 1px solid rgba(0, 0, 0, .06)
+}
+
+.pv-tour-pop h4 {
+            margin: 0 0 6px 0;
+            font-size: 16px
+}
+
+.pv-tour-pop .pv-tour-body {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.4
+}
+
+.pv-tour-pop .pv-tour-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 10px
+}
+
+.pv-tour-btn {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, .12);
+            background: #f7f7f7;
+            cursor: pointer;
+            font-size: 13px
+}
+
+.pv-tour-btn.primary {
+            background: #365562;
+            color: #fff;
+            border-color: #365562
+}
+
+.pv-tour-highlight {
+            position: absolute;
+            border: 2px dashed #ffd54f;
+            border-radius: 10px;
+            box-shadow: 0 0 0 6px rgba(255, 213, 79, .25), 0 4px 22px rgba(0, 0, 0, 0.24);
+            z-index: 10000;
+            pointer-events: none;
+            transition: all .2s;
+            background: rgba(255, 255, 224, 0.08);
+}
+
+.pv-tour-skip {
+            position: fixed;
+            right: 14px;
+            top: 14px;
+            z-index: 10002
+}
+
+/* seta estilizada (orgânica) */
+.pv-tour-arrow {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            pointer-events: none;
+}
+
+.pv-tour-arrow .stroke-1 {
+            fill: none;
+            stroke: rgba(32, 52, 58, .85);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 3 2;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .2));
+}
+
+.pv-tour-arrow .stroke-2 {
+            fill: none;
+            stroke: #ffd54f;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 2 3;
+}

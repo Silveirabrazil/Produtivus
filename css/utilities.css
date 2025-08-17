@@ -1,0 +1,10 @@
+/* utilities.css - placeholder mínimo */
+.hidden {
+            display: none !important;
+}
+
+.row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+}

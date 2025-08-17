@@ -1,0 +1,1904 @@
+:root {
+   --bg: #f8f7f3;
+   --panel: #ffffff;
+   --text: #2d2d2d;
+   --muted: #7a7a7a;
+   --accent: #c29d67;
+   --danger: #F84449;
+   --radius: 8px;
+   --content-max: clamp(1180px, 92vw, 1500px);
+   font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
+
+/* paleta secundária mais vibrante para hero */
+:root {
+   --accent-2: #365562;
+   --accent-3: #ffb86b;
+}
+
+/* header: centraliza nav, mantém logo à esquerda e aproxima o botão Sair */
+:root {
+   --logout-offset: 12px;
+   /* aumenta para mover o logout mais pra esquerda */
+}
+
+/* transforma header-inner em grid com 3 colunas (logo | nav centrado | ações) */
+.header-inner {
+   display: grid !important;
+   grid-template-columns: auto 1fr auto;
+   align-items: center;
+   gap: 12px;
+   /* mantém o padding original caso tenha sido alterado */
+}
+
+/* garante que o logo fique à esquerda */
+.header-inner>div:first-child {
+   justify-self: start;
+   display: flex;
+   align-items: center;
+   gap: 12px;
+}
+
+/* centraliza o nav */
+.header-inner>nav {
+   justify-self: center;
+   display: flex;
+   gap: 5rem;
+   background: rgba(0, 0, 0, .00);
+}
+
+/* área de ações (botões) à direita, mas controlável via order/margem */
+.header-inner>div:last-child {
+   justify-self: end;
+   display: flex;
+   gap: 8px;
+   align-items: center;
+}
+
+/* coloca o botão 'Sair' antes dos outros botões dentro da área de ações
+   e adiciona um pequeno deslocamento para a esquerda (visual) */
+#btn-logout {
+   order: -1;
+   /* aparece antes dos outros botões no bloco de ações */
+   margin-right: var(--logout-offset);
+}
+
+/* caso o botão + Nova precise estar sempre à direita */
+#btn-new {
+   order: 0;
+}
+
+.btn-add-task {
+   background: #365562;
+   /* cor solicitada */
+   color: #fff;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+   padding: 12px 20px;
+   /* ~+15% */
+   border: 0;
+   border-radius: var(--radius);
+   display: flex;
+   align-items: center;
+   gap: 16px;
+   order: 1;
+   cursor: pointer;
+   font-size: 18px;
+   /* ~+15% */
+}
+
+/* pequenas garantias responsivas: mantém o nav central em telas menores */
+@media (max-width: 900px) {
+   .header-inner {
+      grid-template-columns: auto 1fr auto;
+   }
+
+   .header-inner>nav {
+      justify-self: center;
+   }
+}
+
+* {
+   box-sizing: border-box
+}
+
+html,
+body,
+#app {
+   margin: 0;
+
+   color: var(--text)
+}
+
+/* ===== Novo HERO moderno ===== */
+.app-hero {
+   position: relative;
+   background: linear-gradient(180deg, #fff 0%, #fff 60%, rgba(54, 85, 98, 0.04) 100%);
+   padding: clamp(24px, 4vw, 40px) 16px 80px;
+}
+
+.hero-inner {
+   max-width: var(--content-max);
+   margin: 0 auto;
+   display: grid;
+   grid-template-columns: 1.1fr .9fr;
+   align-items: center;
+   gap: clamp(10px, 4vw, 26px);
+}
+
+.brand {
+   display: flex;
+   align-items: center;
+   gap: 14px;
+}
+
+.brand-logo {
+   height: 58px;
+   width: auto;
+}
+
+.brand-text h1 {
+   font-size: clamp(28px, 3.2vw, 44px);
+   margin: 0;
+   color: #20343a;
+}
+
+.brand-text .tagline {
+   margin: .4rem 0 0 0;
+   color: #5a6a71;
+}
+
+.hero-cta {
+   display: flex;
+   gap: 10px;
+   margin-top: 14px;
+}
+
+.hero-art {
+   position: relative;
+   min-height: 240px;
+}
+
+.hero-blob {
+   position: absolute;
+   right: -6%;
+   top: -10%;
+   width: min(560px, 48vw);
+   filter: drop-shadow(0 28px 60px rgba(0, 0, 0, .08));
+}
+
+.hero-person {
+   position: relative;
+   z-index: 1;
+   width: min(360px, 34vw);
+   border-radius: 16px;
+   box-shadow: 0 20px 50px rgba(0, 0, 0, .12);
+}
+
+/* ===== Nav flutuante em pílula ===== */
+.pill-nav {
+   position: sticky;
+   top: 10px;
+   z-index: 9999;
+   max-width: min(980px, 88vw);
+   margin: -40px auto 0;
+   /* flutua abaixo do hero sem encostar */
+   display: grid;
+   grid-template-columns: auto 1fr auto;
+   align-items: center;
+   gap: 10px;
+   background: rgba(255, 255, 255, .86);
+   backdrop-filter: saturate(140%) blur(8px);
+   border: 1px solid rgba(0, 0, 0, .06);
+   box-shadow: 0 14px 40px rgba(31, 36, 41, .10);
+   padding: 10px 12px;
+   border-radius: 999px;
+   /* 100% arredondada */
+}
+
+.pill-nav-main {
+   display: flex;
+   justify-content: center;
+   gap: 10px;
+}
+
+.pill-nav .nav-btn {
+   color: #20343a !important;
+   padding: 10px 14px;
+   font-size: 16px;
+   border-radius: 999px;
+}
+
+.pill-nav .nav-btn.active {
+   background: #20343a10 !important;
+   text-decoration: none;
+   font-weight: 700;
+}
+
+.pill-actions {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+}
+
+@media (max-width: 900px) {
+   .hero-inner {
+      grid-template-columns: 1fr;
+   }
+
+   .hero-person {
+      width: 56vw;
+   }
+
+   .pill-nav {
+      grid-template-columns: auto 1fr auto;
+   }
+}
+
+/* Nova estrutura do header em 3 faixas */
+.header-top {
+   background: #C29D67;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 12px 16px;
+}
+
+.header-top .logo {
+   height: 88px;
+   /* ~10% maior que 80px anterior */
+}
+
+#accent-bar {
+   height: 20px;
+   background: #365562;
+}
+
+.nav-bar {
+   background: #2C2C2C;
+   color: #fff;
+   position: relative;
+}
+
+.nav-bar-inner {
+   max-width: var(--content-max);
+   margin: 0 auto;
+   display: grid;
+   grid-template-columns: 1fr auto 1fr;
+   grid-template-areas: 'left center right';
+   /* centro real */
+   align-items: center;
+   gap: 12px;
+   padding: 10px 16px;
+   /* altura uniforme */
+   position: relative;
+   /* permite centralização absoluta do menu */
+}
+
+/* ===== Navegação mobile (hambúrguer) ===== */
+.nav-menu-btn {
+   display: none;
+   /* só aparece no mobile */
+   background: transparent;
+   border: 0;
+   color: #fff;
+   padding: 6px 8px;
+   line-height: 1;
+   align-items: center;
+   justify-content: center;
+   grid-area: left;
+}
+
+.nav-menu-btn .material-symbols-outlined {
+   font-size: 28px;
+   color: #fff;
+}
+
+.mobile-menu {
+   position: absolute;
+   left: 0;
+   right: 0;
+   top: 100%;
+   /* logo abaixo da .nav-bar */
+   background: #2C2C2C;
+   border-top: 1px solid rgba(255, 255, 255, 0.08);
+   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+   z-index: 11000;
+}
+
+.mobile-menu-inner {
+   max-width: var(--content-max);
+   margin: 0 auto;
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+   padding: 10px 16px 14px;
+}
+
+.mobile-menu .nav-btn {
+   color: #fff !important;
+   text-align: left;
+   font-size: 18px;
+   padding: 10px 4px;
+}
+
+.mobile-actions {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   padding-top: 8px;
+   border-top: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+/* Breakpoint: abaixo de 900px mostra hambúrguer e esconde nav desktop */
+@media (max-width: 900px) {
+   .nav-main {
+      display: none;
+   }
+
+   /* mantém o contêiner .nav-actions para ancorar o painel de notificações */
+   .nav-actions {
+      display: block;
+      position: relative;
+      grid-area: right;
+   }
+
+   .nav-actions> :not(#notif-panel) {
+      display: none;
+   }
+
+   .nav-menu-btn {
+      display: inline-flex;
+   }
+}
+
+.nav-spacer-left {
+   min-width: 10px
+}
+
+.nav-main {
+   display: flex;
+   gap: 18px;
+   justify-self: center;
+   grid-area: center;
+}
+
+.nav-main .nav-btn {
+   color: #fff !important;
+   font-size: 18px;
+   padding: 6px 10px;
+   line-height: 1;
+}
+
+.nav-main .nav-btn:hover {
+   color: #fff !important;
+}
+
+.nav-main .nav-btn.active {
+   color: #fff !important;
+   text-decoration: underline;
+   text-underline-offset: 6px;
+}
+
+.nav-actions {
+   display: flex;
+   gap: 10px;
+   align-items: center;
+   position: relative;
+   justify-self: end;
+   grid-area: right;
+}
+
+.nav-actions .welcome {
+   color: #fff;
+   margin-right: 8px;
+}
+
+.nav-actions .notif-bell {
+   display: flex;
+   align-items: center;
+   line-height: 1;
+}
+
+.nav-actions .btnlogout {
+   padding: 8px 16px;
+   font-size: 16px;
+}
+
+.notif-bell .material-symbols-outlined {
+   color: #fff;
+}
+
+.header .logo {
+   height: 80px;
+   padding-left: 5vw;
+}
+
+nav {
+   background: transparent !important;
+   display: flex;
+   gap: 12px;
+   align-items: center;
+}
+
+/* ===== Notificações (header) ===== */
+.notif-bell {
+   position: relative;
+   font-size: 20px;
+   line-height: 1;
+}
+
+.notif-badge {
+   position: absolute;
+   top: -4px;
+   right: -4px;
+   background: var(--danger);
+   color: #fff;
+   border-radius: 10px;
+   padding: 0 6px;
+   font-size: 11px;
+}
+
+/* Ícone Material monocromático */
+.notif-bell .material-symbols-outlined {
+   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+   color: #fff;
+   /* ícone branco no fundo escuro */
+   vertical-align: middle;
+}
+
+.notif-panel {
+   position: absolute;
+   top: 36px;
+   right: 0;
+   /* ancorado à direita, abaixo do sino agora na direita */
+   /* antes do botão sair */
+   width: 320px;
+   max-height: 60vh;
+   overflow: auto;
+   background: #fff;
+   color: var(--text);
+   border: 1px solid rgba(0, 0, 0, .06);
+   border-radius: 10px;
+   box-shadow: 0 16px 40px rgba(0, 0, 0, .16);
+   z-index: 11000;
+}
+
+.notif-head {
+   padding: 10px 12px;
+   font-weight: 700;
+   background: #365562;
+   color: #fff;
+   border-top-left-radius: 10px;
+   border-top-right-radius: 10px;
+}
+
+.notif-list {
+   padding: 8px 10px;
+}
+
+.notif-item {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   background: #fff;
+   border: 1px solid rgba(0, 0, 0, .04);
+   border-radius: 8px;
+   padding: 8px;
+   margin-bottom: 8px;
+}
+
+.notif-item .dot {
+   width: 10px;
+   height: 10px;
+   border-radius: 50%;
+}
+
+.notif-item .body .title {
+   font-weight: 700;
+}
+
+.notif-footer {
+   display: flex;
+   justify-content: flex-end;
+   padding: 8px 10px 10px 10px;
+}
+
+.nav-btn {
+   background: transparent !important;
+   color: var(--text) !important;
+   border: 0;
+   padding: 6px 8px;
+   border-radius: 6px;
+   font-weight: 600;
+   font-size: 22px;
+   box-shadow: none !important;
+   transform: none !important;
+}
+
+/* hover leve sem fundo */
+.nav-btn:hover {
+   background: transparent !important;
+   color: var(--text) !important;
+   text-decoration: none;
+   box-shadow: none !important;
+   transform: none !important;
+   opacity: 0.95;
+}
+
+/* estado ativo discreto: sublinhado + negrito */
+.nav-btn.active {
+   background: transparent !important;
+   color: var(--text) !important;
+   font-weight: 700;
+   text-decoration: underline;
+   text-underline-offset: 6px;
+   box-shadow: none !important;
+}
+
+/* (substituído acima pela nova seção) */
+
+main {
+   padding: 24px 24px;
+   max-width: var(--content-max);
+   margin: 24px 50px;
+   background: var(--bg);
+   border-radius: var(--radius);
+   will-change: transform, opacity;
+}
+
+/* Títulos das views (+20% vs h2 padrão ~1.5em => ~1.8em) */
+.view-title {
+   font-size: 1.8em;
+   margin: 0 0 10px 0;
+}
+
+/* Seção do calendário alinhada ao container do calendário */
+.cal-section {
+   max-width: 1088px;
+   margin: 0 auto;
+   padding-left: 0;
+   padding-right: 0;
+}
+
+.card {
+   background: var(--panel);
+   padding: 12px;
+   border-radius: 10px;
+   box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
+   display: flex;
+   flex-direction: column;
+   min-height: 220px;
+   height: 100%;
+}
+
+/* layout robusto para cards */
+.card-head {
+   display: flex;
+   align-items: flex-start;
+   justify-content: space-between;
+   gap: 12px;
+}
+
+.card-title-wrap {
+   min-width: 0;
+   /* permite truncar filhos */
+   flex: 1 1 auto;
+}
+
+.card-title {
+   font-weight: 700;
+   font-size: 18px;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+.card-desc {
+   margin-top: 4px;
+   display: -webkit-box;
+   line-clamp: 2;
+   /* fallback */
+   -webkit-line-clamp: 2;
+   -webkit-box-orient: vertical;
+   overflow: hidden;
+   max-height: 3.2em;
+   /* aprox 2 linhas */
+}
+
+.card-kpi {
+   text-align: right;
+   min-width: 84px;
+}
+
+.card-kpi .kpi-value {
+   margin-top: 0;
+   /* sem deslocamento vertical */
+   color: #C29D67;
+   /* marrom/accent */
+}
+
+.card-dates {
+   min-height: 38px;
+   /* reserva espaço para 2 linhas (aprox) */
+   white-space: normal;
+}
+
+.card-actions {
+   display: flex;
+   flex-wrap: nowrap;
+   gap: 8px;
+   margin-top: auto;
+   /* fixa as ações no rodapé do card */
+}
+
+.card-actions .btn {
+   white-space: nowrap;
+   /* evita quebra de linha nos botões */
+}
+
+.link-view-details {
+   background: transparent;
+   border: 0;
+   color: #C29D67;
+   padding: 0;
+   margin-top: 8px;
+   cursor: pointer;
+   font-weight: 600;
+   text-decoration: underline;
+   text-underline-offset: 3px;
+}
+
+.link-view-details:hover {
+   filter: brightness(.9);
+}
+
+.btn {
+   padding: 6px 16px;
+   border-radius: 8px;
+   border: 0;
+   cursor: pointer;
+   font-size: 18px;
+}
+
+.btnlogout {
+   background: var(--danger);
+   font-weight: 600;
+   padding: 8px 22px;
+   border-radius: 8px;
+   font-size: 18px;
+   border: 0;
+   color: #fff;
+   cursor: pointer;
+}
+
+.btn-primary {
+   background: var(--accent);
+   color: #fff
+}
+
+.btn-danger {
+   background: var(--danger);
+   color: #fff;
+}
+
+.btn-danger:hover {
+   filter: brightness(.95);
+}
+
+/* Danger buttons (excluir, ações destrutivas) */
+.btn-danger,
+.btn[data-del],
+.btn[data-action="delete"],
+.btn[data-role="danger"],
+button[data-del],
+button[data-action="delete"] {
+   background: var(--danger) !important;
+   color: #fff !important;
+}
+
+.btn-danger:hover,
+.btn[data-del]:hover,
+.btn[data-action="delete"]:hover,
+.btn[data-role="danger"]:hover,
+button[data-del]:hover,
+button[data-action="delete"]:hover {
+   filter: brightness(.95);
+}
+
+/* Ações destrutivas nos cadernos/páginas (ícones fantasmas) */
+.nb-action-delete,
+.page-action-delete {
+   color: var(--danger) !important;
+}
+
+.nb-action-delete:hover,
+.page-action-delete:hover {
+   filter: brightness(.95);
+}
+
+.grid {
+   display: grid;
+   gap: 12px
+}
+
+.cards-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+   gap: 2vw;
+   margin-left: 0;
+   margin-right: 0;
+}
+
+.center {
+   display: flex;
+   align-items: center;
+   justify-content: center
+}
+
+.auth-card {
+   max-width: 420px;
+   margin: 48px auto;
+   padding: 20px;
+   border-radius: 10px;
+   background: #fff;
+   box-shadow: 0 8px 30px rgba(0, 0, 0, .05)
+}
+
+/* Ajuste: .small com font-size 14px (sobrescreve ocorrências anteriores) */
+.small {
+   font-size: 16px;
+   color: var(--muted);
+}
+
+.placeholder {
+   min-height: 220px;
+   border-radius: 10px;
+   background: #fff;
+   box-shadow: 0 8px 30px rgba(0, 0, 0, .04);
+   padding: 16px
+}
+
+/* Modal / overlay */
+.overlay {
+   position: fixed;
+   inset: 0;
+   background: rgba(0, 0, 0, .45);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   backdrop-filter: blur(3px);
+   z-index: 12000;
+   /* acima do header/notificações */
+}
+
+.hidden {
+   display: none
+}
+
+.modal {
+   width: min(720px, calc(100vw - 10vw));
+   /* mais larga */
+   background: var(--panel);
+   border-radius: 12px;
+   box-shadow: 0 18px 48px rgba(0, 0, 0, .28);
+   max-height: 88vh;
+   /* mais alta para não esconder botões */
+   display: flex;
+   flex-direction: column;
+   padding: 0;
+   /* sem padding no container para a barra ocupar 100% */
+   overflow: hidden;
+   /* garante cantos arredondados coloridos na barra */
+   margin-left: 5vw;
+   margin-right: 5vw;
+}
+
+.modal-header {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   border-bottom: 1px solid rgba(0, 0, 0, .04);
+   padding: 12px 16px;
+   /* estilo barra do Windows */
+   background: #365562;
+   /* azul barra */
+   color: #fff;
+   border-top-left-radius: 12px;
+   border-top-right-radius: 12px;
+}
+
+.modal-body {
+   padding: 16px 18px;
+   overflow: auto;
+   max-height: calc(88vh - 56px - 52px);
+   /* header e footer aproximados */
+}
+
+.modal-footer {
+   display: flex;
+   justify-content: flex-end;
+   gap: 8px;
+   padding: 8px 4px;
+   border-top: 1px solid rgba(0, 0, 0, .04)
+}
+
+.btn-ghost {
+   background: transparent;
+   border: 0;
+   padding: 6px 8px;
+   cursor: pointer
+}
+
+label {
+   display: block;
+   margin: 8px 0;
+   font-size: 14px
+}
+
+/* inputs e textarea (substitui o bloco anterior) */
+input[type="text"],
+input[type="date"],
+input[type="email"],
+input[type="password"],
+textarea {
+   width: 100%;
+   padding: 8px;
+   border: 1px solid rgba(0, 0, 0, .08);
+   border-radius: 6px;
+   background: #fff;
+   font-size: 14px;
+   box-sizing: border-box;
+   display: block;
+}
+
+/* Bloquear/limitar tamanho da textarea */
+textarea {
+   min-height: 80px;
+   /* altura mínima */
+   max-height: 140px;
+   /* altura máxima */
+   overflow: auto;
+   /* scroll interno se exceder */
+   resize: vertical;
+   /* permite apenas redimensionar verticalmente, respeitando max-height */
+   margin: 0;
+   /* evita desalinhamentos por margens */
+}
+
+/* se precisar pro modal especificamente (força consistência) */
+.modal-body textarea {
+   max-height: 140px;
+   min-height: 80px;
+   overflow: auto;
+   resize: vertical;
+}
+
+.row {
+   display: flex;
+   gap: 8px
+}
+
+.field {
+   margin-top: 8px
+}
+
+/* Título do modal: ajuste aplicado para o id usado no HTML (#tm-title) e h3 padrão */
+.modal-header h3,
+#tm-title {
+   color: #ffffff;
+   font-size: 20px;
+   /* menor e consistente */
+   font-weight: 700;
+   margin: 0;
+   line-height: 1.2;
+   padding: 4px 15px;
+   letter-spacing: 0.2px;
+}
+
+.palette {
+   display: flex;
+   gap: 8px;
+   flex-wrap: wrap;
+   margin-top: 8px
+}
+
+.palette button {
+   width: 34px;
+   height: 28px;
+   border-radius: 6px;
+   border: 2px solid transparent;
+   cursor: pointer;
+}
+
+.palette button.active {
+   outline: 3px solid rgba(255, 255, 255, .6);
+   box-shadow: 0 2px 8px rgba(0, 0, 0, .12)
+}
+
+.subtasks-list {
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+   margin-top: 8px
+}
+
+.subtask-line {
+   display: flex;
+   gap: 8px;
+   align-items: center
+}
+
+.subtask-line input[type="text"] {
+   flex: 1;
+   padding: 6px
+}
+
+.small {
+   font-size: 12px;
+   color: var(--muted)
+}
+
+/* Animações sutis nos botões */
+.btn,
+.nav-btn,
+.btn-ghost,
+.btn-primary,
+.btnlogout,
+.btn-add-task {
+   transition: transform .16s cubic-bezier(.2, .9, .2, 1),
+      box-shadow .16s ease,
+      background-color .14s ease,
+      filter .14s ease,
+      opacity .12s ease;
+   will-change: transform, box-shadow;
+
+}
+
+.nav-btn {
+   font-size: 22px;
+}
+
+/* hover geral: leve elevação e sombra */
+.btn:hover,
+.btn-add-task,
+.nav-btn:hover,
+.btn-ghost:hover,
+.btn-primary:hover,
+.btnlogout:hover {
+   transform: translateY(-3px);
+   box-shadow: 0 8px 20px rgba(0, 0, 0, .08);
+}
+
+/* botão primário: escurece sutilmente mantendo variável */
+.btn-primary:hover {
+   filter: brightness(.95);
+}
+
+/* ghost: leve fundo ao passar o mouse */
+.btn-ghost:hover {
+   background: rgba(0, 0, 0, .04);
+}
+
+/* nav: fundo sutil (mantém contraste do header colorido) */
+.nav-btn,
+.btn-add-task:hover {
+   background: rgba(0, 0, 0, .0);
+   color: rgba(0, 0, 0, .0);
+   color: rgb(255, 255, 255);
+}
+
+/* estado pressionado: "apertar" */
+.btn:active,
+.nav-btn:active,
+.btn-ghost:active,
+.btn-primary:active,
+.btnlogout:active,
+.btn-add-task {
+   transform: translateY(0) scale(.995);
+   box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
+}
+
+/* foco acessível */
+.btn:focus,
+.nav-btn:focus,
+.btn-ghost:focus,
+.btn-primary:focus,
+.btnlogout:focus {
+   outline: 3px solid rgba(54, 85, 98, .18);
+   outline-offset: 3px;
+}
+
+/* pequenas animações para paleta de cores */
+.palette button {
+   transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.palette button:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 6px 14px rgba(0, 0, 0, .08);
+}
+
+/* (removidos estilos duplicados antigos do calendário) */
+
+/* Centraliza o main e ajusta espaço para header fixo */
+#main-content {
+   max-width: var(--content-max);
+   margin: 40px auto 120px;
+   padding: 24px;
+   box-sizing: border-box;
+}
+
+/* garante que a section interna ocupe 100% do container centralizado */
+#main-content>section {
+   width: 100%;
+   margin: 0 auto;
+}
+
+/* ===== Calendário (melhorias visuais) ===== */
+:root {
+   --project-blue: #365562;
+   /* identidade do projeto */
+   --cal-border: rgba(54, 85, 98, 0.08);
+   --cal-today-bg: rgba(54, 85, 98, 0.08);
+}
+
+/* container do calendário */
+.calendar {
+   max-width: 1088px;
+   /* ~+18% sobre 920px */
+   margin: 0 auto;
+   background: var(--panel);
+   border-radius: 12px;
+   padding: 28px;
+   /* leve aumento */
+   box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+   border: 1px solid rgba(0, 0, 0, .02);
+}
+
+/* header do calendário */
+.calendar .cal-header {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   margin-bottom: 12px;
+   background: #365562;
+   /* barra azul igual ao modal */
+   color: #fff;
+   padding: 10px 12px;
+   border-radius: 8px;
+}
+
+.calendar .cal-header .month-title {
+   font-weight: 800;
+   font-size: 28px;
+   /* ligeiramente maior */
+   color: #fff;
+   /* título branco */
+   padding: 6px 0;
+   text-transform: capitalize;
+   /* Agosto 2025 */
+}
+
+.calendar .cal-header .cal-controls button {
+   background: rgba(255, 255, 255, 0.12);
+   color: #fff;
+   border: 0;
+   padding: 6px 10px;
+   border-radius: 8px;
+   cursor: pointer;
+}
+
+.calendar .cal-header .cal-controls button:hover {
+   background: rgba(255, 255, 255, 0.22);
+}
+
+/* dias da semana */
+.calendar .cal-weekdays {
+   display: grid;
+   grid-template-columns: repeat(7, 1fr);
+   gap: 6px;
+   margin-bottom: 6px;
+}
+
+.calendar .cal-weekdays div {
+   text-align: center;
+   font-weight: 700;
+   font-size: 13px;
+   color: rgba(0, 0, 0, .6);
+   padding: 8px 6px;
+   border-bottom: 1px solid var(--cal-border);
+}
+
+/* grid com linhas visíveis */
+.calendar .cal-grid {
+   display: grid;
+   grid-template-columns: repeat(7, 1fr);
+   gap: 6px;
+}
+
+/* célula do dia com linhas e fundo branco */
+.cal-cell {
+   background: #fff;
+   min-height: 104px;
+   /* +15% */
+   padding: 12px;
+   border-radius: 8px;
+   border: 1px solid var(--cal-border);
+   display: flex;
+   flex-direction: column;
+   justify-content: space-between;
+   transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+   cursor: pointer;
+}
+
+.cal-cell.outside {
+   opacity: .4;
+   background: #fafafa;
+}
+
+.cal-cell:hover {
+   transform: translateY(-3px);
+   box-shadow: 0 10px 20px rgba(0, 0, 0, .06);
+}
+
+/* número do dia e destaque hoje */
+.cal-cell .day-num {
+   font-weight: 700;
+   font-size: 15px;
+   color: var(--text)
+}
+
+.cal-cell.today {
+   background: var(--cal-today-bg);
+   border-color: rgba(54, 85, 98, .18);
+}
+
+/* marcadores de tarefas (círculos) */
+.cal-cell .markers {
+   display: flex;
+   gap: 6px;
+   align-items: center;
+   flex-wrap: wrap;
+   margin-top: 6px
+}
+
+.marker {
+   width: 10px;
+   height: 10px;
+   border-radius: 50%;
+   box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
+   border: 2px solid rgba(255, 255, 255, .9);
+}
+
+.marker.count {
+   padding: 4px 8px;
+   border-radius: 12px;
+   font-size: 12px;
+   background: rgba(0, 0, 0, .06);
+   width: auto;
+   height: auto;
+}
+
+/* célula ativa selecionada */
+.cal-cell.active {
+   outline: 2px solid rgba(54, 85, 98, .12);
+   box-shadow: 0 12px 28px rgba(54, 85, 98, .06);
+}
+
+/* lista dentro do modal do dia */
+#day-modal-list .task-row {
+   padding: 10px;
+   border-radius: 8px;
+   background: #fff;
+   border: 1px solid rgba(0, 0, 0, .04);
+   display: flex;
+   justify-content: space-between;
+   gap: 12px;
+   align-items: center;
+   margin-bottom: 8px;
+}
+
+#day-modal-list .task-row .meta {
+   color: var(--muted);
+   font-size: 13px;
+}
+
+#day-modal-list .task-row .title {
+   font-weight: 600;
+}
+
+/* melhoria responsiva para o calendário */
+@media (max-width:720px) {
+   .calendar {
+      padding: 8px;
+   }
+
+   .cal-cell {
+      min-height: 72px;
+      padding: 8px
+   }
+
+   .calendar .cal-weekdays div {
+      font-size: 12px;
+      padding: 6px 4px
+   }
+}
+
+/* ===== Dashboard simples ===== */
+.dashboard {
+   max-width: 1100px;
+   margin: 0 auto;
+   display: grid;
+   grid-template-columns: 1fr 320px;
+   gap: 18px;
+   align-items: start;
+}
+
+.dashboard .panel {
+   background: var(--panel);
+   border-radius: 10px;
+   padding: 16px;
+   box-shadow: 0 8px 24px rgba(0, 0, 0, .04);
+}
+
+/* Área de gráfico no dashboard */
+.chart-wrap {
+   width: 100%;
+   max-width: 760px;
+   background: #fff;
+   border: 1px solid rgba(0, 0, 0, .03);
+   border-radius: 10px;
+   padding: 12px;
+   box-shadow: 0 6px 18px rgba(0, 0, 0, .04);
+}
+
+.chart-wrap canvas {
+   width: 100%;
+   height: 260px;
+   display: block;
+}
+
+.dashboard .summary-grid {
+   display: flex;
+   gap: 12px;
+}
+
+.dashboard .summary-item {
+   flex: 1;
+   padding: 12px;
+   border-radius: 8px;
+   background: linear-gradient(180deg, rgba(54, 85, 98, .06), rgba(54, 85, 98, .02));
+   color: var(--text);
+}
+
+.kpi-value {
+   font-weight: 800;
+   font-size: 20px;
+   margin-top: 6px;
+}
+
+.upcoming-list {
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+   margin-top: 8px;
+}
+
+.progress-bar {
+   height: 10px;
+   background: #eee;
+   border-radius: 8px;
+   overflow: hidden;
+   margin-top: 8px;
+}
+
+.progress-bar>i {
+   display: block;
+   height: 100%;
+   background: var(--project-blue);
+   width: 0%;
+}
+
+/* --- Estilos organizados para Cadernos / Notebooks --- */
+
+.notebooks-wrap {
+   display: grid;
+   grid-template-columns: 320px 1fr;
+   gap: 18px;
+   max-width: 1200px;
+   margin: 18px auto;
+   align-items: stretch;
+   /* equaliza alturas das colunas */
+   padding: 8px 12px;
+   box-sizing: border-box;
+}
+
+/* H2 Cadernos posicionado acima das duas colunas e alinhado ao sidebar */
+.notebooks-wrap>.nb-heading {
+   grid-column: 1 / -1;
+}
+
+/* Sidebar */
+.nb-sidebar {
+   width: 100%;
+   background: #ffffff;
+   border-radius: 12px;
+   padding: 16px;
+   box-shadow: 0 6px 18px rgba(31, 36, 41, 0.06);
+   border: 1px solid rgba(0, 0, 0, 0.03);
+   box-sizing: border-box;
+   min-height: 560px;
+}
+
+.nb-sidebar-header {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 8px;
+   margin-bottom: 12px;
+}
+
+/* Título Cadernos alinhado ao sidebar */
+.nb-heading {
+   /* Segue o estilo das outras páginas via .view-title; mantém apenas o espaçamento */
+   margin: 0 0 10px 0;
+}
+
+.nb-list {
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+}
+
+.nb-item {
+   background: #fbfbfb;
+   padding: 10px;
+   border-radius: 8px;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   border: 1px solid rgba(0, 0, 0, 0.03);
+   transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.nb-item:hover {
+   transform: translateY(-3px);
+   box-shadow: 0 8px 18px rgba(31, 36, 41, 0.06);
+}
+
+.nb-name {
+   font-weight: 600;
+   color: #2b3a3f;
+   font-size: 18px;
+   /* +20% */
+   line-height: 1.1;
+}
+
+.nb-count {
+   color: #7a8790;
+   font-size: 14px;
+   /* +~20% */
+   margin-top: 6px;
+}
+
+/* Main editor area */
+.nb-main {
+   flex: 1;
+   min-height: 560px;
+}
+
+.nb-editor {
+   background: #fff;
+   padding: 16px;
+   border-radius: 12px;
+   border: 1px solid rgba(0, 0, 0, 0.03);
+   box-shadow: 0 8px 22px rgba(31, 36, 41, 0.04);
+   box-sizing: border-box;
+   min-height: 560px;
+   /* igual ao sidebar */
+}
+
+/* Header inside editor */
+.nb-editor-header {
+   display: grid;
+   grid-template-columns: 1fr auto;
+   align-items: end;
+   gap: 12px;
+   margin-bottom: 12px;
+}
+
+.nb-header-actions {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   flex-wrap: nowrap;
+}
+
+.nb-actions-group {
+   display: flex;
+   gap: 8px;
+   align-items: center;
+}
+
+.nb-actions-sep {
+   width: 1px;
+   height: 28px;
+   background: var(--muted, #eee);
+   border-radius: 2px;
+   margin: 0 6px;
+}
+
+.nb-head-titles {
+   display: flex;
+   flex-direction: column;
+}
+
+/* Input inline de renomear (caderno/abas) */
+.nb-inline-input {
+   font: inherit;
+   color: inherit;
+   padding: 4px 6px;
+   border: 1px solid rgba(0, 0, 0, 0.12);
+   border-radius: 6px;
+   background: #fff;
+}
+
+.nb-title {
+   font-size: 24px;
+   /* +20% */
+   font-weight: 700;
+   color: #20343a;
+}
+
+.nb-subtitle {
+   color: #6e7a80;
+   font-size: 15px;
+   /* +~20% */
+   margin-top: 4px;
+}
+
+/* Pages bar (abas) */
+.pages-bar {
+   display: flex;
+   gap: 10px;
+   padding: 8px 4px;
+   align-items: center;
+   overflow-x: auto;
+   margin-bottom: 12px;
+}
+
+.page-tab {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   padding: 10px 14px;
+   border-radius: 8px;
+   min-width: 120px;
+   background: #ffffff;
+   cursor: pointer;
+   box-shadow: 0 6px 14px rgba(31, 36, 41, 0.04);
+   border: 1px solid rgba(0, 0, 0, 0.03);
+   transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.page-tab:hover {
+   transform: translateY(-3px);
+   box-shadow: 0 10px 26px rgba(31, 36, 41, 0.06);
+}
+
+.page-tab.active {
+   box-shadow: 0 12px 30px rgba(31, 36, 41, 0.08);
+   transform: translateY(-4px);
+   border-color: rgba(0, 0, 0, 0.06);
+}
+
+.page-tab .page-title {
+   font-weight: 600;
+   color: #20343a;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   font-size: 16px;
+   /* +~20% */
+}
+
+/* Add button in pages bar */
+.pages-bar>button {
+   background: #f6f7f8;
+   border: 1px dashed rgba(0, 0, 0, 0.04);
+   padding: 8px 10px;
+   border-radius: 8px;
+   cursor: pointer;
+}
+
+/* Editor toolbar */
+.editor-wrapper {
+   margin-top: 6px;
+}
+
+.editor-toolbar {
+   display: flex;
+   gap: 8px;
+   align-items: center;
+   padding: 8px;
+   background: #fbfbfb;
+   border-radius: 8px;
+   border: 1px solid rgba(0, 0, 0, 0.03);
+   margin-bottom: 10px;
+}
+
+.editor-toolbar button {
+   background: transparent;
+   font-size: 16px;
+   /* +~20% */
+   padding: 6px 8px;
+   border-radius: 6px;
+   cursor: pointer;
+   color: #43535a;
+   font-weight: 600;
+}
+
+.editor-toolbar button:hover {
+   background: rgba(0, 0, 0, 0.03);
+}
+
+/* Editor area */
+.editor-area {
+   min-height: 600px;
+   max-height: 66vh;
+   background: #F6E7CC;
+   padding: 18px;
+   border-radius: 8px;
+   border: 1px solid rgba(0, 0, 0, 0.04);
+   overflow: auto;
+   box-sizing: border-box;
+   color: #2f3237;
+   line-height: 1.6;
+   font-size: 18px;
+   /* +20% */
+}
+
+.editor-area:focus {
+   outline: 3px solid rgba(54, 85, 98, 0.06);
+}
+
+/* Footer / meta */
+.editor-footer {
+   margin-top: 10px;
+   color: #7b888f;
+   font-size: 15px;
+   /* +~20% */
+}
+
+/* Modal overlay */
+#nb-tab-modal-overlay.overlay {
+   font-size: 16px;
+   /* +~20% */
+   inset: 0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   background: rgba(12, 16, 18, 0.36);
+   z-index: 1200;
+}
+
+#nb-tab-modal-overlay .modal {
+   background: #fff;
+   width: 100%;
+   max-width: 520px;
+   border-radius: 10px;
+   padding: 14px;
+   box-shadow: 0 18px 48px rgba(18, 22, 25, 0.3);
+   border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+#nb-tab-modal-overlay .modal-header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: 8px;
+}
+
+#nb-tab-modal-overlay .modal-body {
+   padding: 6px 0 12px 0;
+}
+
+#nb-tab-modal-overlay .modal-footer {
+   display: flex;
+   justify-content: flex-end;
+   gap: 8px;
+   padding-top: 6px;
+}
+
+/* Color swatches */
+.color-swatch {
+   width: 34px;
+   height: 26px;
+   border-radius: 6px;
+   border: 2px solid rgba(0, 0, 0, 0.06);
+   cursor: pointer;
+   box-sizing: border-box;
+}
+
+.color-swatch.active {
+   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+   transform: translateY(-3px);
+   border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Editable title inline */
+.nb-name[contenteditable="true"] {
+   outline: 2px dashed rgba(54, 85, 98, 0.12);
+   padding: 4px 6px;
+   border-radius: 6px;
+   background: #fff;
+}
+
+/* small responsive tweaks */
+@media (max-width:1000px) {
+   .notebooks-wrap {
+      display: block;
+      gap: 12px;
+      padding: 12px;
+   }
+
+   .nb-sidebar {
+      width: 100%;
+      height: auto;
+      max-height: none;
+   }
+
+   .nb-editor {
+      min-height: 420px;
+   }
+
+   .pages-bar {
+      flex-wrap: wrap;
+   }
+}
+
+/* utilities to hide/show modal */
+.hidden {
+   display: none !important;
+}
+
+/* Snackbars / confirm / prompt */
+#pv-snackbar-container {
+   pointer-events: none;
+}
+
+.pv-snack {
+   pointer-events: auto;
+   transition: opacity .24s ease, transform .18s ease;
+}
+
+.pv-confirm-overlay button,
+.pv-prompt-overlay button {
+   cursor: pointer;
+   border: 0;
+}
+
+/* deixar delete das abas discreto */
+.page-action-delete {
+   opacity: .6;
+   border: 0;
+   background: transparent;
+   padding: 4px 6px;
+}
+
+.page-action-delete:hover {
+   opacity: 1;
+   transform: translateY(-2px);
+}
+
+/* reforço para header visível */
+.header {
+   position: sticky;
+   top: 0;
+   z-index: 9999;
+}
+
+/* header-inner antigo não é mais usado para layout do header */
+
+#main-content {
+   margin-top: 60px;
+}
+
+/* header e logo */
+.app-header {
+   position: sticky;
+   top: 0;
+   z-index: 9999;
+   background: var(--bg, #fff);
+   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+}
+
+.app-logo {
+   display: block;
+   height: 36px;
+   width: auto;
+}
+
+/* ajustar conteúdo principal caso precise */
+.notebooks-wrap {
+   margin-top: 0;
+}
+
+/* Footer */
+.app-footer {
+   position: static;
+   /* não flutua sobre o conteúdo */
+   z-index: 10;
+   background: rgba(32, 52, 58, 0.04);
+   border-top: 1px solid rgba(0, 0, 0, 0.03);
+   padding: 12px 16px;
+   margin-top: 24px;
+   /* separação do conteúdo principal */
+   height: auto;
+   /* remove altura em vw que causava sobreposição */
+}
+
+/* aumentar espaço inferior do main para comportar o rodapé */
+#main-content {
+   max-width: var(--content-max);
+   margin: 60px auto 140px;
+   /* margem inferior suficiente para o footer */
+   padding: 24px;
+   box-sizing: border-box;
+   position: relative;
+   /* necessário para animar conteúdo interno */
+}
+
+/* responsividade */
+@media (max-width: 720px) {
+   .app-footer-inner {
+      flex-direction: column;
+      gap: 6px;
+      text-align: center;
+      padding: 6px 0;
+   }
+}
+
+/* ===== CÓDIGO DE ANIMAÇÃO DE PÁGINA (ADICIONAR NO FINAL) ===== */
+
+@keyframes view-slide-in {
+   from {
+      opacity: 0;
+      transform: translateX(-20px);
+   }
+
+   to {
+      opacity: 1;
+      transform: translateX(0);
+   }
+}
+
+@keyframes view-slide-out {
+   from {
+      opacity: 1;
+      transform: translateX(0);
+   }
+
+   to {
+      opacity: 0;
+      transform: translateX(20px);
+   }
+}
+
+/* Contêiner para o conteúdo carregado dinamicamente */
+.view-container {
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   animation-duration: 0.3s;
+   animation-fill-mode: forwards;
+   animation-timing-function: ease-in-out;
+}
+
+.view-container.slide-in {
+   animation-name: view-slide-in;
+}
+
+.view-container.slide-out {
+   animation-name: view-slide-out;
+}
+
+/* Animação aplicada diretamente em #main-content para simplicidade */
+@keyframes page-out-kf {
+   from {
+      opacity: 1;
+      transform: translateY(0)
+   }
+
+   to {
+      opacity: 0;
+      transform: translateY(6px)
+   }
+}
+
+@keyframes page-in-kf {
+   from {
+      opacity: 0;
+      transform: translateY(6px)
+   }
+
+   to {
+      opacity: 1;
+      transform: translateY(0)
+   }
+}
+
+#main-content.page-out {
+   animation: page-out-kf .18s ease both
+}
+
+#main-content.page-in {
+   animation: page-in-kf .26s ease both
+}
+
+/* Botão Google centralizado no login */
+#google-btn>div {
+   /* container criado pelo GIS */
+   filter: drop-shadow(0 6px 16px rgba(0, 0, 0, .06));
+}
+
+/* ===== Menu de usuário (avatar) ===== */
+.user-menu-wrap {
+   position: relative;
+}
+
+.user-menu-wrap .avatar {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   width: 34px;
+   height: 34px;
+   border-radius: 50%;
+   color: #fff;
+}
+
+.user-menu {
+   position: absolute;
+   right: 0;
+   top: 36px;
+   background: #fff;
+   color: var(--text);
+   border: 1px solid rgba(0, 0, 0, 0.08);
+   border-radius: 10px;
+   min-width: 220px;
+   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+   z-index: 12000;
+}
+
+.user-menu.hidden {
+   display: none;
+}
+
+.user-menu-head {
+   padding: 8px 12px;
+   color: #666;
+   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.user-menu-item {
+   display: block;
+   width: 100%;
+   text-align: left;
+   padding: 10px 12px;
+   background: transparent;
+   border: 0;
+   cursor: pointer;
+   font-size: 14px;
+   color: var(--text);
+}
+
+.user-menu-item:hover {
+   background: #f7f7f7;
+}
+
+.user-menu-item.danger {
+   color: #c62828;
+}

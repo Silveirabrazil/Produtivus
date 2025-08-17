@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Produtivus — Protótipo</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/tour.css">
+  <!-- Google Icons (Material Symbols Outlined) -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+  <!-- preload da logo para evitar "flash" -->
+  <link rel="preload" href="img/image.png" as="image">
+  <link rel="icon" href="img/image.png" type="image/png">
+  <link rel="apple-touch-icon" href="img/image.png">
+</head>
+<body>
+  <div id="app">
+    <div id="header-container"></div>
+    <main id="main-content"></main>
+  </div>
+
+  <!-- footer com copyright -->
+  <footer class="app-footer">
+    <div class="app-footer-inner" style="display: flex; justify-content: center;">
+      <span>© <span id="copyright-year"></span> Produtivus — Todos os direitos reservados.</span>
+    </div>
+  </footer>
+
+  <!-- =================================================================== -->
+  <!-- SUBSTITUA O MODAL ANTIGO POR ESTE CÓDIGO CORRIGIDO -->
+  <!-- =================================================================== -->
+  <div class="overlay hidden" id="task-modal-overlay">
+      <div class="modal">
+          <div class="modal-header">
+              <h3 id="tm-title">Nova Tarefa</h3>
+              <button class="btn-ghost" id="close-task-modal">✖</button>
+          </div>
+          <form id="task-form">
+              <div class="modal-body">
+                  <!-- Campo de Título -->
+                  <div class="field">
+                      <label for="task-title">Título da Tarefa</label>
+                      <input type="text" id="task-title" name="title" required>
+                  </div>
+
+                  <!-- Campo de Descrição -->
+                  <div class="field">
+                      <label for="task-desc">Descrição</label>
+                      <textarea id="task-desc" name="description" rows="3"></textarea>
+                  </div>
+
+          <!-- Campos de Datas -->
+          <div class="field">
+            <label for="task-start">Data de Início</label>
+            <input type="date" id="task-start" name="start">
+          </div>
+          <div class="field">
+            <label for="task-end">Data de Término</label>
+            <input type="date" id="task-end" name="end">
+          </div>
+
+                  <!-- Funcionalidade de Cores -->
+                  <div class="field">
+                      <label>Cor da Tarefa</label>
+                      <div class="palette" id="task-color-palette">
+                          <div class="palette-color" data-color="#4a90e2" style="background-color: #4a90e2;" title="Azul"></div>
+                          <div class="palette-color" data-color="#50e3c2" style="background-color: #50e3c2;" title="Verde"></div>
+                          <div class="palette-color" data-color="#f5a623" style="background-color: #f5a623;" title="Laranja"></div>
+                          <div class="palette-color" data-color="#e94e77" style="background-color: #e94e77;" title="Rosa"></div>
+                          <div class="palette-color" data-color="#9013fe" style="background-color: #9013fe;" title="Roxo"></div>
+                          <div class="palette-color" data-color="#777" style="background-color: #777;" title="Cinza"></div>
+                      </div>
+                      <input type="hidden" id="task-color" name="color">
+                  </div>
+
+          <!-- Subtarefas -->
+          <div class="field">
+            <label>Subtarefas</label>
+            <div id="task-subtasks" class="subtasks-list"></div>
+            <button type="button" id="task-add-sub" class="btn" style="margin-top:8px">+ Adicionar subtarefa</button>
+          </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary">Salvar Tarefa</button>
+              </div>
+          </form>
+      </div>
+  </div>
+
+  <!-- scripts: carregar ui-snackbar antes do notebooks e depois o app -->
+  <!-- Modal de Visualização de Tarefa (somente leitura) -->
+  <div class="overlay hidden" id="task-view-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tv-title">
+      <div class="modal-header">
+        <h3 id="tv-title">Detalhes da Tarefa</h3>
+        <button class="btn-ghost" id="close-task-view">✖</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Título</label>
+          <div id="tv-field-title" class="card-title"></div>
+        </div>
+        <div class="field">
+          <label>Descrição</label>
+          <div id="tv-field-desc" class="small"></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1">
+            <label>Início</label>
+            <div id="tv-field-start" class="small"></div>
+          </div>
+          <div class="field" style="flex:1">
+            <label>Término</label>
+            <div id="tv-field-end" class="small"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Cor</label>
+          <div id="tv-field-color" style="width:34px;height:18px;border-radius:6px;border:1px solid rgba(0,0,0,.1)"></div>
+        </div>
+        <div class="field">
+          <label>Progresso</label>
+          <div id="tv-field-progress" class="kpi-value"></div>
+        </div>
+        <div class="field">
+          <label>Subtarefas</label>
+          <ul id="tv-subtasks" style="list-style:none;padding:0;margin:6px 0;display:flex;flex-direction:column;gap:6px"></ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="tv-close-btn">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Lista de tarefas do dia -->
+  <div class="overlay hidden" id="day-modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="day-modal-title">
+      <div class="modal-header">
+        <h3 id="day-modal-title">Dia selecionado</h3>
+        <button class="btn-ghost" id="close-day-modal" aria-label="Fechar">✖</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px">
+          <div id="day-modal-summary" class="small"></div>
+          <button class="btn btn-primary" id="day-add-task">+ Adicionar tarefa</button>
+        </div>
+        <div id="day-modal-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Perfil do usuário -->
+  <div class="overlay hidden" id="account-modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="account-modal-title">
+      <div class="modal-header">
+        <h3 id="account-modal-title">Sua conta</h3>
+        <button class="btn-ghost" id="close-account-modal">✖</button>
+      </div>
+      <form id="account-form">
+        <div class="modal-body">
+          <div class="field">
+            <label for="acc-name">Nome</label>
+            <input id="acc-name" type="text" required />
+          </div>
+          <div class="field">
+            <label for="acc-email">E-mail</label>
+            <input id="acc-email" type="email" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" id="acc-cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="acc-save">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Alterar senha -->
+  <div class="overlay hidden" id="password-modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="password-modal-title">
+      <div class="modal-header">
+        <h3 id="password-modal-title">Alterar senha</h3>
+        <button class="btn-ghost" id="close-password-modal">✖</button>
+      </div>
+      <form id="password-form">
+        <div class="modal-body">
+          <div class="field">
+            <label for="pwd-current">Senha atual</label>
+            <input id="pwd-current" type="password" required />
+          </div>
+          <div class="field">
+            <label for="pwd-new">Nova senha (mínimo 8)</label>
+            <input id="pwd-new" type="password" minlength="8" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" id="pwd-cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="pwd-save">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Excluir conta -->
+  <div class="overlay hidden" id="delete-modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+      <div class="modal-header">
+        <h3 id="delete-modal-title">Excluir conta</h3>
+        <button class="btn-ghost" id="close-delete-modal">✖</button>
+      </div>
+      <form id="delete-form">
+        <div class="modal-body">
+          <p class="small" style="margin:8px 0 12px 0">Esta ação é permanente e irá remover suas tarefas, cadernos e páginas. Para confirmar, digite <b>DELETE</b> abaixo.</p>
+          <input id="delete-confirm" type="text" placeholder="Digite DELETE" required />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" id="delete-cancel">Cancelar</button>
+          <button type="submit" class="btn btn-danger" id="delete-confirm-btn">Excluir</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  
+
+  <script src="js/ui-snackbar.js"></script>
+  <script src="js/tour.js"></script>
+  <script src="js/notebooks.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
