@@ -1,0 +1,53 @@
+/* ========================= */
+/* DASHBOARD                 */
+/* ========================= */
+.dashboard {
+   max-width: 1100px;
+   margin: 0 auto;
+   display: grid;
+   grid-template-columns: 1fr 320px;
+   gap: 18px;
+   align-items: start;
+}
+.dashboard .panel {
+   background: var(--panel);
+   border-radius: 10px;
+   padding: 16px;
+   box-shadow: 0 8px 24px rgba(0, 0, 0, .04);
+}
+
+.dashboard .summary-grid {
+   display: flex;
+   gap: 12px;
+}
+.dashboard .summary-item {
+   flex: 1;
+   padding: 12px;
+   border-radius: 8px;
+   background: linear-gradient(180deg, rgba(54, 85, 98, .06), rgba(54, 85, 98, .02));
+   color: var(--text);
+}
+.kpi-value {
+   font-weight: 800;
+   font-size: 20px;
+   margin-top: 6px;
+}
+.upcoming-list {
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+   margin-top: 8px;
+}
+.progress-bar {
+   height: 10px;
+   background: #eee;
+   border-radius: 8px;
+   overflow: hidden;
+   margin-top: 8px;
+}
+.progress-bar>i {
+   display: block;
+   height: 100%;
+   background: var(--project-blue);
+   width: 0%;
+}

@@ -1,0 +1,70 @@
+/* ========================= */
+/* BOTÕES GERAIS             */
+/* ========================= */
+.btn-add-task {
+   background: var(--accent-3);
+   color: #fff;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+   padding: 12px 20px;
+   border: 0;
+   border-radius: var(--radius);
+   display: flex;
+   align-items: center;
+   gap: 16px;
+   order: 1;
+   cursor: pointer;
+   font-size: 18px;
+}
+
+.btn {
+   padding: 6px 16px;
+   border-radius: 8px;
+   border: 0;
+   cursor: pointer;
+   font-size: 18px;
+   background: transparent;
+   color: var(--text);
+   font-weight: 600;
+   box-shadow: none;
+   transition: transform .16s, box-shadow .16s, background-color .14s, filter .14s, opacity .12s;
+}
+.btn-primary {
+   background: var(--accent);
+   color: #fff;
+}
+.btn-danger {
+   background: var(--danger);
+   color: #fff;
+}
+.btnlogout {
+   background: var(--danger);
+   font-weight: 600;
+   padding: 8px 22px;
+   border-radius: 8px;
+   font-size: 18px;
+   border: 0;
+   color: #fff;
+   cursor: pointer;
+}
+.btn:hover,
+.btn-primary:hover,
+.btn-danger:hover,
+.btnlogout:hover {
+   filter: brightness(.95);
+   transform: translateY(-3px);
+   box-shadow: 0 8px 20px rgba(0, 0, 0, .08);
+}
+.btn:active,
+.btn-primary:active,
+.btn-danger:active,
+.btnlogout:active {
+   transform: translateY(0) scale(.995);
+   box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
+}
+.btn:focus,
+.btn-primary:focus,
+.btn-danger:focus,
+.btnlogout:focus {
+   outline: 3px solid rgba(54, 85, 98, .18);
+   outline-offset: 3px;
+}

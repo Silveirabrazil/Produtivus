@@ -71,29 +71,16 @@ console.log('app.js carregado');
 
   // header (sem menu quando não logado)
   function renderHeader(){
+    // Renderiza apenas o novo hero, conforme modelo do usuário
     let html = `
       <header class="app-hero">
         <div class="hero-inner">
-          <div class="hero-left">
-            <div class="brand">
-              <img src="img/logo.png" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
-              <div class="brand-text">
-                <h1>Produtivus</h1>
-                <p class="tagline">Organize suas tarefas, calendário e cadernos com leveza.</p>
-              </div>
-            </div>
-            <div class="hero-cta">
-              <button id="btn-tour" class="btn btn-primary">Fazer tour</button>
-              ${state.user ? '' : '<button class="btn" id="btn-to-register">Criar conta</button>'}
-            </div>
+          <div class="hero-content">
+            <h1 class="hero-title">Produtivus</h1>
+            <p class="hero-subtitle">Organize suas tarefas, calendário e cadernos com leveza.</p>
           </div>
-          <div class="hero-art">
-            <img class="hero-blob" src="img/hero-blob.svg" alt="" aria-hidden="true"/>
-            <img class="hero-person" src="img/image.png" alt=""/>
-          </div>
-        </div>`;
-    if(state.user){
-      html += `
+        </div>
+        ${state.user ? `
         <div class="pill-nav">
           <button id="btn-menu" class="btn-ghost nav-menu-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobile-menu">
             <span class="material-symbols-outlined">menu</span>
@@ -145,9 +132,10 @@ console.log('app.js carregado');
               <button id="btn-logout-m" class="btnlogout">Sair</button>
             </div>
           </nav>
-        </div>`;
-    }
-    html += `</header>`;
+        </div>
+        ` : ''}
+      </header>
+    `;
     document.querySelector('#header-container').innerHTML = html;
     updateWelcomeUI && updateWelcomeUI();
   }
@@ -802,7 +790,15 @@ console.log('app.js carregado');
         transitionMain(()=>{ main.innerHTML = viewLogin(); });
         setActive(); persistView();
         // inicializa Google SSO sem bloquear transição
-        setTimeout(()=> initGoogleSignIn(), 60);
+        setTimeout(()=> {
+          initGoogleSignIn();
+          setTimeout(()=> {
+            const mount = document.querySelector('#google-btn');
+            if (mount && !mount.children.length) {
+              initGoogleSignIn();
+            }
+          }, 1000);
+        }, 200);
         // preenche e-mail se houver arquivo de prefill
         setTimeout(async ()=>{
           try {
@@ -1210,10 +1206,10 @@ console.log('app.js carregado');
 
   // startup
   document.addEventListener('DOMContentLoaded', async ()=>{
-    loadUser();
-    if(state.user){ try { await syncTasksFromServer(); } catch(_) { loadTasksForCurrentUser(); } }
-    renderHeader();
-    let initial = 'login';
+  loadUser();
+  if(state.user){ try { await syncTasksFromServer(); } catch(_) { loadTasksForCurrentUser(); } }
+  // NÃO renderiza mais o header dinamicamente
+  let initial = 'login';
     if(state.user && state.user.email){
       const key = 'pv_view_'+state.user.email.toLowerCase();
       initial = localStorage.getItem(key) || 'tasks';

@@ -1,0 +1,67 @@
+/* ========================= */
+/* NOTEBOOKS / CADERNOS      */
+/* ========================= */
+.notebooks-wrap {
+   display: grid;
+   grid-template-columns: 240px 1fr;
+   gap: 10px;
+   max-width: 1400px;
+   margin: 10px auto;
+   align-items: stretch;
+   padding: 6px 8px;
+   box-sizing: border-box;
+}
+.nb-sidebar {
+   width: 100%;
+   background: #ffffff;
+   border-radius: 10px;
+   padding: 10px;
+   box-shadow: 0 4px 14px rgba(31, 36, 41, 0.05);
+   border: 1px solid rgba(0, 0, 0, 0.03);
+   box-sizing: border-box;
+   min-height: 520px;
+}
+.nb-list {
+   display: flex;
+   flex-direction: column;
+   gap: 6px;
+}
+.nb-item {
+   background: #fbfbfb;
+   padding: 8px;
+   border-radius: 8px;
+   cursor: pointer;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   border: 1px solid rgba(0, 0, 0, 0.03);
+   transition: transform .12s ease, box-shadow .12s ease;
+}
+.nb-item:hover {
+   transform: translateY(-3px);
+   box-shadow: 0 8px 18px rgba(31, 36, 41, 0.06);
+}
+.nb-name {
+   font-weight: 600;
+   color: #2b3a3f;
+   font-size: 18px;
+   line-height: 1.1;
+}
+.nb-count {
+   color: #7a8790;
+   font-size: 14px;
+   margin-top: 6px;
+}
+.nb-main {
+   flex: 1;
+   min-height: 560px;
+}
+.nb-editor {
+   background: #fff;
+   padding: 10px;
+   border-radius: 10px;
+   border: 1px solid rgba(0, 0, 0, 0.03);
+   box-shadow: 0 6px 18px rgba(31, 36, 41, 0.04);
+   box-sizing: border-box;
+   min-height: 70vh;
+}
