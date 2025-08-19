@@ -1,3 +1,26 @@
+/* Estilo para botões do menu principal centralizados no header */
+.pill-nav-main .nav-btn {
+   background: #f8f7f3;
+   color: #365562;
+   border: none;
+   border-radius: 8px;
+   padding: 8px 22px;
+   font-size: 1.1rem;
+   font-weight: 600;
+   margin: 0 4px;
+   cursor: pointer;
+   transition: background 0.16s, color 0.16s, box-shadow 0.16s;
+   box-shadow: 0 2px 8px rgba(54,85,98,0.06);
+}
+.pill-nav-main .nav-btn:hover {
+   background: #365562;
+   color: #fff;
+   box-shadow: 0 6px 18px rgba(54,85,98,0.12);
+}
+.pill-nav-main .nav-btn.active {
+   background: #ffaa4f;
+   color: #fff;
+}
 /* HERO MODERNO COM BG, TEXTOS, ÍCONES E BALÕES */
 .hero-bg {
    position: relative;

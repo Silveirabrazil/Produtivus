@@ -1,4 +1,5 @@
 @charset "UTF-8";
+
 /* ========================= */
 /* VARIÁVEIS GLOBAIS        */
 /* ========================= */
@@ -257,21 +258,21 @@ textarea {
   gap: 12px;
 }
 
-.header-inner > div:first-child {
+.header-inner>div:first-child {
   justify-self: start;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.header-inner > nav {
+.header-inner>nav {
   justify-self: center;
   display: flex;
   gap: 5rem;
   background: rgba(0, 0, 0, 0);
 }
 
-.header-inner > div:last-child {
+.header-inner>div:last-child {
   justify-self: end;
   display: flex;
   gap: 8px;
@@ -285,6 +286,32 @@ textarea {
 
 #btn-new {
   order: 0;
+}
+
+/* Estilo para botões do menu principal centralizados no header */
+.pill-nav-main .nav-btn {
+  background: #f8f7f3;
+  color: #365562;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 22px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 4px;
+  cursor: pointer;
+  transition: background 0.16s, color 0.16s, box-shadow 0.16s;
+  box-shadow: 0 2px 8px rgba(54, 85, 98, 0.06);
+}
+
+.pill-nav-main .nav-btn:hover {
+  background: #365562;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(54, 85, 98, 0.12);
+}
+
+.pill-nav-main .nav-btn.active {
+  background: #ffaa4f;
+  color: #fff;
 }
 
 /* HERO MODERNO COM BG, TEXTOS, ÍCONES E BALÕES */
@@ -395,20 +422,25 @@ textarea {
   .hero-bg {
     min-height: 320px;
   }
+
   .hero-content {
     max-width: 98vw;
     margin-left: 2vw;
   }
+
   .hero-title {
     font-size: 2.2rem;
   }
+
   .hero-subtitle {
     font-size: 1.3rem;
   }
+
   .hero-icons {
     gap: 12px;
   }
 }
+
 /* ========================= */
 /* MENU PRINCIPAL            */
 /* ========================= */
@@ -485,7 +517,7 @@ textarea {
   margin-top: 8px;
 }
 
-.progress-bar > i {
+.progress-bar>i {
   display: block;
   height: 100%;
   background: var(--project-blue);
@@ -675,7 +707,8 @@ textarea {
   margin-top: 16px;
 }
 
-.pv-btn-cancel, .pv-btn-ok {
+.pv-btn-cancel,
+.pv-btn-ok {
   padding: 8px 18px;
   border-radius: 8px;
   border: 0;
@@ -691,7 +724,8 @@ textarea {
   background: #F84449;
 }
 
-.pv-btn-cancel:hover, .pv-btn-ok:hover {
+.pv-btn-cancel:hover,
+.pv-btn-ok:hover {
   filter: brightness(0.95);
 }
 
@@ -790,9 +824,11 @@ textarea {
   .header-inner {
     grid-template-columns: auto 1fr auto;
   }
-  .header-inner > nav {
+
+  .header-inner>nav {
     justify-self: center;
   }
+
   .pill-nav {
     background: transparent !important;
     border: 0 !important;
@@ -801,31 +837,40 @@ textarea {
     padding: 8px 10px !important;
     margin: 8px auto 0 !important;
   }
+
   .pill-nav-main {
     display: none !important;
   }
-  .pill-actions > *:not(#notif-panel) {
+
+  .pill-actions>*:not(#notif-panel) {
     display: none !important;
   }
+
   .menu-logo {
     display: none !important;
   }
+
   .hero-inner {
     grid-template-columns: 1fr;
   }
+
   .hero-person {
     width: 56vw;
   }
+
   .nav-menu-btn {
     display: inline-flex;
   }
+
   .menu-logo {
     height: 22px;
   }
+
   #welcome-msg {
     display: none;
   }
 }
+
 @media (max-width: 720px) {
   .app-footer-inner {
     flex-direction: column;
@@ -834,6 +879,7 @@ textarea {
     padding: 6px 0;
   }
 }
+
 /* ========================= */
 /* TOUR / GUIA ANIMADO       */
 /* ========================= */

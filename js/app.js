@@ -75,10 +75,7 @@ console.log('app.js carregado');
     let html = `
       <header class="app-hero">
         <div class="hero-inner">
-          <div class="hero-content">
-            <h1 class="hero-title">Produtivus</h1>
-            <p class="hero-subtitle">Organize suas tarefas, calendário e cadernos com leveza.</p>
-          </div>
+          
         </div>
         ${state.user ? `
         <div class="pill-nav">
@@ -1208,7 +1205,7 @@ console.log('app.js carregado');
   document.addEventListener('DOMContentLoaded', async ()=>{
   loadUser();
   if(state.user){ try { await syncTasksFromServer(); } catch(_) { loadTasksForCurrentUser(); } }
-  // NÃO renderiza mais o header dinamicamente
+  renderHeader();
   let initial = 'login';
     if(state.user && state.user.email){
       const key = 'pv_view_'+state.user.email.toLowerCase();
