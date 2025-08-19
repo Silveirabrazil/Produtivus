@@ -541,7 +541,7 @@ main {
    padding: 24px 24px;
    max-width: var(--content-max);
    margin: 24px 50px;
-   background: var(--bg);
+   background: var(--accent-2);
    border-radius: var(--radius);
    will-change: transform, opacity;
 }

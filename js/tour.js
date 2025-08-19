@@ -34,16 +34,18 @@
     const r = rect(target);
     // buraco no overlay (remove blur na área do alvo)
     const pad = 8; // margem
-    overlay.style.setProperty('--hole-x', (r.x - pad) + 'px');
-    overlay.style.setProperty('--hole-y', (r.y - pad) + 'px');
-    overlay.style.setProperty('--hole-w', (r.w + pad*2) + 'px');
-    overlay.style.setProperty('--hole-h', (r.h + pad*2) + 'px');
+  overlay.classList.add('pv-tour-overlay-hole');
+  overlay.style.setProperty('--hole-x', (r.x - pad) + 'px');
+  overlay.style.setProperty('--hole-y', (r.y - pad) + 'px');
+  overlay.style.setProperty('--hole-w', (r.w + pad*2) + 'px');
+  overlay.style.setProperty('--hole-h', (r.h + pad*2) + 'px');
 
     // destaque luminoso ao redor do alvo
-    highlight.style.left = (r.x-6)+'px';
-    highlight.style.top = (r.y-6)+'px';
-    highlight.style.width = (r.w+12)+'px';
-    highlight.style.height = (r.h+12)+'px';
+  highlight.classList.add('pv-tour-highlight-pos');
+  highlight.style.left = (r.x-6)+'px';
+  highlight.style.top = (r.y-6)+'px';
+  highlight.style.width = (r.w+12)+'px';
+  highlight.style.height = (r.h+12)+'px';
 
     // posiciona o balão preferindo à direita/abaixo
     pop.innerHTML = '';
@@ -60,7 +62,8 @@
     if(px + pop.offsetWidth > window.scrollX + window.innerWidth){ px = r.x; py = r.y + r.h + margin; }
     // se estourar embaixo, posiciona acima
     if(py + pop.offsetHeight > window.scrollY + window.innerHeight){ py = Math.max(8, r.y - pop.offsetHeight - margin); }
-    pop.style.left = px+'px'; pop.style.top = py+'px';
+  pop.classList.add('pv-tour-pop-pos');
+  pop.style.left = px+'px'; pop.style.top = py+'px';
 
     // posiciona a seta entre o balão e o alvo (curva bezier)
     const start = { x: px + Math.min(pop.offsetWidth, 200)*0.2, y: py + 10 };
@@ -73,7 +76,8 @@
     // ajusta SVG para cobrir toda a viewport
     arrow.setAttribute('width', String(window.innerWidth));
     arrow.setAttribute('height', String(window.innerHeight));
-    arrow.style.left = 0; arrow.style.top = 0; arrow.style.position = 'fixed';
+  arrow.classList.add('pv-tour-arrow-pos');
+  arrow.style.left = 0; arrow.style.top = 0; arrow.style.position = 'fixed';
     const d = `M ${start.x},${start.y} C ${ctrl1.x},${ctrl1.y} ${ctrl2.x},${ctrl2.y} ${end.x},${end.y}`;
     path1.setAttribute('d', d);
     path2.setAttribute('d', d);

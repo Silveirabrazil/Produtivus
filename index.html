@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Produtivus — Protótipo</title>
+  <!-- CSP para permitir Google Sign-In sem unsafe-inline -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://accounts.google.com; connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com;">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/tour.css">
   <!-- Google Icons (Material Symbols Outlined) -->
@@ -21,7 +23,7 @@
 
   <!-- footer com copyright -->
   <footer class="app-footer">
-    <div class="app-footer-inner" style="display: flex; justify-content: center;">
+  <div class="app-footer-inner footer-flex-center">
       <span>© <span id="copyright-year"></span> Produtivus — Todos os direitos reservados.</span>
     </div>
   </footer>
@@ -63,12 +65,12 @@
                   <div class="field">
                       <label>Cor da Tarefa</label>
                       <div class="palette" id="task-color-palette">
-                          <div class="palette-color" data-color="#4a90e2" style="background-color: #4a90e2;" title="Azul"></div>
-                          <div class="palette-color" data-color="#50e3c2" style="background-color: #50e3c2;" title="Verde"></div>
-                          <div class="palette-color" data-color="#f5a623" style="background-color: #f5a623;" title="Laranja"></div>
-                          <div class="palette-color" data-color="#e94e77" style="background-color: #e94e77;" title="Rosa"></div>
-                          <div class="palette-color" data-color="#9013fe" style="background-color: #9013fe;" title="Roxo"></div>
-                          <div class="palette-color" data-color="#777" style="background-color: #777;" title="Cinza"></div>
+                          <div class="palette-color palette-blue" data-color="#4a90e2" title="Azul"></div>
+                          <div class="palette-color palette-green" data-color="#50e3c2" title="Verde"></div>
+                          <div class="palette-color palette-orange" data-color="#f5a623" title="Laranja"></div>
+                          <div class="palette-color palette-pink" data-color="#e94e77" title="Rosa"></div>
+                          <div class="palette-color palette-purple" data-color="#9013fe" title="Roxo"></div>
+                          <div class="palette-color palette-gray" data-color="#777" title="Cinza"></div>
                       </div>
                       <input type="hidden" id="task-color" name="color">
                   </div>
@@ -77,7 +79,7 @@
           <div class="field">
             <label>Subtarefas</label>
             <div id="task-subtasks" class="subtasks-list"></div>
-            <button type="button" id="task-add-sub" class="btn" style="margin-top:8px">+ Adicionar subtarefa</button>
+            <button type="button" id="task-add-sub" class="btn btn-margin-top">+ Adicionar subtarefa</button>
           </div>
               </div>
               <div class="modal-footer">
@@ -105,18 +107,18 @@
           <div id="tv-field-desc" class="small"></div>
         </div>
         <div class="row">
-          <div class="field" style="flex:1">
+          <div class="field field-flex-1">
             <label>Início</label>
             <div id="tv-field-start" class="small"></div>
           </div>
-          <div class="field" style="flex:1">
+          <div class="field field-flex-1">
             <label>Término</label>
             <div id="tv-field-end" class="small"></div>
           </div>
         </div>
         <div class="field">
           <label>Cor</label>
-          <div id="tv-field-color" style="width:34px;height:18px;border-radius:6px;border:1px solid rgba(0,0,0,.1)"></div>
+          <div id="tv-field-color" class="tv-field-color"></div>
         </div>
         <div class="field">
           <label>Progresso</label>
@@ -124,7 +126,7 @@
         </div>
         <div class="field">
           <label>Subtarefas</label>
-          <ul id="tv-subtasks" style="list-style:none;padding:0;margin:6px 0;display:flex;flex-direction:column;gap:6px"></ul>
+          <ul id="tv-subtasks" class="tv-subtasks-list"></ul>
         </div>
       </div>
       <div class="modal-footer">
@@ -141,7 +143,7 @@
         <button class="btn-ghost" id="close-day-modal" aria-label="Fechar">✖</button>
       </div>
       <div class="modal-body">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px">
+  <div class="day-modal-header-flex">
           <div id="day-modal-summary" class="small"></div>
           <button class="btn btn-primary" id="day-add-task">+ Adicionar tarefa</button>
         </div>
@@ -187,11 +189,11 @@
         <div class="modal-body">
           <div class="field">
             <label for="pwd-current">Senha atual</label>
-            <input id="pwd-current" type="password" required />
+            <input id="pwd-current" type="password" required autocomplete="new-password" />
           </div>
           <div class="field">
             <label for="pwd-new">Nova senha (mínimo 8)</label>
-            <input id="pwd-new" type="password" minlength="8" required />
+            <input id="pwd-new" type="password" minlength="8" required autocomplete="new-password" />
           </div>
         </div>
         <div class="modal-footer">
@@ -211,7 +213,7 @@
       </div>
       <form id="delete-form">
         <div class="modal-body">
-          <p class="small" style="margin:8px 0 12px 0">Esta ação é permanente e irá remover suas tarefas, cadernos e páginas. Para confirmar, digite <b>DELETE</b> abaixo.</p>
+          <p class="small delete-warning-margin">Esta ação é permanente e irá remover suas tarefas, cadernos e páginas. Para confirmar, digite <b>DELETE</b> abaixo.</p>
           <input id="delete-confirm" type="text" placeholder="Digite DELETE" required />
         </div>
         <div class="modal-footer">

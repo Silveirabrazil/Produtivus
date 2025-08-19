@@ -105,7 +105,7 @@ console.log('app.js carregado');
             <button class="nav-btn" data-view="notebooks">Cadernos</button>
           </nav>
           <div class="pill-actions">
-            <span id="welcome-msg" class="welcome small" style="display:none"></span>
+            <span id="welcome-msg" class="welcome small welcome-hide"></span>
             <button id="btn-notif" class="btn-ghost notif-bell" aria-label="Notificações" aria-haspopup="menu" aria-expanded="false" aria-controls="notif-panel">
               <span class="material-symbols-outlined">notifications</span>
               <span id="notif-badge" class="notif-badge hidden">0</span>
@@ -155,24 +155,24 @@ console.log('app.js carregado');
   function viewLogin(){ return `
     <section class="auth-card">
       <h2>Entrar</h2>
-      <label class="small">Email<input id="login-email" type="email" style="width:100%;padding:8px;margin-top:6px"></label>
-      <label class="small">Senha<input id="login-pass" type="password" style="width:100%;padding:8px;margin-top:6px"></label>
-      <div style="display:flex;gap:8px;margin-top:12px">
+  <label class="small">Email<input id="login-email" type="email" class="input-full input-pad input-margin"></label>
+  <label class="small">Senha<input id="login-pass" type="password" class="input-full input-pad input-margin"></label>
+  <div class="flex-gap flex-margin-top">
         <button id="btn-login" class="btn btn-primary">Entrar</button>
         <button id="btn-to-register" class="btn">Cadastrar</button>
       </div>
-  <div class="small google-sep" style="text-align:center;margin:14px 0;color:#7a7a7a">ou</div>
-  <div id="google-btn" style="display:flex;justify-content:center"></div>
+  <div class="small google-sep google-sep-style">ou</div>
+  <div id="google-btn" class="google-btn-flex"></div>
     </section>` }
 
   function viewRegister(){ return `
     <section class="auth-card">
       <h2>Criar Conta</h2>
-      <label class="small">Nome<input id="reg-name" type="text" style="width:100%;padding:8px;margin-top:6px"></label>
-      <label class="small">Email<input id="reg-email" type="email" style="width:100%;padding:8px;margin-top:6px"></label>
-      <label class="small">Senha<input id="reg-pass" type="password" style="width:100%;padding:8px;margin-top:6px"></label>
-      <label class="small">Confirmar Senha<input id="reg-pass2" type="password" style="width:100%;padding:8px;margin-top:6px"></label>
-      <div style="display:flex;gap:8px;margin-top:12px">
+  <label class="small">Nome<input id="reg-name" type="text" class="input-full input-pad input-margin"></label>
+  <label class="small">Email<input id="reg-email" type="email" class="input-full input-pad input-margin"></label>
+  <label class="small">Senha<input id="reg-pass" type="password" class="input-full input-pad input-margin"></label>
+  <label class="small">Confirmar Senha<input id="reg-pass2" type="password" class="input-full input-pad input-margin"></label>
+  <div class="flex-gap flex-margin-top">
         <button id="btn-register" class="btn btn-primary">Cadastrar</button>
         <button id="btn-to-login" class="btn">Voltar</button>
       </div>
@@ -180,13 +180,13 @@ console.log('app.js carregado');
 
   function viewTasks(){
     return `
-      <section style="display:flex;flex-direction:column;align-items:center">
-        <div style="width:100%;max-width:1100px">
-          <div style="display:flex;justify-content:space-between;align-items:center">
+      <section class="tasks-section">
+        <div class="tasks-container">
+          <div class="tasks-header-flex">
             <div><h2 class=\"view-title\">Tarefas</h2></div>
             <div><button id="btn-add-task" class="btn-add-task">+ Nova tarefa</button></div>
           </div>
-          <div class="cards-grid" id="cards-grid" style="margin-top:16px"></div>
+          <div class="cards-grid" id="cards-grid" class="cards-grid-margin"></div>
         </div>
       </section>`;
   }
@@ -334,7 +334,8 @@ console.log('app.js carregado');
       const card = document.createElement('div');
   card.className = 'card';
   card.dataset.id = t.id;
-      card.style.borderLeft = `6px solid ${t.color||COLORS[0]}`;
+  card.style.setProperty('--card-border-color', t.color||COLORS[0]);
+  card.classList.add('card-border');
 
   // datas formatadas — sempre mostrar as duas linhas para manter altura
   const startStr = t.start ? formatDateBR(t.start) : '';
@@ -345,7 +346,7 @@ console.log('app.js carregado');
       const titleWrap = document.createElement('div'); titleWrap.className = 'card-title-wrap';
       const titleEl = document.createElement('div'); titleEl.className = 'card-title'; titleEl.title = t.title; titleEl.textContent = t.title;
       const descEl = document.createElement('div'); descEl.className = 'card-desc small'; descEl.title = t.desc||''; descEl.textContent = t.desc||'';
-  const datesEl = document.createElement('div'); datesEl.className = 'card-dates small'; datesEl.style.marginTop = '8px'; datesEl.innerHTML = datesText.split('\n').join('<br/>');
+  const datesEl = document.createElement('div'); datesEl.className = 'card-dates small card-dates-margin'; datesEl.innerHTML = datesText.split('\n').join('<br/>');
   const detailsBtn = document.createElement('button'); detailsBtn.type='button'; detailsBtn.className = 'link-view-details'; detailsBtn.dataset.id = t.id; detailsBtn.textContent = 'Ver detalhes';
   titleWrap.appendChild(titleEl); titleWrap.appendChild(descEl); titleWrap.appendChild(datesEl); titleWrap.appendChild(detailsBtn);
 
@@ -376,13 +377,14 @@ console.log('app.js carregado');
   set('tv-field-desc', escapeHTML(task.desc||''));
     set('tv-field-start', task.start? formatDateBR(task.start): '');
     set('tv-field-end', task.end? formatDateBR(task.end): '');
-    const colorEl = document.getElementById('tv-field-color'); if(colorEl) colorEl.style.background = task.color||COLORS[0];
+  const colorEl = document.getElementById('tv-field-color'); if(colorEl) colorEl.style.setProperty('--tv-field-color', task.color||COLORS[0]);
+  if(colorEl) colorEl.classList.add('tv-field-color-bg');
     const prog = document.getElementById('tv-field-progress'); if(prog) prog.textContent = `${calcPercent(task)}%`;
     const ul = document.getElementById('tv-subtasks'); if(ul){
       ul.innerHTML = '';
       (task.subtasks||[]).forEach(s=>{
         const li = document.createElement('li');
-  li.innerHTML = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;background:${s.done?'#4caf50':'#ccc'}"></span>${escapeHTML(s.text)}`;
+  li.innerHTML = `<span class="subtask-dot" style="background:${s.done?'#4caf50':'#ccc'}"></span>${escapeHTML(s.text)}`;
         ul.appendChild(li);
       });
       if((task.subtasks||[]).length===0){ ul.innerHTML = '<li class="small">Sem subtarefas</li>'; }
@@ -454,16 +456,16 @@ console.log('app.js carregado');
         dayModal.list().innerHTML = items.map(t=>{
           const d1 = t.start ? `Início: ${formatDateBR(t.start)}` : '';
           const d2 = t.end ? `Término: ${formatDateBR(t.end)}` : '';
-          return `<div class="task-row" data-id="${t.id}">`+
-                 `<div style="display:flex;align-items:center;gap:10px;min-width:0">`+
-                 `<span style="width:10px;height:10px;border-radius:50%;background:${t.color||'#c29d67'}"></span>`+
-                 `<div style="min-width:0"><div class="title" title="${t.title}">${t.title}</div>`+
-                 `<div class="meta small">${d1}${d1 && d2 ? ' • ' : ''}${d2}</div></div></div>`+
-                 `<div style="display:flex;gap:8px">`+
-                 `<button class="btn btn-primary" data-view-task="${t.id}">Ver</button>`+
-                 `<button class="btn" data-edit-task="${t.id}">Editar</button>`+
-                 `</div>`+
-                 `</div>`;
+     return `<div class="task-row" data-id="${t.id}">`+
+       `<div class="task-row-flex">`+
+       `<span class="task-row-dot" style="background:${t.color||'#c29d67'}"></span>`+
+       `<div class="task-row-title-wrap"><div class="title" title="${t.title}">${t.title}</div>`+
+       `<div class="meta small">${d1}${d1 && d2 ? ' • ' : ''}${d2}</div></div></div>`+
+       `<div class="task-row-actions">`+
+       `<button class="btn btn-primary" data-view-task="${t.id}">Ver</button>`+
+       `<button class="btn" data-edit-task="${t.id}">Editar</button>`+
+       `</div>`+
+       `</div>`;
         }).join('');
       }
       const ov = dayModal.overlay(); if(ov){ ov.classList.remove('hidden'); ov.setAttribute('aria-hidden','false'); ov.dataset.date = dateStr; }
@@ -522,7 +524,7 @@ console.log('app.js carregado');
         if(today.getFullYear()===y && today.getMonth()===m && today.getDate()===d) cell.classList.add('today');
         cell.innerHTML = `
           <div class="day-num">${d}</div>
-          <div class="markers">${items.slice(0,4).map(t=>`<span class="marker" title="${escapeHTML(t.title)}" style="background:${t.color||'#c29d67'}"></span>`).join('')}${items.length>4?`<span class="marker count">+${items.length-4}</span>`:''}</div>
+          <div class="markers">${items.slice(0,4).map(t=>`<span class="marker marker-bg" title="${escapeHTML(t.title)}" style="--marker-bg:${t.color||'#c29d67'}"></span>`).join('')}${items.length>4?`<span class="marker count">+${items.length-4}</span>`:''}</div>
         `;
         cell.addEventListener('click', ()=> openDayModal(dateStr));
         grid.appendChild(cell);
@@ -550,28 +552,28 @@ console.log('app.js carregado');
           <div class="chart-wrap">
             <canvas id="dash-chart" height="260"></canvas>
           </div>
-          <div class="summary-grid" style="margin-top:12px">
+          <div class="summary-grid summary-grid-margin">
             <div class="summary-item"><div>Pendentes</div><div class="kpi-value">${pending}</div></div>
             <div class="summary-item"><div>Concluídas</div><div class="kpi-value">${done}</div></div>
             <div class="summary-item"><div>Total</div><div class="kpi-value">${total}</div></div>
           </div>
-          <div class="progress-bar"><i style="width:${total?Math.round(done/total*100):0}%"></i></div>
+          <div class="progress-bar"><i class="progress-bar-fill" style="width:${total?Math.round(done/total*100):0}%"></i></div>
         </div>
         <aside class="panel">
-          <h3 class="small" style="font-weight:700;margin:0 0 8px 0">Recentes</h3>
-          <div class="recent-cards" style="display:flex;flex-direction:column;gap:10px">
+          <h3 class="small recent-title">Recentes</h3>
+          <div class="recent-cards recent-cards-flex">
             ${recent.map(t=> {
               const pct = calcPercent(t);
               const startStr = t.start ? formatDateBR(t.start) : '';
               const endStr = t.end ? formatDateBR(t.end) : '';
               const datesText = `Início: ${startStr}\nTérmino: ${endStr}`;
               return `
-                <div class="card" data-id="${t.id}" style="border-left:6px solid ${t.color||'#c29d67'};padding:12px">
+                <div class="card card-border" data-id="${t.id}" style="--card-border-color:${t.color||'#c29d67'};padding:12px">
                   <div class="card-head">
                     <div class="card-title-wrap">
                       <div class="card-title" title="${escapeHTML(t.title)}">${escapeHTML(t.title)}</div>
                       <div class="card-desc small" title="${escapeHTML(t.desc||'')}">${escapeHTML(t.desc||'')}</div>
-                      <div class="card-dates small" style="margin-top:8px">${datesText.split('\n').join('<br/>')}</div>
+                      <div class="card-dates small card-dates-margin">${datesText.split('\n').join('<br/>')}</div>
                       <button class="link-view-details" data-id="${t.id}">Ver detalhes</button>
                     </div>
                     <div class="card-kpi">
@@ -1188,11 +1190,11 @@ console.log('app.js carregado');
         const dateStr = formatDateBR(n.date);
         const label = n.label;
         return `<div class="notif-item" data-notif-view="${n.id}">
-          <span class="dot" style="background:${n.color||'#c29d67'}"></span>
+          <span class="dot notif-dot-bg" style="--notif-dot-bg:${n.color||'#c29d67'}"></span>
           <div class="body"><div class="title">${escapeHTML(n.title)}</div><div class="meta small">${label} • ${dateStr}</div></div>
           <button class="link-view-details" data-id="${n.id}" type="button">Ver detalhes</button>
         </div>`;
-      }).join('') : '<div class="small" style="padding:8px 4px;color:var(--muted)">Sem notificações</div>';
+      }).join('') : '<div class="small notif-empty">Sem notificações</div>';
     }
   }
 
@@ -1200,8 +1202,8 @@ console.log('app.js carregado');
   function updateWelcomeUI(){
     const el = document.getElementById('welcome-msg');
     if(!el) return;
-    if(state.user && state.user.name){ el.textContent = `Bem-vindo, ${state.user.name}`; el.style.display = 'inline-block'; }
-    else { el.style.display = 'none'; }
+  if(state.user && state.user.name){ el.textContent = `Bem-vindo, ${state.user.name}`; el.classList.remove('welcome-hide'); el.classList.add('welcome-show'); }
+  else { el.classList.remove('welcome-show'); el.classList.add('welcome-hide'); }
   }
 
   // demo seeding removido em favor do seed por usuário no login

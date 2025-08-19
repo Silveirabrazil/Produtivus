@@ -64,7 +64,10 @@ try {
     if (isset($b['color'])) { $fields[]='color=:c'; $params[':c']=(string)$b['color']; }
     if (array_key_exists('content',$b)) { $fields[]='content=:ct'; $params[':ct']=$b['content']; }
     if ($fields){ $sql='UPDATE notebook_pages SET '.implode(',', $fields).' WHERE id=:id'; $up=$conn->prepare($sql); $up->execute($params); }
-    echo json_encode(['success'=>true]);
+  // Força atualização do campo updated_at para o horário atual
+  $sqlUpdateTime = 'UPDATE notebook_pages SET updated_at=NOW() WHERE id=:id';
+  $upTime = $conn->prepare($sqlUpdateTime); $upTime->execute([':id'=>$id]);
+  echo json_encode(['success'=>true]);
     exit;
   }
 
