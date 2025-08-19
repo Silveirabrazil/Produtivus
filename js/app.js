@@ -1,8 +1,32 @@
+// Atualiza o ano do copyright no footer (CSP safe)
+document.addEventListener('DOMContentLoaded', function() {
+	var y = document.getElementById('copyright-year');
+	if(y) y.textContent = new Date().getFullYear();
+});
 console.log('app.js carregado');
 // Versão 1.1.1
 // Versão 1.1.4
 // Protótipo com modal de criar tarefa funcional
 (function(){
+	// Versão 1.1.5
+	// Correções de modularização, integração e rastreabilidade
+	function setActiveNav(view) {
+		document.querySelectorAll('.nav-btn').forEach(btn => {
+			btn.removeAttribute('aria-current');
+			if (btn.dataset.view === view) btn.setAttribute('aria-current', 'page');
+		});
+	}
+	// Corrige navegação principal
+	document.addEventListener('click', function(e) {
+		if (e.target.classList.contains('nav-btn')) {
+			const view = e.target.dataset.view;
+			setActiveNav(view);
+			if (view === 'tasks') window.renderTasks();
+			if (view === 'calendar') { if (typeof renderCalendar === 'function') renderCalendar(); }
+			if (view === 'dashboard') { if (typeof renderDashboard === 'function') renderDashboard(); }
+			if (view === 'notebooks') { if (typeof renderNotebooks === 'function') renderNotebooks(); }
+		}
+	});
   function qs(s){return document.querySelector(s)}
   function qsa(s){return Array.from(document.querySelectorAll(s))}
   const ROOT = { header:'#header-container', main:'#main-content' };

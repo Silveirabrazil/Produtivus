@@ -8,7 +8,7 @@
   <!-- CSP para permitir Google Sign-In sem unsafe-inline -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://accounts.google.com; connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com;">
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/tour.css">
+  <!-- <link rel="stylesheet" href="css/tour.css"> removido pois o arquivo não existe -->
   <!-- Google Icons (Material Symbols Outlined) -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
   <!-- preload da logo para evitar "flash" -->
@@ -40,12 +40,12 @@
 
   <div id="app">
     <div id="header-container"></div>
-    <main id="main-content"></main>
+    <main id="main-content" tabindex="-1" aria-label="Conteúdo principal"></main>
   </div>
 
   <!-- footer com copyright -->
-  <footer class="app-footer">
-  <div class="app-footer-inner footer-flex-center">
+  <footer class="app-footer" role="contentinfo">
+    <div class="app-footer-inner footer-flex-center">
       <span>© <span id="copyright-year"></span> Produtivus — Todos os direitos reservados.</span>
     </div>
   </footer>
@@ -209,6 +209,7 @@
       </div>
       <form id="password-form">
         <div class="modal-body">
+          <input type="email" name="username" autocomplete="username" style="display:none;" />
           <div class="field">
             <label for="pwd-current">Senha atual</label>
             <input id="pwd-current" type="password" required autocomplete="new-password" />
@@ -252,5 +253,6 @@
   <script src="js/tour.js"></script>
   <script src="js/notebooks.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/tasks.js"></script>
 </body>
 </html>

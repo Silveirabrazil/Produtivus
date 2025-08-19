@@ -1,5 +1,4 @@
 @charset "UTF-8";
-
 /* ========================= */
 /* VARIÁVEIS GLOBAIS        */
 /* ========================= */
@@ -258,21 +257,21 @@ textarea {
   gap: 12px;
 }
 
-.header-inner>div:first-child {
+.header-inner > div:first-child {
   justify-self: start;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.header-inner>nav {
+.header-inner > nav {
   justify-self: center;
   display: flex;
   gap: 5rem;
   background: rgba(0, 0, 0, 0);
 }
 
-.header-inner>div:last-child {
+.header-inner > div:last-child {
   justify-self: end;
   display: flex;
   gap: 8px;
@@ -422,33 +421,25 @@ textarea {
   .hero-bg {
     min-height: 320px;
   }
-
   .hero-content {
     max-width: 98vw;
     margin-left: 2vw;
   }
-
   .hero-title {
     font-size: 2.2rem;
   }
-
   .hero-subtitle {
     font-size: 1.3rem;
   }
-
   .hero-icons {
     gap: 12px;
   }
 }
-
-/* ========================= */
-/* MENU PRINCIPAL            */
-/* ========================= */
 .pill-nav {
   position: sticky;
   top: 10px;
   z-index: 1000;
-  max-width: var(--content-max);
+  max-width: var(--content-max, 900px);
   width: 100%;
   margin: 26px auto 0;
   display: grid;
@@ -462,6 +453,107 @@ textarea {
   padding: 12px 16px;
   border-radius: 999px;
   height: 30px;
+  transition: box-shadow 0.18s, background 0.18s;
+}
+
+.pill-nav-main {
+  display: flex;
+  gap: 12px;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent, #365562);
+  padding: 6px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+
+.nav-btn:focus {
+  outline: 2px solid var(--accent, #365562);
+}
+
+.nav-btn[aria-current=page] {
+  background: var(--accent, #365562);
+  color: #fff;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+  margin-bottom: 24px;
+  display: flex;
+  overflow: hidden;
+  max-width: 340px;
+}
+
+.card-border {
+  width: 10px;
+  border-radius: 16px 0 0 16px;
+  background: var(--accent, #c29d67);
+}
+
+.card-content {
+  flex: 1;
+  padding: 24px 18px 18px 18px;
+}
+
+.card-title {
+  font-weight: 700;
+  font-size: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-progress {
+  color: #b1a58a;
+  font-size: 15px;
+  float: right;
+}
+
+.card-details {
+  color: var(--accent, #c29d67);
+  font-size: 15px;
+  margin-top: 4px;
+  display: inline-block;
+}
+
+.card-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.card-btn {
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 0;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: none;
+  transition: transform 0.16s, box-shadow 0.16s, background-color 0.14s, filter 0.14s, opacity 0.12s;
+}
+
+.card-btn.edit {
+  background: var(--accent, #c29d67);
+  color: #fff;
+}
+
+.card-btn.delete {
+  background: var(--danger, #F84449);
+  color: #fff;
+}
+
+.card-btn.complete {
+  background: #e0e0e0;
+  color: #444;
 }
 
 /* ========================= */
@@ -517,7 +609,7 @@ textarea {
   margin-top: 8px;
 }
 
-.progress-bar>i {
+.progress-bar > i {
   display: block;
   height: 100%;
   background: var(--project-blue);
@@ -707,8 +799,7 @@ textarea {
   margin-top: 16px;
 }
 
-.pv-btn-cancel,
-.pv-btn-ok {
+.pv-btn-cancel, .pv-btn-ok {
   padding: 8px 18px;
   border-radius: 8px;
   border: 0;
@@ -724,8 +815,7 @@ textarea {
   background: #F84449;
 }
 
-.pv-btn-cancel:hover,
-.pv-btn-ok:hover {
+.pv-btn-cancel:hover, .pv-btn-ok:hover {
   filter: brightness(0.95);
 }
 
@@ -824,11 +914,9 @@ textarea {
   .header-inner {
     grid-template-columns: auto 1fr auto;
   }
-
-  .header-inner>nav {
+  .header-inner > nav {
     justify-self: center;
   }
-
   .pill-nav {
     background: transparent !important;
     border: 0 !important;
@@ -837,40 +925,31 @@ textarea {
     padding: 8px 10px !important;
     margin: 8px auto 0 !important;
   }
-
   .pill-nav-main {
     display: none !important;
   }
-
-  .pill-actions>*:not(#notif-panel) {
+  .pill-actions > *:not(#notif-panel) {
     display: none !important;
   }
-
   .menu-logo {
     display: none !important;
   }
-
   .hero-inner {
     grid-template-columns: 1fr;
   }
-
   .hero-person {
     width: 56vw;
   }
-
   .nav-menu-btn {
     display: inline-flex;
   }
-
   .menu-logo {
     height: 22px;
   }
-
   #welcome-msg {
     display: none;
   }
 }
-
 @media (max-width: 720px) {
   .app-footer-inner {
     flex-direction: column;
@@ -879,7 +958,6 @@ textarea {
     padding: 6px 0;
   }
 }
-
 /* ========================= */
 /* TOUR / GUIA ANIMADO       */
 /* ========================= */
