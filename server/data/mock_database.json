@@ -1,0 +1,12 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "name": "Admin",
+            "email": "admin@produtivus.local",
+            "password": "$2y$12$yB0g12fpUtKECSgKqcTVT.CDsadDKU2w4MjTSsciWCyxmqOmklTxq",
+            "created_at": "2025-09-15 21:29:19"
+        }
+    ],
+    "tasks": []
+}

@@ -1,0 +1,44 @@
+{
+  "url": "http://127.0.0.1:8080/estudos.html",
+  "ok": true,
+  "console": [],
+  "errors": [],
+  "networkFailures": [],
+  "selectors": {
+    "#studies-tools": true,
+    "#studies-hub": true,
+    ".pv-fc": true,
+    "#pv-full-timer": false
+  },
+  "actions": [
+    {
+      "button": "#fc-deck-add",
+      "clicked": true
+    },
+    {
+      "button": "#fc-prova-new",
+      "clicked": true
+    },
+    {
+      "button": "#fc-prova-mini",
+      "clicked": true
+    },
+    {
+      "button": "#fc-quiz",
+      "clicked": true
+    },
+    {
+      "button": "#tm-toggle",
+      "clicked": true
+    },
+    {
+      "button": "#tm-test",
+      "clicked": true
+    },
+    {
+      "button": "#btn-timer",
+      "clicked": true
+    }
+  ],
+  "screenshot": "tools/tests/out/estudos-snapshot.png"
+}

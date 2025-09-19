@@ -1,0 +1,79 @@
+// Estilos customizados para modal de login Bootstrap
+#pv-login-modal .modal-content {
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.12);
+}
+#pv-login-modal .modal-header {
+  border-bottom: 1px solid #eee;
+}
+#pv-login-modal .modal-title {
+  font-weight: 600;
+}
+#pv-login-modal .modal-footer {
+  border-top: 1px solid #eee;
+}
+#pv-login-modal .form-label {
+  font-weight: 500;
+}
+#pv-login-modal .btn {
+  min-width: 100px;
+}
+
+// Refinamentos adicionais para modais de gestão (curso/matéria)
+#modal-manage-courses .modal-content {
+  border-radius: 0.5rem;
+  box-shadow: 0 0.6rem 1.2rem rgba(0,0,0,0.10);
+}
+
+#modal-manage-courses .modal-body {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+#modal-manage-courses .list-group {
+  max-height: 40vh;
+  overflow: auto;
+}
+
+#modal-manage-courses .list-group-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+#modal-manage-courses .input-group > * {
+  border-radius: 0.375rem;
+}
+
+/* Ensure controls are compact and align nicely */
+#modal-manage-courses .form-control-sm, #modal-manage-courses .form-select-sm {
+  height: calc(1.5em + 0.5rem);
+  padding: 0.375rem 0.5rem;
+}
+
+/* Buttons in list items */
+#modal-manage-courses .list-group-item .btn {
+  min-width: 56px;
+}
+
+/* Responsive: use fullscreen modal on very small screens */
+@media (max-width: 480px) {
+  #modal-manage-courses .modal-dialog { max-width: 100%; margin: 0.5rem; }
+  #modal-manage-courses .modal-content { height: 100%; border-radius: 0; }
+  #modal-manage-courses .list-group { max-height: 35vh; }
+}
+
+/* Subtle badge style when course names appear next to subjects */
+.pv-course-badge {
+  background-color: rgba(0,0,0,0.04);
+  color: inherit;
+  font-size: 0.8rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.5rem;
+}
+
+/* Background padrão: apenas o .card-body dentro de #main-content deve ficar levemente cinza */
+#main-content .card .card-body {
+  background-color: #f8f9fa;
+}

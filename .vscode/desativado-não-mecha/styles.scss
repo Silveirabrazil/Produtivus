@@ -1,0 +1,40 @@
+// Aggregator module to replace deprecated @import usage
+// Keep order: Bootstrap base -> variables/theme -> pages -> overrides
+
+// 1) Bootstrap 5.3.8 base CSS (stock)
+@use "../../bootstrap-5.3.8/scss/bootstrap";
+// Se futuramente quiser customizar variáveis, mova overrides ANTES deste @use
+
+// 2) Núcleo de tema/base do site
+@use "variables";
+@use "theme";
+@use "theme-hero";
+@use "transitions";
+@use "main";
+
+// 3) components / pages
+@use "components";
+@use "dashboard";
+@use "footer";
+@use "calendar";
+@use "login";
+@use "tasks";
+@use "studies";
+
+// 4) Header/Footer unificados
+@use "header-footer";
+
+// 5) Overrides consolidados e extras (desabilitados para manter Bootstrap puro)
+// @use "bootstrap-overrides";
+@use "dashboard-sb";
+@use "editor";
+@use "landing";
+@use "overrides";
+// @use "bootstrap4-compat";
+@use "mindmaps";
+// Novos componentes extraídos de JS
+@use "ui";
+@use "timer";
+@use "flashcards";
+@use "notifications";
+@use "login-modal";

@@ -1,0 +1,222 @@
+/*
+ * Theme / Design Tokens
+ * Paleta de cores, tipografia e componentes base.
+ */
+:root {
+  /* Cores base */
+  --color-dark: #2c2723;
+  --color-medium-grey: #7b7f85;
+  --color-light-grey: #efe7dd; /* usado na pagina como base */
+  --color-white: #fbf9f6;
+  --color-yellow: #caa77a;
+  --color-yellow-light: #efd7a8;
+  --color-danger: #ff4d4f;
+
+  /* Cores funcionais (semânticas) */
+  --bg-body: var(--color-page-bg);
+  --text-main: var(--color-dark);
+  --bg-header: linear-gradient(
+    90deg,
+    rgba(27, 35, 39, 0.95),
+    rgba(27, 35, 39, 0.95)
+  );
+  --text-on-dark: var(--color-white);
+  --bg-card: var(--color-white);
+  --bg-cta: linear-gradient(
+    90deg,
+    var(--color-yellow),
+    var(--color-yellow-light)
+  );
+  --color-cta: var(--color-yellow);
+  --color-danger-btn: var(--color-danger);
+
+  /* Tipografia */
+  --font-base: "Dosis", sans-serif;
+  --base-font-size: 16px;
+
+  /* Layout e espaçamento */
+  --site-gutter: 1rem;
+  --container-max: 1200px;
+
+  /* Sombras e bordas */
+  --border-radius: 12px;
+  --shadow-card: 0 18px 40px rgba(11, 15, 12, 0.08);
+
+  /* Transições */
+  --transition-fast: 0.3s ease;
+}
+
+/* Font-face fallback */
+@font-face {
+  font-family: "Dosis";
+  src: url("/css/fonts/dosis-300.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Dosis";
+  src: url("/css/fonts/dosis-500.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Dosis";
+  src: url("/css/fonts/dosis-700.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Reset e base */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-base);
+  font-size: var(--base-font-size);
+  color: var(--text-main);
+  background: var(--bg-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Botões — regras globais consolidadas em _bootstrap-overrides.scss */
+
+/*
+ * Layout
+ */
+.site-wrapper {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--site-gutter);
+}
+
+.full-bleed {
+  width: 100%;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+/*
+ * Header
+ */
+.site-header {
+  background: var(--bg-header);
+  color: var(--text-on-dark);
+}
+
+.site-header .site-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.site-header .logo img {
+  height: 36px;
+}
+
+.site-header nav a {
+  margin-left: 1rem;
+  opacity: 0.95;
+}
+
+/*
+ * Hero / banner
+ */
+.hero-banner {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-dark);
+  color: var(--text-on-dark);
+}
+
+.hero-banner .hero-media {
+  display: block;
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+}
+
+.hero-banner .banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 10, 12, 0.6) 0%,
+    rgba(6, 10, 12, 0.3) 45%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.hero-banner .banner-message {
+  position: absolute;
+  left: var(--site-gutter);
+  bottom: 2.25rem;
+  z-index: 5;
+  max-width: 720px;
+}
+
+.banner-message h1 {
+  font-size: 2.1rem;
+  margin: 0 0 0.5rem;
+  color: var(--text-on-dark);
+}
+
+.banner-message p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 1rem;
+}
+
+/*
+ * Faixa CTA
+ */
+
+.cta-band {
+  background: var(--bg-cta);
+  color: var(--text-main);
+  padding: 1.5rem 0;
+}
+
+.cta-band .site-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cta-band .btn {
+  background: var(--bg-header);
+  color: var(--color-cta);
+  padding: 0.65rem 1rem;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+/*
+ * Media Queries
+ */
+@media (max-width: 640px) {
+  .hero-banner .banner-message h1 {
+    font-size: 1.4rem;
+  }
+
+  .hero-banner .hero-media {
+    height: 260px;
+  }
+
+  .site-header .site-wrapper {
+    height: 60px;
+  }
+}

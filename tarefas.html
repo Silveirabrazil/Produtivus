@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Produtivus — Tarefas</title>
+  <meta name="app-version" content="20250823T0000">
+  <meta name="description" content="Gerencie suas tarefas e aulas. Crie, edite, conclua e visualize pendências e concluídas.">
+  <!-- Bootstrap 5 via SASS: css/styles.css já inclui tudo -->
+  <link rel="stylesheet" href="css/styles.css?v=20250904">
+
+  <link rel="stylesheet" href="css/fonts/material-symbols.css" />
+  <link rel="icon" href="img/image.png" type="image/png">
+  <link rel="apple-touch-icon" href="img/image.png">
+</head>
+
+<body>
+  <!-- header dinâmico -->
+  <div id="header-container" class="container-fluid p-0"></div>
+
+  <!-- page header -->
+  <header class="bg-body-tertiary border-bottom">
+    <div class="container py-3 py-md-4">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+          <h1 class="h3 mb-1">Tarefas</h1>
+          <p class="text-muted mb-0">Planeje seu dia com tarefas, subtarefas, aulas e horários.</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-secondary" id="btn-add-lesson" title="Criar aulas (curso/matéria)">+ Adicionar aula</button>
+          <button type="button" class="btn btn-primary" id="btn-add-task" title="Criar nova tarefa">+ Nova tarefa</button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- Modal de Tarefa (Bootstrap) -->
+  <div class="modal fade" id="taskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="tm-title">Nova Tarefa</h5>
+          <button type="button" id="close-task-modal" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="task-form" class="vstack gap-3">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label for="task-title" class="form-label">Título</label>
+                <input type="text" id="task-title" name="title" class="form-control" required>
+              </div>
+              <div class="col-md-4">
+                <label for="task-color" class="form-label">Cor</label>
+                <input type="color" id="task-color" name="color" value="#E0B33A" class="form-control form-control-color">
+              </div>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="task-start" class="form-label">Início</label>
+                <input type="datetime-local" id="task-start" name="start" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label for="task-end" class="form-label">Término</label>
+                <input type="datetime-local" id="task-end" name="end" class="form-control">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="task-desc" class="form-label">Descrição</label>
+              <textarea id="task-desc" name="description" class="form-control"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Subtarefas</label>
+              <div id="subtasks-list" class="subtasks-list"></div>
+              <button type="button" id="btn-add-subtask" class="btn btn-outline-secondary btn-sm mt-2">+ Adicionar subtarefa</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" form="task-form">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Modal de Tarefa -->
+
+  <!-- Modal de Aulas (Bootstrap) -->
+  <div class="modal fade" id="lessonModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="lm-title">Adicionar Aula</h5>
+          <button type="button" id="close-lesson-modal" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="lesson-form" class="vstack gap-3">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label for="lesson-title" class="form-label">Título</label>
+                <input type="text" id="lesson-title" class="form-control" required>
+              </div>
+              <div class="col-md-4">
+                <label for="lesson-color" class="form-label">Cor</label>
+                <input type="color" id="lesson-color" value="#E0B33A" class="form-control form-control-color">
+              </div>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="lesson-course" class="form-label">Curso</label>
+                <div class="d-flex align-items-center gap-2">
+                  <select id="lesson-course" class="form-select flex-grow-1 min-w-8rem">
+                    <option value="">-- Selecione --</option>
+                  </select>
+                  <button type="button" id="btn-lesson-add-course" class="btn btn-outline-secondary" title="Novo curso">+</button>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="lesson-subject" class="form-label">Matéria</label>
+                <div class="d-flex align-items-center gap-2">
+                  <select id="lesson-subject" class="form-select flex-grow-1 min-w-8rem">
+                    <option value="">Selecione um curso…</option>
+                  </select>
+                  <button type="button" id="btn-lesson-add-subject" class="btn btn-outline-secondary" title="Nova matéria">+</button>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="lesson-duration" class="form-label">Duração (min)</label>
+                <input type="number" id="lesson-duration" min="0" step="5" placeholder="25" class="form-control">
+              </div>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label for="lesson-start-date" class="form-label">Período: início</label>
+                <input type="date" id="lesson-start-date" class="form-control">
+              </div>
+              <div class="col-md-3">
+                <label for="lesson-end-date" class="form-label">Período: término</label>
+                <input type="date" id="lesson-end-date" class="form-control">
+              </div>
+              <div class="col-md-3">
+                <label for="lesson-time" class="form-label">Horário</label>
+                <input type="time" id="lesson-time" class="form-control">
+              </div>
+              <div class="col-md-3">
+                <label for="lesson-end-time" class="form-label">Fim (opcional)</label>
+                <input type="time" id="lesson-end-time" class="form-control">
+              </div>
+            </div>
+            <div class="mt-2">
+              <label class="form-label">Dias da semana</label>
+              <div class="weekday-pills d-flex flex-wrap gap-2">
+                <label class="d-inline-flex align-items-center gap-2 border rounded-pill bg-white px-2 py-1 weekday-chip"><input type="checkbox" data-dow="0" /> D</label>
+                <label class="d-inline-flex align-items-center gap-2 border rounded-pill bg-white px-2 py-1 weekday-chip"><input type="checkbox" data-dow="1" /> S</label>
+                <label class="d-inline-flex align-items-center gap-2 border rounded-pill bg-white px-2 py-1 weekday-chip"><input type="checkbox" data-dow="2" /> T</label>
+                <label class="d-inline-flex align-items-center gap-2 border rounded-pill bg-white px-2 py-1 weekday-chip"><input type="checkbox" data-dow="3" /> Q</label>
+                <label class="d-inline-flex align-items-center gap-2 border rounded-pill bg-white px-2 py-1 weekday-chip"><input type="checkbox" data-dow="4" /> Q</label>
+                <label class="d-inline-flex align-items-center gap-2 border rounded-pill bg-white px-2 py-1 weekday-chip"><input type="checkbox" data-dow="5" /> S</label>
+                <label class="d-inline-flex align-items-center gap-2 border rounded-pill bg-white px-2 py-1 weekday-chip"><input type="checkbox" data-dow="6" /> S</label>
+              </div>
+              <p class="small mt-1 text-muted">D=Dom, S=Seg, T=Ter, Q=Qua/Qui, S=Sex/Sáb</p>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" form="lesson-form">Criar aulas</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Modal de Aulas -->
+
+  <!-- Modal de Detalhes da Tarefa (Bootstrap) -->
+  <div class="modal fade" id="taskDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="td-title">Detalhes da Tarefa</h5>
+          <button type="button" id="close-task-details" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex justify-content-end gap-2 mb-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="td-edit">Editar</button>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Período</label><div id="td-dates">-</div></div>
+            <div class="col-md-6"><label class="form-label">Próxima</label><div id="td-next">-</div></div>
+          </div>
+          <div class="row g-3 d-none" id="td-schedule-row">
+            <div class="col-12"><label class="form-label">Cronograma</label><div id="td-schedule">-</div></div>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Curso</label><div id="td-course">-</div></div>
+            <div class="col-md-6"><label class="form-label">Matéria</label><div id="td-subject">-</div></div>
+          </div>
+          <div class="row g-3"><div class="col-md-6"><label class="form-label">Duração</label><div id="td-duration">-</div></div></div>
+          <div class="mb-3"><label class="form-label">Descrição</label><div id="td-desc" class="text-prewrap">-</div></div>
+          <div class="mb-3"><label class="form-label">Subtarefas</label><ul id="td-subtasks" class="m-0 ps-3"></ul></div>
+          <div class="row g-3"><div class="col-md-6"><label class="form-label">Série</label><div id="td-series">-</div></div></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Modal de Detalhes da Tarefa -->
+
+  <!-- header já inserido acima -->
+  <main id="main-content" class="pb-5">
+    <div class="container py-4 py-md-5">
+      <!-- pendentes -->
+      <section class="main-container-tasks-pendentes mb-5">
+        <div class="tasks-info mb-3">
+          <h2 class="tasks-title h4 mb-1">Tarefas Pendentes</h2>
+          <p class="tasks-desc text-muted mb-0">Estas são as tarefas que você ainda precisa concluir.</p>
+        </div>
+        <div class="cards-grid cards-pendentes" id="cards-pendentes"></div>
+      </section>
+
+      <!-- realizadas -->
+      <section class="main-container-tasks-pendentes">
+        <div class="tasks-info mb-3">
+          <h2 class="tasks-title h4 mb-1">Tarefas Concluídas</h2>
+          <p class="tasks-desc text-muted mb-0">Estas são as tarefas que você já finalizou.</p>
+        </div>
+        <div class="cards-grid cards-feitas" id="cards-feitas"></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="footer-container"></div>
+  <!-- Error Handler - deve ser carregado primeiro -->
+  <script src="js/modules/error-handler.js?v=202509151726?v=20250914T0000"></script>
+  <script src="js/modules/route-guard.js?v=202509151726" defer></script>
+  <script src="js/protect.js?v=202509151726?v=20250823T0000"></script>
+  <script src="js/modules/ui.js?v=20250826T0000"></script>
+  <script src="js/modules/study.js?v=20250826T0000"></script>
+  <script src="js/modules/tasks/tasks.js?v=20250828T0003"></script>
+  <script src="js/modules/header.js" defer></script>
+  <script src="js/modules/footer.js" defer></script>
+  <script src="js/modules/login-modal.js" defer></script>
+  <script src="js/main.js?v=20250823T0000" defer></script>
+  <script src="js/debug/session-debug.js?v=20250823T0000"></script>
+  <!-- jQuery, Popper e Bootstrap 4.1.3 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+
+</html>

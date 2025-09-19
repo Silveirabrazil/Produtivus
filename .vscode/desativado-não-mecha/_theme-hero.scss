@@ -1,0 +1,65 @@
+/*
+ * Tema e Layout
+ * Estilos específicos para componentes como Hero Banner e cartões,
+ * inspirados em um tema de cores claras e ondas.
+ */
+
+:root {
+  /* usar tokens globais */
+  --bg-cream: var(--bg);
+  --hero-peach: var(--cta);
+  --cta-yellow: var(--cta-light);
+  --card-surface: var(--card-bg);
+  --text-invert: #fff;
+}
+
+/*
+ * Hero Banner e Wave
+ */
+.hero-banner {
+  background: var(--bg-cream);
+  position: flex;
+  overflow: hidden;
+  padding-bottom: var(--space-lg);
+}
+
+.hero-banner .banner-message {
+  max-width: 720px;
+  color: var(--text-invert);
+  padding: 0 var(--site-gutter);
+}
+
+.hero-wave {
+  width: 100%;
+  margin-top: -2px;
+  display: block;
+}
+
+.hero-wave svg {
+  display: block;
+  width: 100%;
+  height: 64px;
+}
+
+.hero-wave svg path {
+  fill: var(--card-surface);
+  transition: fill 220ms ease;
+}
+
+/*
+ * Efeitos de Sombra e Controles de Layout
+ */
+.card,
+.nb-item,
+.card-tarefa {
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(6, 10, 12, 0.06);
+}
+
+/* Botão de ação específico do hero (não global) */
+#nb-new {
+  background: linear-gradient(90deg, var(--hero-peach), var(--cta-yellow));
+  color: var(--cta-text);
+  border-radius: 12px;
+  padding: 10px 14px;
+}

@@ -1,0 +1,34 @@
+// Aggregator module to replace deprecated @import usage
+// Keep order: variables -> theme -> hero -> transitions -> base -> components/pages
+@forward "variables";
+@forward "theme";
+@forward "theme-hero";
+@forward "transitions";
+@forward "main";
+
+// components / pages
+@forward "components";
+@forward "dashboard";
+@forward "footer";
+@forward "calendar";
+@forward "login";
+@forward "tasks";
+@forward "studies";
+
+// Unified Header/Footer inside main bundle
+@forward "header-footer";
+
+// Overrides consolidated
+@forward "bootstrap-overrides";
+@forward "dashboard-sb";
+@forward "editor";
+@forward "landing";
+@forward "overrides";
+@forward "bootstrap4-compat";
+@forward "mindmaps";
+// Novos componentes extraídos de JS
+@forward "ui";
+@forward "timer";
+@forward "flashcards";
+@forward "notifications";
+@forward "login-modal";

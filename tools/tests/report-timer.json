@@ -1,0 +1,56 @@
+{
+  "url": "http://127.0.0.1:8080/estudos.html",
+  "ok": true,
+  "console": [],
+  "errors": [],
+  "networkFailures": [],
+  "steps": [
+    "injected pv_timer_sound_src",
+    {
+      "injectedTimerScript": true
+    },
+    "called window.openTimerModal()",
+    "#pv-timer-modal present",
+    {
+      "scriptsCount": 21,
+      "hasStudyScript": true,
+      "hasDataFlag": false,
+      "hasPvStudy": true
+    },
+    {
+      "#pv-full-timer_exists": true
+    },
+    {
+      "leftBefore": "25:00"
+    },
+    "clicked #tm-test",
+    {
+      "changedInputs": {
+        "study": 15,
+        "break": 3,
+        "long": 10,
+        "cycles": 3
+      }
+    },
+    {
+      "persistedState": {
+        "studyMin": 15,
+        "breakMin": 3,
+        "longBreakMin": 10,
+        "cycles": 3,
+        "autoNext": true,
+        "sound": false,
+        "phase": "study",
+        "running": false,
+        "leftStart": 900,
+        "startEpoch": 1757133558026,
+        "left": 900,
+        "done": 0
+      }
+    },
+    "clicked #tm-reset",
+    {
+      "leftAfterReset": "25:00"
+    }
+  ]
+}

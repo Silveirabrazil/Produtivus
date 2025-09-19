@@ -25,10 +25,19 @@ try {
     $chk->execute([':id'=>$nid, ':uid'=>$uid]);
     if (!$chk->fetch()) { http_response_code(404); echo json_encode(['success'=>false,'message'=>'Caderno não encontrado']); exit; }
 
-    $st = $conn->prepare('SELECT * FROM notebook_pages WHERE notebook_id = :nid ORDER BY id ASC');
-    $st->execute([':nid'=>$nid]);
-    $rows = $st->fetchAll();
-    $items = array_map(function($r){ return [ 'id'=>(int)$r['id'], 'title'=>$r['title'], 'color'=>$r['color'], 'content'=>$r['content'], 'created'=>$r['created_at'], 'updated'=>$r['updated_at'] ]; }, $rows);
+    // Tenta selecionar com todas as colunas; se falhar (colunas ausentes), faz fallback com colunas básicas
+    try {
+      $st = $conn->prepare('SELECT id, notebook_id, title, color, content, subject_id, created_at, updated_at FROM notebook_pages WHERE notebook_id = :nid ORDER BY id ASC');
+      $st->execute([':nid'=>$nid]);
+      $rows = $st->fetchAll();
+      $items = array_map(function($r){ return [ 'id'=>(int)$r['id'], 'title'=>$r['title'], 'color'=>$r['color'], 'content'=>$r['content'], 'subject_id'=> isset($r['subject_id']) ? (int)$r['subject_id'] : null, 'created'=>$r['created_at'] ?? null, 'updated'=>$r['updated_at'] ?? null ]; }, $rows);
+    } catch (Throwable $e) {
+      // Fallback: sem subject_id/created_at/updated_at
+      $st = $conn->prepare('SELECT id, notebook_id, title, color, content FROM notebook_pages WHERE notebook_id = :nid ORDER BY id ASC');
+      $st->execute([':nid'=>$nid]);
+      $rows = $st->fetchAll();
+      $items = array_map(function($r){ return [ 'id'=>(int)$r['id'], 'title'=>$r['title'], 'color'=>$r['color'], 'content'=>$r['content'], 'subject_id'=> null, 'created'=> null, 'updated'=> null ]; }, $rows);
+    }
     echo json_encode(['success'=>true, 'items'=>$items]);
     exit;
   }
@@ -44,8 +53,15 @@ try {
     $title = trim((string)($b['title'] ?? 'Página'));
     $color = isset($b['color']) ? (string)$b['color'] : null;
     $content = isset($b['content']) ? (string)$b['content'] : '';
-    $st = $conn->prepare('INSERT INTO notebook_pages (notebook_id, title, color, content) VALUES (:nid,:t,:c,:ct)');
-    $st->execute([':nid'=>$nid, ':t'=>$title, ':c'=>$color, ':ct'=>$content]);
+    $subjectId = isset($b['subject_id']) && $b['subject_id'] !== '' ? (int)$b['subject_id'] : null;
+    // Tenta inserir com subject_id; se falhar (coluna ausente), insere sem ela
+    try {
+      $st = $conn->prepare('INSERT INTO notebook_pages (notebook_id, title, color, content, subject_id) VALUES (:nid,:t,:c,:ct,:sid)');
+      $st->execute([':nid'=>$nid, ':t'=>$title, ':c'=>$color, ':ct'=>$content, ':sid'=>$subjectId]);
+    } catch (Throwable $e) {
+      $st = $conn->prepare('INSERT INTO notebook_pages (notebook_id, title, color, content) VALUES (:nid,:t,:c,:ct)');
+      $st->execute([':nid'=>$nid, ':t'=>$title, ':c'=>$color, ':ct'=>$content]);
+    }
     echo json_encode(['success'=>true, 'id'=>(int)$conn->lastInsertId()]);
     exit;
   }
@@ -61,13 +77,25 @@ try {
     $b = read_json_body();
     $fields = [];$params=[':id'=>$id];
     if (isset($b['title'])) { $fields[]='title=:t'; $params[':t']=(string)$b['title']; }
-    if (isset($b['color'])) { $fields[]='color=:c'; $params[':c']=(string)$b['color']; }
-    if (array_key_exists('content',$b)) { $fields[]='content=:ct'; $params[':ct']=$b['content']; }
-    if ($fields){ $sql='UPDATE notebook_pages SET '.implode(',', $fields).' WHERE id=:id'; $up=$conn->prepare($sql); $up->execute($params); }
-  // Força atualização do campo updated_at para o horário atual
-  $sqlUpdateTime = 'UPDATE notebook_pages SET updated_at=NOW() WHERE id=:id';
-  $upTime = $conn->prepare($sqlUpdateTime); $upTime->execute([':id'=>$id]);
-  echo json_encode(['success'=>true]);
+  if (isset($b['color'])) { $fields[]='color=:c'; $params[':c']=(string)$b['color']; }
+  if (array_key_exists('content',$b)) { $fields[]='content=:ct'; $params[':ct']=$b['content']; }
+  if (array_key_exists('subject_id',$b)) { $fields[]='subject_id=:sid'; $params[':sid']= ($b['subject_id'] !== '' && $b['subject_id'] !== null) ? (int)$b['subject_id'] : null; }
+    if ($fields){
+      try {
+        $sql='UPDATE notebook_pages SET '.implode(',', $fields).' WHERE id=:id';
+        $up=$conn->prepare($sql); $up->execute($params);
+      } catch (Throwable $e) {
+        // Se falhar por causa de subject_id ausente, remove-o e tenta novamente
+        $fields2 = [];$params2=[':id'=>$id];
+        if (isset($b['title'])) { $fields2[]='title=:t'; $params2[':t']=(string)$b['title']; }
+        if (isset($b['color'])) { $fields2[]='color=:c'; $params2[':c']=(string)$b['color']; }
+        if (array_key_exists('content',$b)) { $fields2[]='content=:ct'; $params2[':ct']=$b['content']; }
+        if ($fields2) { $sql='UPDATE notebook_pages SET '.implode(',', $fields2).' WHERE id=:id'; $up=$conn->prepare($sql); $up->execute($params2); }
+      }
+    }
+    // Força atualização do campo updated_at, se existir
+    try { $sqlUpdateTime = 'UPDATE notebook_pages SET updated_at=NOW() WHERE id=:id'; $upTime = $conn->prepare($sqlUpdateTime); $upTime->execute([':id'=>$id]); } catch (Throwable $e) {}
+    echo json_encode(['success'=>true]);
     exit;
   }
 

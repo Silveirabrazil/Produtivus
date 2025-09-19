@@ -1,0 +1,2 @@
+/* FullCalendar local - minificado v6.1.8 (apenas exemplo, substitua pelo arquivo real baixado) */
+/* ...código minificado do fullcalendar... */

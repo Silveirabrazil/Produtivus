@@ -1,0 +1,78 @@
+// Estilos da página Cadernos (layout lateral + editor)
+// Mantém compatibilidade com os seletores gerados em js/modules/notebook.js
+
+.cadernos-layout {
+  // em telas médias+ vira 2 colunas via grid do próprio módulo
+  .nb-card {
+    box-shadow: 0 8px 24px rgba(0,0,0,.06);
+    border: 1px solid rgba(0,0,0,.06);
+  }
+
+  // Sidebar da lista de cadernos
+  [data-nb-list] {
+    max-height: 50vh;
+    overflow: auto;
+  }
+
+  // Item ativo na lista
+  .list-group-item.active {
+    background: linear-gradient(180deg, rgba(13,110,253,.1), rgba(13,110,253,.06));
+    border-color: rgba(13,110,253,.25);
+  }
+
+  // Barra do topo (título + ações)
+  .nb-actions .btn {
+    --bs-btn-padding-y: .25rem;
+    --bs-btn-padding-x: .5rem;
+  }
+
+  // Abas das páginas
+  [data-page-tabs] {
+    gap: .25rem;
+  }
+  [data-page-tabs] .nav-link {
+    border: 1px solid rgba(0,0,0,.06);
+  }
+
+  // Editor host: fundo sutil
+  #nb-editor-host {
+    background: #fff;
+    border-radius: .5rem;
+    border: 1px solid rgba(0,0,0,.06);
+    min-height: 320px;
+  }
+}
+
+// Pequenas melhorias de acessibilidade
+.cadernos-layout .list-group-item .btn[title="Excluir caderno"] {
+  line-height: 1;
+}
+.cadernos-layout [data-page-close] {
+  line-height: 1;
+}
+
+// Estilos mínimos da régua do editor
+.pv-editor .editor-ruler {
+  position: relative;
+  height: 32px;
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: .375rem;
+  background: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.04));
+  margin-bottom: .5rem;
+  overflow: hidden;
+}
+.pv-editor .editor-ruler .ticks { position: absolute; inset: 0; }
+.pv-editor .editor-ruler .ticks .t {
+  position: absolute; bottom: 0; width: 1px; background: rgba(0,0,0,.25); height: 6px;
+}
+.pv-editor .editor-ruler .ticks .t.major { height: 10px; background: rgba(0,0,0,.4); }
+.pv-editor .editor-ruler .ticks b {
+  position: absolute; bottom: 12px; transform: translateX(-50%);
+  font-size: .7rem; color: #6c757d; user-select: none;
+}
+.pv-editor .editor-ruler .handles { position: absolute; inset: 0; pointer-events: auto; }
+.pv-editor .editor-ruler .handles span {
+  position: absolute; top: 0; width: 6px; height: 100%; cursor: ew-resize;
+  background: rgba(13,110,253,.15); border-right: 1px solid rgba(13,110,253,.35);
+}
+.pv-editor .editor-ruler .handles .h-first { background: rgba(255,193,7,.2); border-right-color: rgba(255,193,7,.6); }

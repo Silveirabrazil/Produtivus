@@ -3,7 +3,22 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run serve",
+  "build:css": "sass --load-path=node_modules/bootstrap/scss --quiet-deps --no-source-map css/scss/styles.scss css/styles.css --style=expanded",
+  "build:css:prod": "sass --load-path=node_modules/bootstrap/scss --quiet-deps css/scss/styles.scss css/styles.css --style=compressed --source-map",
+  "watch:css": "sass --load-path=node_modules/bootstrap/scss --quiet-deps --watch css/scss/styles.scss:css/styles.css --style=expanded",
+    "serve": "http-server -c-1 . -p 8081",
+    "build:mindmaps": "npm --prefix apps/mindmaps run build",
+    "dev:mindmaps": "npm --prefix apps/mindmaps run dev",
+  "build:sheets": "npm --prefix apps/sheets run build",
+  "dev:sheets": "npm --prefix apps/sheets run dev",
+    "build:all": "npm-run-all -s build:ocsss build:css build:mindmaps",
+    "build:ocsss": "sass --no-source-map packages/ocsss/src/index.scss packages/ocsss/dist/index.css --style=expanded",
+    "build:ocsss:prod": "sass packages/ocsss/src/index.scss packages/ocsss/dist/index.css --style=compressed --source-map",
+    "watch:ocsss": "sass --watch packages/ocsss/src/index.scss:packages/ocsss/dist/index.css --style=expanded",
+    "build": "npm-run-all -s build:ocsss build:css",
+    "reinstall:fullcalendar": "node js/reinstall-fullcalendar.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +33,17 @@
   "homepage": "https://github.com/Silveirabrazil/Produtivus-3.0.0.0#readme",
   "description": "",
   "dependencies": {
-    "sass": "^1.90.0"
+    "bootstrap-icons": "^1.13.1",
+    "chart.js": "^4.5.0",
+    "fullcalendar": "^6.1.19"
+  },
+  "devDependencies": {
+    "bootstrap": "^5.3.3",
+    "http-server": "^14.1.1",
+    "npm-run-all": "^4.1.5",
+    "puppeteer": "^24.19.0",
+    "sass": "^1.92.0",
+    "ttf2woff": "^2.0.2",
+    "ttf2woff2": "^4.0.5"
   }
 }

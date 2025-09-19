@@ -1,3 +1,28 @@
 {
-  "liveServer.settings.port": 5501
+  "liveServer.settings.port": 5502,
+
+  // Organiza o Explorador por tipo e evita compactar pastas (melhor visualização por tipos)
+  "explorer.sortOrder": "type",
+  "explorer.compactFolders": false,
+
+  // Esconder arquivos/dirs que poluem a árvore do projeto
+  "files.exclude": {
+    "**/*.map": true,
+    "**/*.log": true,
+    "**/*.zip": true,
+    "**/node_modules": true,
+    "**/.git": true,
+    "css/_archive-unused": true,
+    "1.zip": true,
+    "2.zip": true
+  },
+
+  // sugestões de visual para abrir o workspace com ícones
+  // (o usuário pode instalar "vscode-icons" ou "PKief.material-icon-theme")
+  "workbench.iconTheme": "material-icon-theme",
+
+  // Preferências de editor úteis para este projeto
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "commentTranslate.hover.enabled": false
 }

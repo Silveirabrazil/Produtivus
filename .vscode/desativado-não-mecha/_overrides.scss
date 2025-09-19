@@ -1,0 +1,112 @@
+/* Overrides diversos */
+.cadernos-layout iframe { border: none !important; background: white; }
+.editor-loading { z-index: 10; position: relative; }
+.cadernos-main { position: relative; }
+.debug-info { font-size: 11px; background: rgba(255, 235, 59, 0.1); border-left: 3px solid #ffc107; padding: 8px; margin: 5px 0; }
+.material-symbols-outlined { font-family: 'Material Symbols Outlined', 'Material Icons', sans-serif; font-weight: normal; font-style: normal; font-size: 24px; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }
+.hero-band { overflow: visible !important; }
+.cadernos-sidebar { border-right: 1px solid #e1e5e9; background: #fafbfc; }
+.btn-group.nb-actions .btn { height: 32px; padding: .25rem .5rem; line-height: 1.2; display: inline-flex; align-items: center; gap: .35rem; border-radius: .375rem !important; }
+.nb-actions [data-nb-refresh], .nb-actions [data-nb-new], .nb-actions [data-nb-multi-new] { font-size: .875rem; }
+.btn-group.nb-actions .btn+.btn { margin-left: .25rem; }
+.btn-group.nb-actions .btn { box-shadow: none !important; text-transform: none !important; letter-spacing: normal !important; font-weight: 500 !important; }
+.btn-group.nb-actions .btn, .btn-group.nb-actions .btn:hover, .btn-group.nb-actions .btn:active { transform: none !important; }
+body[data-disable-page-transitions="true"] .card,
+body[data-disable-page-transitions="true"] .card:hover,
+body[data-disable-page-transitions="true"] .btn,
+body[data-disable-page-transitions="true"] .btn:hover,
+body[data-disable-page-transitions="true"] .nav-link,
+body[data-disable-page-transitions="true"] .nav-link:hover,
+body[data-disable-page-transitions="true"] .list-group-item,
+body[data-disable-page-transitions="true"] .list-group-item:hover,
+body[data-disable-page-transitions="true"] .pv-editor * { transition: none !important; transform: none !important; }
+body[data-disable-page-transitions="true"] .modal { position: fixed; inset: 0; padding: 0; width: auto; max-height: none; background: transparent; display: none !important; pointer-events: none; }
+body[data-disable-page-transitions="true"] .modal.show,
+body[data-disable-page-transitions="true"] .modal[aria-hidden="false"] { display: block !important; pointer-events: auto; }
+body[data-disable-page-transitions="true"] .modal .modal-dialog,
+body[data-disable-page-transitions="true"] .modal .modal-content { transition: none !important; }
+.nb-card { border-radius: 10px !important; box-shadow: 0 6px 16px rgba(0, 0, 0, .06) !important; padding: 0 !important; }
+.nb-card>.card-body { padding: .75rem !important; }
+#main-content .nb-card, #main-content .nb-card .card-body { margin: 0 !important; width: auto !important; max-width: 100% !important; }
+.status-bar { border-top: 1px solid #e1e5e9; font-size: 12px; color: #6c757d; }
+@media (max-width: 768px) {
+  .cadernos-layout { flex-direction: column; }
+  .cadernos-sidebar { width: 100% !important; max-height: 200px; border-right: none; border-bottom: 1px solid #e1e5e9; }
+}
+/* Modais do Editor: overlay correto */
+#editorLinkModal,#editorImageModal,#editorTableModal,#editorTableBorderModal { position: fixed !important; inset: 0 !important; z-index: 1200 !important; width: auto !important; max-height: none !important; padding: 0 !important; background: transparent !important; border-radius: 0 !important; transition: none !important; }
+#editorLinkModal .modal-dialog,#editorImageModal .modal-dialog,#editorTableModal .modal-dialog,#editorTableBorderModal .modal-dialog { margin: .5rem auto; transition: none !important; }
+body[data-disable-page-transitions="true"] .modal-backdrop { z-index: 1190 !important; transition: none !important; }
+body[data-disable-page-transitions="true"] .modal-backdrop:not(.show) { opacity: 0 !important; display: none !important; pointer-events: none !important; }
+/* Garante que qualquer .modal fique acima do backdrop elevado quando as transições de página estão desativadas */
+body[data-disable-page-transitions="true"] .modal { z-index: 1200 !important; }
+
+/* Utilitários de largura mínima (substituem estilos inline) */
+.min-w-8rem { min-width: 8rem !important; }
+.min-w-12rem { min-width: 12rem !important; }
+/* Altura máxima e texto pre-wrap */
+.max-h-90vh { max-height: 90vh !important; }
+.text-prewrap { white-space: pre-wrap !important; }
+
+/* Chips de dias da semana (tarefas) */
+.weekday-chip { border: 1px solid rgba(0,0,0,.1); user-select: none; }
+
+/* ===== Utilidades extraídas de CSS inline em JS/HTML ===== */
+/* Painel de diagnóstico (header.js) */
+#pv-debug-panel,
+.pv-debug-panel {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  min-width: 320px;
+  max-width: 520px;
+  background: #fff;
+  padding: 0.6rem;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(10,10,10,0.08);
+  border-radius: 8px;
+  z-index: 99999;
+}
+.pv-debug-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
+.pv-debug-close { background: transparent; border: none; font-size: 0.95rem; cursor: pointer; }
+
+/* Overlay de erro (index.html) */
+#pv-error-overlay,
+.pv-error-overlay {
+  position: fixed;
+  inset: auto 8px 8px 8px;
+  background: #ffe9e9;
+  border: 1px solid #f2b7b7;
+  border-radius: 8px;
+  color: #7a1f1f;
+  padding: 8px 10px;
+  font: 13px/1.4 system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  z-index: 2147483647;
+  max-height: 40vh;
+  overflow: auto;
+}
+.pv-error-header { display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px; }
+.pv-error-close { background: transparent; border: none; cursor: pointer; }
+
+/* Toast básico (cadernos/index.html) */
+.pv-toast {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  padding: .5rem .75rem;
+}
+.pv-toast-fixed { position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px; }
+
+/* Removido override de .btn-primary para manter visual padrão do Bootstrap */
+
+/* Transição de fade entre páginas (ui-page-transition.js) */
+.pv-fade { transition: opacity .35s; }
+.pv-fade.is-fading { opacity: 0; }
+
+/* Utilitários pontuais (tamanhos específicos usados na UI) */
+.max-h-280 { max-height: 280px; }
+.w-260 { width: 260px; }
+.w-180 { width: 180px; }
+.h-40 { height: 40px; }

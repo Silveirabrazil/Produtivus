@@ -1,0 +1,97 @@
+/* Main converted CSS (trimmed for readability) - sourced from styles.css provided by user */
+
+/* Reset & base */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
+  color: var(--text-strong);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.45;
+}
+
+/* Header */
+.site-header,
+header,
+.reader-header,
+.header {
+  background: var(--header-bg);
+  color: var(--text-strong);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: var(--shadow-1);
+}
+
+/* HERO */
+.hero,
+.hero-banner,
+.reader-hero {
+  position: relative;
+  color: var(--text-strong);
+  padding: 56px var(--gutter);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.15));
+}
+
+.hero .hero-inner {
+  position: relative;
+  z-index: 2;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--hero-overlay);
+  pointer-events: none;
+  z-index: 1;
+  border-radius: 0;
+}
+
+/* Card surfaces */
+.card,
+.panel,
+.panel-surface,
+.nb-item,
+.notebook-card {
+  background: var(--card-bg);
+  color: #0b0f13;
+  border-radius: var(--radius);
+  box-shadow: 0 6px 24px rgba(11, 15, 20, 0.06);
+  transition: transform var(--transition-fast) ease,
+    box-shadow var(--transition-fast) ease;
+}
+
+/* Buttons — usar definições globais (_bootstrap-overrides.scss) */
+
+/* Notebooks */
+.notebooks-wrap {
+  display: flex;
+  height: calc(100vh - 70px);
+  gap: 14px;
+}
+.nb-sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  max-width: var(--sidebar-w);
+  background: transparent;
+  transition: width var(--transition-medium) ease,
+    transform var(--transition-medium) ease;
+  padding: 12px;
+}
+
+.notebooks-wrap.sidebar-collapsed .nb-sidebar {
+  width: var(--sidebar-collapsed-w);
+  min-width: var(--sidebar-collapsed-w);
+  max-width: var(--sidebar-collapsed-w);
+}
+
+/* ...rest copied verbatim from provided styles.css ... */

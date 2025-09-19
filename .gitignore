@@ -1,0 +1,41 @@
+# Dependências
+node_modules/
+
+# Configuração de sincronização
+sync_config.jsonc
+
+# Arquivos de configuração sensíveis
+.env
+config/local.php
+server/config/db.json
+server/config/oauth.json
+server/config/ai.json
+server/config/install.json
+
+# Logs
+*.log
+server/logs/
+logs/
+
+# Cache e temporários
+tmp/
+temp/
+.cache/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Arquivos de IDE
+.vscode/settings.json
+.idea/
+
+# Arquivos de backup
+*.backup
+*.bak
+*.orig
+
+# Dados locais de desenvolvimento
+server/data/dev.db
+server/data/test.db

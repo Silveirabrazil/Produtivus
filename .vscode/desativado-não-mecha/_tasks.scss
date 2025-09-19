@@ -1,0 +1,344 @@
+.card-tarefa {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98),
+    rgba(248, 246, 242, 0.98)
+  );
+  color: var(--text-strong);
+  border-radius: var(--card-radius);
+  box-shadow: 0 10px 24px rgba(11, 15, 12, 0.06);
+  border-left: 6px solid var(--card-border-color, rgba(224, 179, 58, 0.12));
+  padding: var(--space-md);
+  width: 100%;
+  font-size: var(--card-font, 1rem);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  will-change: transform, opacity;
+  transition: transform var(--transition-fast),
+    box-shadow var(--transition-fast), background var(--transition-fast);
+  cursor: pointer;
+}
+
+.card-tarefa:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 36px rgba(6, 10, 12, 0.1);
+}
+
+/*
+ * Conteúdo Interno do Cartão (Melhorias)
+ */
+.card-tarefa .card-row {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.card-tarefa .card-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-strong);
+  margin-bottom: 0.25rem;
+  width: 100%;
+}
+
+.card-tarefa .card-progress {
+  font-weight: 600; /* Menos ênfase que o título */
+  font-size: 0.9rem;
+  color: var(--color-medium-grey);
+  margin-top: 0;
+}
+
+.card-tarefa .card-desc {
+  color: var(--text-weak);
+  font-size: 0.95rem;
+  line-height: 1.35;
+  margin-top: 0.35rem;
+  margin-bottom: var(--space-sm);
+}
+
+.card-tarefa hr {
+  border: 0;
+  border-top: 1px solid #eee; /* Separador visual sutil */
+  margin: 0.75rem 0;
+}
+
+.card-tarefa .card-dates {
+  font-size: 0.85rem;
+  color: var(--color-medium-grey);
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.main-container-tasks-pendentes {
+  background-color: white;
+  padding: 55px;
+  margin-bottom: 55px;
+  margin-top: 55px;
+}
+.card-tarefa .card-dates span,
+.card-tarefa .card-time {
+  font-size: inherit; /* Herda o tamanho da fonte do container */
+  color: inherit;
+}
+
+/* Pill de Matéria com cor variável */
+.card-tarefa .card-meta {
+  margin: 0.25rem 0 0.5rem;
+}
+.card-tarefa .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--pill-color, #365562);
+  font-size: 1em;
+}
+
+/* Card específico de Aulas */
+.card-lesson .title-suffix {
+  font-weight: 400;
+  opacity: 0.8;
+}
+.card-lesson .card-lesson-schedule {
+  margin: 0.25rem 0 0.5rem;
+  color: var(--muted, #666);
+}
+
+.card-tarefa .card-details {
+  color: var(--card-border-color);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  margin-top: 0.5rem;
+  display: inline-block;
+}
+
+.card-tarefa .card-actions {
+  margin-top: var(--space-sm);
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
+/*
+ * Botões do Cartão (Mais Definidos)
+ */
+.card-tarefa .btn-edit,
+.card-tarefa .btn-delete,
+.card-tarefa .btn-done {
+  border-radius: 8px;
+  padding: 0.6rem 1rem; /* Tamanho um pouco maior para os botões */
+  font-size: 0.8rem;
+  border: 1px solid transparent; /* Borda padrão transparente */
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.card-tarefa .btn-edit {
+  background-color: #a7c957; /* Verde suave para edição */
+  color: #fff;
+}
+
+.card-tarefa .btn-delete {
+  background-color: #f28482; /* Vermelho suave para exclusão */
+  color: #fff;
+}
+
+.card-tarefa .btn-done {
+  background-color: #61a5c2; /* Azul suave para concluído */
+  color: #fff;
+}
+
+.card-tarefa .btn-edit:hover {
+  background-color: #8cba51;
+}
+
+.card-tarefa .btn-delete:hover {
+  background-color: #e07a5f;
+}
+
+.card-tarefa .btn-done:hover {
+  background-color: #4a86a3;
+}
+
+/* Ajustes visuais do modal de tarefas */
+.color-input {
+  width: 36px;
+  height: 28px; /* ocupa menos espaço */
+}
+
+#btn-add-subtask {
+  margin-top: 4px; /* menos espaço acima do botão de subtarefa */
+}
+
+/* Modal unificada (tarefas) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 10, 12, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 0.75rem; /* margem menor para ganhar área útil */
+  z-index: 1000;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-overlay .modal {
+  position: relative;
+  width: clamp(360px, 48vw, 540px); /* ligeiramente mais estreita */
+  max-height: 78vh; /* um pouco mais alta para conteúdo */
+  background: #fff; /* fundo sólido e claro */
+  color: #0b0f13 !important; /* texto escuro sempre visível */
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(11, 15, 20, 0.18);
+  padding: 0.8rem 0.9rem 0.9rem; /* um pouco mais de respiro */
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  overflow: hidden; /* conteúdo interno rola */
+}
+
+.modal-overlay .modal h3#tm-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.2rem 0;
+  color: #0b0f13;
+}
+/* títulos genéricos dentro da modal */
+.modal-overlay .modal h3 {
+  color: #0b0f13;
+}
+
+.close-modal {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: 0;
+  color: var(--text-strong, #0b0f13);
+  opacity: 0.9;
+  cursor: pointer;
+}
+
+.modal-overlay #task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* menos espaço entre os grupos */
+  overflow: auto; /* rolagem interna */
+  max-height: calc(72vh - 1.8rem); /* libera mais área útil */
+  padding-right: 0.2rem;
+}
+
+.modal-overlay .modal-row {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 0.5rem; /* filas mais próximas */
+}
+
+@media (max-width: 720px) {
+  .modal-overlay .modal-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #111827; /* bem legível */
+  margin-bottom: 0.25rem;
+}
+
+.field input[type="text"],
+.field input[type="date"],
+.field input[type="number"],
+.field textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(6, 10, 12, 0.1);
+  background: #fff; /* fundo sólido para contraste */
+  padding: 0.65rem 0.7rem; /* um pouco maiores */
+  font-size: 0.95rem;
+  color: #0b0f13;
+  outline: none;
+}
+
+.field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* textos auxiliares legíveis */
+.modal-overlay .modal .small {
+  color: #374151;
+}
+.modal-overlay .modal .muted {
+  color: #4b5563;
+}
+
+.subtasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem; /* subtarefas mais próximas */
+}
+.subtask-row label { display:flex; gap:0.5rem; align-items:center; margin-bottom:0.5rem; }
+.subtask-text { flex:1; padding:0.45rem; border-radius:6px; border:1px solid rgba(0,0,0,0.06); }
+
+/* Linhas de Curso/Matéria no modal */
+.course-row, .subject-row { display:flex; gap:.5rem; align-items:center; }
+#task-course, #task-subject { flex:1; min-width:8rem; }
+
+.modal-overlay .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  margin-top: 0.15rem; /* menos espaço acima das ações */
+  position: sticky; /* mantém ações visíveis ao rolar */
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0),
+    var(--card-bg, #fff) 40%
+  );
+  padding-top: 0.15rem; /* menos espaço acima do gradiente */
+}
+
+/* Normaliza botões dentro de modais (inclusive Cancelar) */
+/* (Removidos) Overrides de botões nas modais para manter padrão Bootstrap */
+
+/* Inputs menores do construtor de prova ficam mais confortáveis */
+.pv-prova-builder .pvpb-q textarea {
+  min-height: 120px;
+}
+.pv-prova-builder .pvpb-opts input[type="text"] {
+  height: 38px;
+}
+
+/* Garantir que botões em ações de modal não estiquem (especialmente Cancelar) */
+.modal-overlay .modal-actions .btn,
+.modal-overlay .modal-actions [id*="cancel"],
+.modal-overlay .modal-actions [data-action="cancel"],
+.pv-modal-footer .btn {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  margin: 0 !important; /* garantir alinhamento e tamanho consistente */
+}
+/* Botões de Flashcards (inclui #fc-skip) nunca esticam */
+.pv-fc .fc-ctrl > button,
+#fc-skip {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}

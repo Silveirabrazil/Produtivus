@@ -1,0 +1,521 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build Mindmaps App",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/mindmaps",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (cmd)",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"npm run build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild CSS (cmd)",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"npm run build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild CSS (cmd)",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"npm run build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (on-demand)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (on-demand)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (on-demand)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build Mindmaps App",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/mindmaps",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Mindmaps App",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/mindmaps",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Mindmaps App",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/mindmaps",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Sheets App",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Sheets App (register modules)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (guards)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (fallbacks)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (build tag)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (final)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Sheets App (rehydrate maps)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Sheets App (rehydrate maps) 2",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Sheets App (borders fix)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Sheets App (merge fix)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (stabilize borders)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Sheets App (in-cell autocomplete)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (autocomplete final)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (selection fix)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (preserve selection)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (fix border thickness)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (fix borders and dropdowns)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (simplified fix)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (debug dropdowns)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (debug test)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (final fixes)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (final fixes)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (pt-BR context menu)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild Sheets App (fixed context menu)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"apps/sheets",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		}
+	]
+}

@@ -1,0 +1,17 @@
+/* Modal de Login (openLoginModal) extraído de js/modules/login-modal.js */
+.pv-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1040;opacity:0;transition:opacity .15s ease}
+.pv-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1050;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.pv-modal.show{opacity:1;pointer-events:auto}
+.pv-modal-backdrop.show{opacity:1}
+.pv-card{position:relative;background:#fff;border-radius:12px;box-shadow:0 1rem 3rem rgba(0,0,0,.2);width:100%;max-width:420px;padding:20px}
+.pv-card h3{margin:.25rem 0 1rem 0;font-weight:700}
+.pv-field{margin-bottom:.75rem}
+.pv-field label{font-size:.9rem;margin-bottom:.25rem;display:block}
+.pv-field input{width:100%;padding:.5rem .75rem;border:1px solid #dee2e6;border-radius:8px}
+.pv-actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem}
+.pv-btn{appearance:none;border:1px solid #0d6efd;background:#0d6efd;color:#fff;padding:.5rem 1rem;border-radius:8px;cursor:pointer}
+.pv-btn.secondary{background:#fff;color:#0d6efd}
+.pv-close{position:absolute;top:10px;right:12px;border:none;background:transparent;font-size:22px;cursor:pointer}
+.pv-error{color:#b42318;font-size:.9rem;margin:.25rem 0 .5rem 0;display:none}
+.divider{color:#6b7280}
+.pv-logo-48{height:48px}

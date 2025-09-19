@@ -1,0 +1,76 @@
+/* Layout e estilos da página de Tarefas (Bootstrap 5) */
+
+/* Containers principais (seções pendentes/feitas) */
+.main-container-tasks-pendentes {
+  background-color: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 1.25rem rgba(11, 15, 20, 0.06);
+  padding: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .main-container-tasks-pendentes { padding: 2rem; }
+}
+
+/* Grid dos cards */
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 576px) {
+  .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 992px) {
+  .cards-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Card de tarefa com visual polido, mantendo classes Bootstrap */
+.card-tarefa {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,246,242,0.98));
+  border-left: 6px solid var(--card-border-color, rgba(224, 179, 58, 0.35));
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 24px rgba(11, 15, 12, 0.06);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.card-tarefa:hover { transform: translateY(-2px); box-shadow: 0 18px 36px rgba(6,10,12,0.1); }
+
+.card-tarefa .card-row { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+.card-tarefa .card-title { font-weight: 700; }
+.card-tarefa .card-progress { font-weight: 600; color: #6c757d; }
+.card-tarefa .card-desc { color: #495057; }
+.card-tarefa .card-dates { color: #6c757d; }
+.card-tarefa .card-actions { justify-content: flex-end; }
+
+/* Meta/chips da matéria */
+.card-tarefa .card-meta { margin: .25rem 0 .5rem; }
+.card-tarefa .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  color: var(--pill-color, #365562);
+  border: 1px solid currentColor;
+  border-radius: 50rem;
+  padding: .125rem .5rem;
+  font-size: .85rem;
+}
+
+/* Cartões de aula (aulas recorrentes) */
+.card-lesson .title-suffix { font-weight: 400; opacity: .85; }
+.card-lesson .card-lesson-schedule { color: #6c757d; }
+
+/* Lista e linhas de Subtarefas no modal */
+.subtasks-list { display: flex; flex-direction: column; gap: .35rem; }
+.subtask-row { display: flex; align-items: center; gap: .5rem; }
+.subtask-row .form-check-input { margin-top: 0; }
+.subtask-row .subtask-input { flex: 1 1 auto; }
+
+/* Chips de dias da semana (modal de aulas) */
+.weekday-pills { gap: .5rem; }
+.weekday-pills .weekday-chip {
+  border-color: rgba(0,0,0,.08) !important;
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,.04);
+}
+.weekday-pills .weekday-chip input { margin: 0; }

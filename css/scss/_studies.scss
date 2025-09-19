@@ -1,0 +1,38 @@
+.studies-hub {
+  // uniformiza spacing entre os blocos (cards/sections)
+  display: block;
+  .card {
+    margin-bottom: 1rem; // espaçamento uniforme entre cards
+    padding: 0.6rem; // levemente mais compacto
+  }
+
+  .studies-daily, .studies-nb-courses {
+    margin-bottom: 0.75rem;
+  }
+
+  // compactar a altura do mini-calendar
+  #studies-mini-calendar {
+    .fc { max-height: 240px !important; } // limitar por segurança
+    height: 220px !important;
+    overflow: hidden;
+  }
+
+  // itens de cadernos: tornar chips mais compactos e com espaçamento uniforme
+  .nb-list-compact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+  }
+  .nb-chip {
+    padding: .35rem .6rem;
+    font-size: .85rem;
+  }
+}
+
+// ajustes gerais para os widgets de estudos (timer/flashcards)
+.pv-fc, .pv-timer, .pv-htimer {
+  margin-bottom: .9rem;
+}
+
+// garantir que o container principal tenha espaçamento consistente
+#studies-hub { padding-top: .25rem; padding-bottom: .25rem; }
