@@ -20,91 +20,6 @@
 
 <body>
 
-  <header class="hero-bg">
-    <div class="hero-content">
-      <div class="hero-title">Produtivus</div>
-      <div class="hero-subtitle">Estude melhor, organize suas tarefas e seus cadernos</div>
-      <div class="hero-desc">
-        Uma plataforma leve para estudantes e equipes organizarem projetos, tarefas e anotações em um só lugar.
-      </div>
-      <div class="hero-icons">
-        <div class="hero-icon"><span class="material-symbols-outlined">check_circle</span></div>
-        <div class="hero-icon"><span class="material-symbols-outlined">calendar_month</span></div>
-        <div class="hero-icon"><span class="material-symbols-outlined">list_alt</span></div>
-      </div>
-    </div>
-    <div class="hero-balloons">
-      <div class="hero-balloon nota">4,8/5 Nota</div>
-      <div class="hero-balloon foco">Foco Produtividade</div>
-    </div>
-  </header>
-
-  <div id="app">
-    <div id="header-container"></div>
-    <main id="main-content" tabindex="-1" aria-label="Conteúdo principal"></main>
-  </div>
-
-  <!-- footer com copyright -->
-  <footer class="app-footer" role="contentinfo">
-    <div class="app-footer-inner footer-flex-center">
-      <span>© <span id="copyright-year"></span> Produtivus — Todos os direitos reservados.</span>
-    </div>
-  </footer>
-
-  <!-- =================================================================== -->
-  <!-- SUBSTITUA O MODAL ANTIGO POR ESTE CÓDIGO CORRIGIDO -->
-  <!-- =================================================================== -->
-  <div class="overlay hidden" id="task-modal-overlay">
-      <div class="modal">
-          <div class="modal-header">
-              <h3 id="tm-title">Nova Tarefa</h3>
-              <button class="btn-ghost" id="close-task-modal">✖</button>
-=======
-  <div id="header-container" class="container-fluid p-0"></div>
-
-  <main id="main-content" class="pb-5">
-    <!-- HERO -->
-    <section class="landing-hero position-relative text-white">
-      <!-- Overlay -->
-      <div class="hero-overlay"></div>
-      <div class="container position-relative">
-        <div class="row align-items-center min-vh-75">
-          <div class="col-12 col-lg-7 py-5">
-            <h1 class="display-5 fw-bold mb-3">Estude melhor, viva melhor.</h1>
-            <p class="lead mb-4">Tarefas, calendário, cadernos e mapas mentais em um único lugar. Organize sua rotina
-              de estudos com simplicidade e impacto visual.</p>
-            <div class="d-flex gap-3 flex-wrap">
-              <a href="tarefas.html" class="btn btn-primary btn-lg">Começar agora</a>
-              <a href="#recursos" class="btn btn-outline-light btn-lg">Explorar recursos</a>
-            </div>
->>>>>>> Stashed changes
-          </div>
-        </div>
-      </div>
-      <!-- Imagem de fundo: usando img/estudantes.png -->
-    </section>
-
-    <!-- LOGOS/PROVAS SOCIAL - opcional curto -->
-    <section class="py-4 bg-body-tertiary d-none d-md-block">
-      <div class="container text-center small text-muted">
-        <span class="me-3">Produtividade comprovada por estudantes</span>
-        <span class="badge rounded-pill text-bg-warning">Foco</span>
-        <span class="badge rounded-pill text-bg-info">Organização</span>
-        <span class="badge rounded-pill text-bg-success">Resultados</span>
-      </div>
-    </section>
-
-    <!-- RECURSOS PRINCIPAIS -->
-    <section id="recursos" class="py-5 py-lg-6">
-      <div class="container">
-        <div class="row mb-4 text-center">
-          <div class="col-lg-8 mx-auto">
-            <h2 class="fw-bold">Tudo que você precisa para estudar</h2>
-            <p class="text-muted">Funcionalidades integradas para planejar, acompanhar e revisar.</p>
-          </div>
-        </div>
-
-=======
   <div id="header-container" class="container-fluid p-0"></div>
 
   <main id="main-content" class="pb-5">
@@ -148,7 +63,6 @@
           </div>
         </div>
 
->>>>>>> Stashed changes
         <div class="row g-4">
           <div class="col-12 col-md-6 col-lg-3">
             <a class="card h-100 text-decoration-none feature-card" href="tarefas.html">
@@ -199,7 +113,7 @@
     </section>
 
     <!-- CTA FINAL -->
-    <section class=" cta-section">
+    <section class="cta-section">
       <div class="container">
         <div class="row align-items-center">
           <div class="col-lg-8">
@@ -211,27 +125,6 @@
           </div>
         </div>
       </div>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      <form id="password-form">
-        <div class="modal-body">
-          <input type="email" name="username" autocomplete="username" style="display:none;" />
-          <div class="field">
-            <label for="pwd-current">Senha atual</label>
-            <input id="pwd-current" type="password" required autocomplete="new-password" />
-          </div>
-          <div class="field">
-            <label for="pwd-new">Nova senha (mínimo 8)</label>
-            <input id="pwd-new" type="password" minlength="8" required autocomplete="new-password" />
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn" id="pwd-cancel">Cancelar</button>
-          <button type="submit" class="btn btn-primary" id="pwd-save">Salvar</button>
-        </div>
-      </form>
-    </div>
-  </div>
     </section>
   </main>
 
@@ -286,25 +179,10 @@
   <!-- Carregar modal de login diretamente para suportar ?login=1 sem depender do header -->
   <script src="js/modules/login-modal.js" defer></script>
   <script src="js/main.js?v=20250823T0000" defer></script>
-<<<<<<< Updated upstream
 
   <!-- Bootstrap 5.3.8 JS bundle (inclui Popper) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
-<<<<<<< Updated upstream
-  <script src="js/ui-snackbar.js"></script>
-  <script src="js/tour.js"></script>
-  <script src="js/notebooks.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/tasks.js"></script>
-=======
->>>>>>> Stashed changes
-=======
-
-  <!-- Bootstrap 5.3.8 JS bundle (inclui Popper) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-
->>>>>>> Stashed changes
 </body>
 
 </html>
