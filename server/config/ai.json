@@ -1,0 +1,14 @@
+{
+  "provider": "azure-openai",
+  "azure": {
+    "endpoint": "https://<sua-instancia>.openai.azure.com",
+    "deployment": "gpt-4o-mini",
+    "apiKey": "__COLOQUE_SUA_CHAVE_AQUI__",
+    "apiVersion": "2024-08-01-preview"
+  },
+  "openai": {
+    "baseUrl": "https://api.openai.com/v1",
+    "model": "gpt-4o-mini",
+    "apiKey": ""
+  }
+}
