@@ -104,3 +104,27 @@
       display: block;
       margin-bottom: 12px;
    }
+
+/* ========================= */
+/* BOTÕES DE TOGGLE SENHA    */
+/* ========================= */
+.input-group {
+   .btn-outline-secondary {
+      border-color: #ced4da;
+      color: #6c757d;
+
+      &:hover {
+         background-color: #f8f9fa;
+         border-color: #adb5bd;
+      }
+
+      &:focus {
+         box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+      }
+
+      .material-symbols-outlined {
+         font-size: 18px;
+         line-height: 1;
+      }
+   }
+}

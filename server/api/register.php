@@ -52,8 +52,8 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 // Validação de senha mínima (evita 500 por constraints futuras)
-if (strlen((string)$data->password) < 8) {
-    echo json_encode([ 'success' => false, 'message' => 'Senha muito curta (mínimo 8 caracteres).' ]);
+if (strlen((string)$data->password) < 6) {
+    echo json_encode([ 'success' => false, 'message' => 'Senha muito curta (mínimo 6 caracteres).' ]);
     exit;
 }
 

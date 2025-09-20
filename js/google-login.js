@@ -191,8 +191,25 @@ function handleCredentialResponse(response) {
 
   // Token JWT do Google
   const idToken = response.credential;
+  
+  // Detecta URL do backend automaticamente
+  const getBackendUrl = () => {
+    const currentHost = window.location.hostname;
+    const currentPort = window.location.port;
+    
+    // Se estamos na porta 8081 (frontend), o backend é na 8080
+    if (currentPort === '8081') {
+      return `http://${currentHost}:8080`;
+    }
+    // Caso contrário, assume que está no mesmo servidor
+    return '';
+  };
+  
+  const backendUrl = getBackendUrl();
+  const loginUrl = backendUrl + '/api/google_login.php';
+  
   // Envia para o backend validar e autenticar
-  fetch('/server/api/google_login.php', {
+  fetch(loginUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id_token: idToken })
@@ -203,7 +220,43 @@ function handleCredentialResponse(response) {
         // Salva usuário no localStorage antes de redirecionar (com nome se disponível)
         const user = data.user || { email: data.email || '' };
         if (!user.name && user.email) { user.name = String(user.email).split('@')[0]; }
-        try { localStorage.setItem('pv_user', JSON.stringify(user)); } catch {}
+        try {
+          localStorage.setItem('pv_user', JSON.stringify({
+            email: user.email,
+            name: user.name,
+            login_time: Date.now(),
+            login_method: 'google'
+          }));
+        } catch {}
+
+        // Fecha a modal se estiver aberta
+        try {
+          const modal = document.getElementById('pv-login-modal');
+          if (modal) {
+            const bsModal = window.bootstrap?.Modal?.getInstance(modal);
+            if (bsModal) {
+              bsModal.hide();
+            } else {
+              modal.style.display = 'none';
+            }
+          }
+        } catch {}
+
+        // Atualiza o header para mostrar usuário logado
+        try {
+          if (typeof renderHeader === 'function') {
+            renderHeader();
+          }
+        } catch {}
+
+        // Notificação de sucesso
+        try {
+          window.pvNotify?.({
+            title: 'Bem-vindo, ' + user.name + '!',
+            message: 'Login com Google realizado com sucesso.',
+            type: 'success'
+          });
+        } catch {}
 
         // Anexar automaticamente o Google Calendar, se ainda não anexado
         const alreadyHasCalendar = !!localStorage.getItem('pv_google_calendar_token') || (user && user.calendar_access === true);
@@ -218,10 +271,24 @@ function handleCredentialResponse(response) {
           }
         }
 
-        // Redireciona para dentro do site
-        window.location.href = 'index.html';
+        // Se estamos na página de login, redireciona para dashboard
+        if (window.location.pathname === '/login.html' || window.location.search.includes('login=1')) {
+          window.location.href = 'dashboard.html';
+        }
+        // Caso contrário, apenas recarrega a página para refletir o estado logado
+        else {
+          window.location.reload();
+        }
       } else {
-            // Silencioso: não alertar usuário
+        // Mostra erro se houver
+        console.error('[GoogleAuth] Login falhou:', data.message || 'Erro desconhecido');
+        try {
+          const errEl = document.getElementById('pv-login-error');
+          if (errEl) {
+            errEl.textContent = data.message || 'Falha no login com Google';
+            errEl.classList.remove('d-none');
+          }
+        } catch {}
         __pvLoginInProgress = false;
       }
     })

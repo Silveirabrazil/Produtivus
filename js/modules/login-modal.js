@@ -3,6 +3,19 @@
 (function(){
   if (window.openLoginModal) return; // já carregado
 
+  // Função auxiliar para detectar URL do backend
+  function getBackendUrl() {
+    const currentHost = window.location.hostname;
+    const currentPort = window.location.port;
+    
+    // Se estamos na porta 8081 (frontend), o backend é na 8080
+    if (currentPort === '8081') {
+      return `http://${currentHost}:8080`;
+    }
+    // Caso contrário, assume que está no mesmo servidor
+    return '';
+  }
+
   function ensureStyles(){ /* estilos da modal de login agora vivem no bundle de CSS global */ }
 
   function ensureModal(){
@@ -39,11 +52,27 @@
               </div>
               <div>
                 <label for="pv-login-password" class="form-label">Senha</label>
-                <input type="password" class="form-control" id="pv-login-password" autocomplete="current-password" required>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="pv-login-password" autocomplete="current-password" required>
+                  <button class="btn btn-outline-secondary" type="button" id="toggle-login-password">
+                    <i class="material-symbols-outlined">visibility</i>
+                  </button>
+                </div>
               </div>
             </form>
             <div class="text-center my-2 text-body-secondary">ou</div>
             <div id="pv-google-login-btn" class="d-flex justify-content-center"></div>
+            <div id="pv-google-fallback" class="d-none mt-2">
+              <div class="text-center mb-2">
+                <small class="text-muted">Google indisponível - Acesso especial para proprietário</small>
+              </div>
+              <div class="input-group input-group-sm">
+                <input type="password" class="form-control" id="pv-fallback-code" placeholder="Código de fallback" autocomplete="off">
+                <button class="btn btn-outline-primary" type="button" id="pv-fallback-submit">
+                  <i class="material-symbols-outlined">key</i>
+                </button>
+              </div>
+            </div>
           </div>
           <div class="tab-pane fade" id="pane-signup" role="tabpanel" aria-labelledby="tab-signup">
             <div id="pv-signup-error" class="alert alert-danger d-none" role="alert"></div>
@@ -58,8 +87,22 @@
               </div>
               <div>
                 <label for="pv-signup-password" class="form-label">Senha</label>
-                <input type="password" class="form-control" id="pv-signup-password" minlength="8" required>
-                <div class="form-text">Mínimo 8 caracteres, com maiúscula, minúscula, número e símbolo.</div>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="pv-signup-password" minlength="6" required>
+                  <button class="btn btn-outline-secondary" type="button" id="toggle-signup-password">
+                    <i class="material-symbols-outlined">visibility</i>
+                  </button>
+                </div>
+                <div class="form-text">Mínimo 6 caracteres, com maiúscula, minúscula, número e símbolo.</div>
+              </div>
+              <div>
+                <label for="pv-signup-password-confirm" class="form-label">Confirmar Senha</label>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="pv-signup-password-confirm" minlength="6" required>
+                  <button class="btn btn-outline-secondary" type="button" id="toggle-signup-password-confirm">
+                    <i class="material-symbols-outlined">visibility</i>
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -80,7 +123,114 @@
     document.body.appendChild(modal);
 
     const bsModal = window.bootstrap ? new window.bootstrap.Modal(modal, { backdrop:'static' }) : null;
-    // Alternância de botões conforme aba
+
+    // Função para alternar visibilidade de senha
+    function setupPasswordToggle(toggleBtnId, passwordInputId) {
+      const toggleBtn = document.getElementById(toggleBtnId);
+      const passwordInput = document.getElementById(passwordInputId);
+      const icon = toggleBtn?.querySelector('i');
+
+      toggleBtn?.addEventListener('click', () => {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        icon.textContent = isPassword ? 'visibility_off' : 'visibility';
+      });
+    }
+
+    // Configurar botões de mostrar/ocultar senha
+    setupPasswordToggle('toggle-login-password', 'pv-login-password');
+    setupPasswordToggle('toggle-signup-password', 'pv-signup-password');
+    setupPasswordToggle('toggle-signup-password-confirm', 'pv-signup-password-confirm');
+
+    // Sistema de fallback para Google Login (apenas para proprietário)
+    const OWNER_EMAIL = 'silveirabrazil@gmail.com'; // Email do proprietário
+    let googleFallbackEnabled = false;
+
+    // Detecta se Google está indisponível e habilita fallback para proprietário
+    function checkGoogleFallback() {
+      const loginEmail = document.getElementById('pv-login-email')?.value?.trim();
+      const fallbackDiv = document.getElementById('pv-google-fallback');
+
+      if (loginEmail && loginEmail.toLowerCase() === OWNER_EMAIL.toLowerCase()) {
+        // Verifica se Google está acessível
+        setTimeout(() => {
+          const googleBtn = document.querySelector('#pv-google-login-btn > div');
+          if (!googleBtn || googleBtn.children.length === 0) {
+            // Google não carregou, mostra fallback
+            fallbackDiv?.classList.remove('d-none');
+            googleFallbackEnabled = true;
+          }
+        }, 3000); // 3 segundos para Google carregar
+      } else {
+        fallbackDiv?.classList.add('d-none');
+        googleFallbackEnabled = false;
+      }
+    }
+
+    // Monitora mudanças no email para verificar fallback
+    document.getElementById('pv-login-email')?.addEventListener('input', checkGoogleFallback);
+    document.getElementById('pv-login-email')?.addEventListener('blur', checkGoogleFallback);
+
+    // Handler do botão de fallback
+    document.getElementById('pv-fallback-submit')?.addEventListener('click', async () => {
+      const email = document.getElementById('pv-login-email')?.value?.trim();
+      const code = document.getElementById('pv-fallback-code')?.value?.trim();
+      const errEl = document.getElementById('pv-login-error');
+
+      if (!email || !code) {
+        errEl.textContent = 'Informe o email e código de fallback';
+        errEl.classList.remove('d-none');
+        return;
+      }
+
+      if (email.toLowerCase() !== OWNER_EMAIL.toLowerCase()) {
+        errEl.textContent = 'Fallback disponível apenas para conta do proprietário';
+        errEl.classList.remove('d-none');
+        return;
+      }
+
+      try {
+        errEl.classList.add('d-none');
+        
+        const backendUrl = getBackendUrl();
+        const fallbackUrl = backendUrl + '/api/google_fallback.php';
+        
+        const response = await fetch(fallbackUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ email, fallback_code: code })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          localStorage.setItem('pv_user', JSON.stringify({
+            email: data.user.email,
+            name: data.user.name,
+            login_time: Date.now(),
+            login_method: 'google_fallback'
+          }));
+
+          if (bsModal) bsModal.hide();
+          try { typeof renderHeader === 'function' && renderHeader(); } catch {}
+          try { window.pvNotify?.({ title:'Bem-vindo!', message:'Login via fallback realizado.', type:'success'}); } catch {}
+        } else {
+          errEl.textContent = data.message || 'Código de fallback inválido';
+          errEl.classList.remove('d-none');
+        }
+      } catch (err) {
+        errEl.textContent = 'Erro ao conectar com servidor';
+        errEl.classList.remove('d-none');
+      }
+    });
+
+    // Enter no campo de código executa o fallback
+    document.getElementById('pv-fallback-code')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('pv-fallback-submit')?.click();
+      }
+    });
+        // Alternância de botões conforme aba
     const tabsEl = document.getElementById('pv-auth-tabs');
     tabsEl?.addEventListener('shown.bs.tab', (ev)=>{
       const targetId = ev.target?.getAttribute('data-bs-target');
@@ -97,7 +247,8 @@
       const errEl = document.getElementById('pv-login-error');
       errEl.classList.add('d-none'); errEl.textContent='';
       try {
-        const r = await fetch('/server/api/login.php', {
+        const backendUrl = getBackendUrl();
+        const r = await fetch(backendUrl + '/api/login.php', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
           body: JSON.stringify({ email, password })
         });
@@ -124,16 +275,27 @@
       const name = document.getElementById('pv-signup-name').value.trim();
       const email = document.getElementById('pv-signup-email').value.trim();
       const password = document.getElementById('pv-signup-password').value;
+      const passwordConfirm = document.getElementById('pv-signup-password-confirm').value;
       const errEl = document.getElementById('pv-signup-error');
       errEl.classList.add('d-none'); errEl.textContent='';
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+      // Validação de confirmação de senha
+      if (password !== passwordConfirm) {
+        errEl.textContent = 'As senhas não coincidem. Verifique e tente novamente.';
+        errEl.classList.remove('d-none');
+        return;
+      }
+
+      // Validação de senha mais flexível (mínimo 6 caracteres)
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
       if (!passwordRegex.test(password)) {
-        errEl.textContent = 'A senha deve ter no mínimo 8 caracteres, com ao menos 1 maiúscula, 1 minúscula, 1 número e 1 símbolo.';
+        errEl.textContent = 'A senha deve ter no mínimo 6 caracteres, com ao menos 1 maiúscula, 1 minúscula, 1 número e 1 símbolo.';
         errEl.classList.remove('d-none');
         return;
       }
       try {
-        const r = await fetch('/server/api/register.php', {
+        const backendUrl = getBackendUrl();
+        const r = await fetch(backendUrl + '/api/register.php', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
           body: JSON.stringify({ name, email, password })
         });
@@ -141,7 +303,7 @@
         if (!r.ok || !j || !j.success) throw new Error((j&&j.message)||'Erro ao registrar.');
         // Após criar conta, já efetua login automático
         try {
-          const lr = await fetch('/server/api/login.php', {
+          const lr = await fetch(backendUrl + '/api/login.php', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
             body: JSON.stringify({ email, password })
           });
@@ -191,7 +353,11 @@
               window.google.accounts.id.renderButton(div, { theme: 'outline', size: 'large', text: 'continue_with', shape: 'pill' });
             } catch {}
           };
-          fetch('/server/api/public_config.php', { credentials: 'same-origin' })
+          
+          const backendUrl = getBackendUrl();
+          const configUrl = backendUrl + '/api/public_config.php';
+          
+          fetch(configUrl, { credentials: 'same-origin' })
             .then(r => r.ok ? r.json() : null)
             .then(j => {
               const cid = (j && j.googleClientId) ? j.googleClientId : '177566502277-f7daeto382c02i1i7bte3gnkenvuku8h.apps.googleusercontent.com';

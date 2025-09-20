@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Google Login</title>
+</head>
+<body>
+    <h1>Teste Google Login</h1>
+    <div id="result"></div>
+    
+    <script>
+        // Testa o endpoint de configuração
+        fetch('/server/api/public_config.php')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = 
+                    '<h2>Configuração:</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            })
+            .catch(err => {
+                document.getElementById('result').innerHTML = 
+                    '<h2 style="color: red;">Erro:</h2><p>' + err.message + '</p>';
+            });
+    </script>
+</body>
+</html>
