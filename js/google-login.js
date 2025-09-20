@@ -191,12 +191,12 @@ function handleCredentialResponse(response) {
 
   // Token JWT do Google
   const idToken = response.credential;
-  
+
   // Detecta URL do backend automaticamente
   const getBackendUrl = () => {
     const currentHost = window.location.hostname;
     const currentPort = window.location.port;
-    
+
     // Se estamos na porta 8081 (frontend), o backend é na 8080
     if (currentPort === '8081') {
       return `http://${currentHost}:8080`;
@@ -204,10 +204,10 @@ function handleCredentialResponse(response) {
     // Caso contrário, assume que está no mesmo servidor
     return '';
   };
-  
+
   const backendUrl = getBackendUrl();
   const loginUrl = backendUrl + '/api/google_login.php';
-  
+
   // Envia para o backend validar e autenticar
   fetch(loginUrl, {
     method: 'POST',

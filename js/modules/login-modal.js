@@ -7,7 +7,7 @@
   function getBackendUrl() {
     const currentHost = window.location.hostname;
     const currentPort = window.location.port;
-    
+
     // Se estamos na porta 8081 (frontend), o backend é na 8080
     if (currentPort === '8081') {
       return `http://${currentHost}:8080`;
@@ -191,10 +191,10 @@
 
       try {
         errEl.classList.add('d-none');
-        
+
         const backendUrl = getBackendUrl();
         const fallbackUrl = backendUrl + '/api/google_fallback.php';
-        
+
         const response = await fetch(fallbackUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -353,10 +353,10 @@
               window.google.accounts.id.renderButton(div, { theme: 'outline', size: 'large', text: 'continue_with', shape: 'pill' });
             } catch {}
           };
-          
+
           const backendUrl = getBackendUrl();
           const configUrl = backendUrl + '/api/public_config.php';
-          
+
           fetch(configUrl, { credentials: 'same-origin' })
             .then(r => r.ok ? r.json() : null)
             .then(j => {
