@@ -1,13 +1,16 @@
 {
-  "name": "produtivus-3.0.0.0",
+  "name": "produtivus",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run serve",
-  "build:css": "sass --load-path=node_modules/bootstrap/scss --quiet-deps --no-source-map css/scss/styles.scss css/styles.css --style=expanded",
-  "build:css:prod": "sass --load-path=node_modules/bootstrap/scss --quiet-deps css/scss/styles.scss css/styles.css --style=compressed --source-map",
-  "watch:css": "sass --load-path=node_modules/bootstrap/scss --quiet-deps --watch css/scss/styles.scss:css/styles.css --style=expanded",
+  "build:css": "sass --quiet-deps --style=expanded --no-source-map css/scss/app.scss css/app.css",
+  "build:css:prod": "sass --quiet-deps --style=compressed --no-source-map css/scss/app.scss css/app.css",
+  "watch:css": "sass --quiet-deps --watch --style=expanded --embed-source-map --embed-sources css/scss/app.scss:css/app.css",
+  "watch:css:poll": "sass --quiet-deps --watch --poll --style=expanded --embed-source-map --embed-sources css/scss/app.scss:css/app.css",
+  "build:app-css": "sass --quiet-deps --style=expanded --embed-source-map --embed-sources css/scss/app.scss css/app.css",
+  "build:app-css:prod": "sass --quiet-deps --style=compressed --no-source-map css/scss/app.scss css/app.css",
     "serve": "http-server -c-1 . -p 8081",
     "build:mindmaps": "npm --prefix apps/mindmaps run build",
     "dev:mindmaps": "npm --prefix apps/mindmaps run dev",
@@ -17,8 +20,9 @@
     "build:ocsss": "sass --no-source-map packages/ocsss/src/index.scss packages/ocsss/dist/index.css --style=expanded",
     "build:ocsss:prod": "sass packages/ocsss/src/index.scss packages/ocsss/dist/index.css --style=compressed --source-map",
     "watch:ocsss": "sass --watch packages/ocsss/src/index.scss:packages/ocsss/dist/index.css --style=expanded",
-    "build": "npm-run-all -s build:ocsss build:css",
-    "reinstall:fullcalendar": "node js/reinstall-fullcalendar.js"
+  "build": "npm-run-all -s build:ocsss build:css",
+    "reinstall:fullcalendar": "node js/reinstall-fullcalendar.js",
+    "test:cadernos:e2e": "node tools/tests/cadernos-e2e.test.js"
   },
   "repository": {
     "type": "git",

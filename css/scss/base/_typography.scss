@@ -1,0 +1,25 @@
+@use '../abstracts' as *;
+
+// Encapsula tipografia base para permitir @use no topo e inclusão por mixin
+@mixin render() {
+	// Typography base setup
+	body { color: $pv-dark; }
+
+	// Fallbacks de CSS variables utilizadas pelo tema (evita que páginas que referenciam vars que ainda
+	// estão somente no legado quebrem durante a migração)
+	:root {
+		--pv-primary: #c29d67;
+		--pv-primary-dark: #a88553;
+		--pv-accent-3: #ffaa4f;
+		--pv-text: #2d2d2d;
+		--pv-muted: #7a7a7a;
+		--pv-light: #f8f7f3;
+		--pv-dark: #2c3e50;
+		--pv-radius-lg: 12px;
+		--pv-shadow: 0 6px 16px rgba(0,0,0,.06);
+		--pv-shadow-lg: 0 10px 30px rgba(0,0,0,.2);
+		--pv-transition: all .2s ease;
+		--pv-transition-fast: all .12s ease;
+		--pv-transition-slow: all .4s ease;
+	}
+}

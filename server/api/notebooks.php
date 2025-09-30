@@ -19,26 +19,57 @@ try {
 
   if ($method === 'GET') {
     // lista cadernos com contagem de páginas, tolerante a SQL modes e colunas inexistentes
+    $courseId = isset($_GET['course_id']) && $_GET['course_id'] !== '' ? (int)$_GET['course_id'] : 0;
+    $subjectId = isset($_GET['subject_id']) && $_GET['subject_id'] !== '' ? (int)$_GET['subject_id'] : 0;
     try {
-      // tentativa 1: com subject_id e created_at e GROUP BY completo
-      $sql = 'SELECT n.id, n.title, n.color, n.subject_id, n.created_at, COUNT(p.id) AS pages_count
+      // tentativa 1: com JOIN em study_subjects para expor course_id e suportar filtros
+      $wheres = ['n.user_id = :uid'];
+      $params = [':uid' => $uid];
+      if ($subjectId > 0) { $wheres[] = 'n.subject_id = :sid'; $params[':sid'] = $subjectId; }
+      if ($courseId > 0)  { $wheres[] = 's.course_id = :cid'; $params[':cid'] = $courseId; }
+      $sql = 'SELECT n.id, n.title, n.color, n.subject_id, n.created_at, s.course_id, COUNT(p.id) AS pages_count
               FROM notebooks n
+              LEFT JOIN study_subjects s ON s.id = n.subject_id
               LEFT JOIN notebook_pages p ON p.notebook_id = n.id
-              WHERE n.user_id = :uid
-              GROUP BY n.id, n.title, n.color, n.subject_id, n.created_at
+              WHERE ' . implode(' AND ', $wheres) . '
+              GROUP BY n.id, n.title, n.color, n.subject_id, n.created_at, s.course_id
               ORDER BY n.id DESC';
       $st = $conn->prepare($sql);
-      $st->execute([':uid'=>$uid]);
+      $st->execute($params);
       $rows = $st->fetchAll();
-      $items = array_map(function($r){ return [ 'id'=>(int)$r['id'], 'title'=>$r['title'], 'color'=>$r['color'], 'subject_id'=> isset($r['subject_id']) ? (int)$r['subject_id'] : null, 'created'=> ($r['created_at'] ?? null), 'pages_count'=>(int)$r['pages_count'] ]; }, $rows);
+      $items = array_map(function($r){ return [ 'id'=>(int)$r['id'], 'title'=>$r['title'], 'color'=>$r['color'], 'subject_id'=> isset($r['subject_id']) ? (int)$r['subject_id'] : null, 'course_id'=> isset($r['course_id']) ? (int)$r['course_id'] : null, 'created'=> ($r['created_at'] ?? null), 'pages_count'=>(int)$r['pages_count'] ]; }, $rows);
       echo json_encode(['success'=>true, 'items'=>$items]);
       exit;
     } catch (Throwable $e1) {
       try {
-        // fallback: sem subject_id/created_at, e contagem agregada separada (evita ONLY_FULL_GROUP_BY)
-        $stN = $conn->prepare('SELECT n.id, n.title, n.color FROM notebooks n WHERE n.user_id=:uid ORDER BY n.id DESC');
-        $stN->execute([':uid'=>$uid]);
+        // fallback: sem JOIN direto; aplica filtros e course_id via pós-processamento
+        $wheres = ['n.user_id = :uid'];
+        $params = [':uid' => $uid];
+        if ($subjectId > 0) { $wheres[] = 'n.subject_id = :sid'; $params[':sid'] = $subjectId; }
+        $sqlN = 'SELECT n.id, n.title, n.color, n.subject_id FROM notebooks n WHERE ' . implode(' AND ', $wheres) . ' ORDER BY n.id DESC';
+        $stN = $conn->prepare($sqlN);
+        $stN->execute($params);
         $nbs = $stN->fetchAll();
+
+        // carrega mapa de subject_id => course_id quando necessário
+        $subjMap = [];
+        if ($courseId > 0 || true) {
+          try {
+            $stS = $conn->prepare('SELECT id, course_id FROM study_subjects WHERE user_id=:uid');
+            $stS->execute([':uid'=>$uid]);
+            foreach ($stS->fetchAll() as $r) { $subjMap[(int)$r['id']] = isset($r['course_id']) ? (int)$r['course_id'] : null; }
+          } catch (Throwable $eS) { /* ignora */ }
+        }
+
+        // aplica filtro por course_id em memória, se solicitado
+        if ($courseId > 0) {
+          $nbs = array_values(array_filter($nbs, function($r) use ($subjMap, $courseId) {
+            $sid = isset($r['subject_id']) ? (int)$r['subject_id'] : 0;
+            $cid = $sid && isset($subjMap[$sid]) ? (int)$subjMap[$sid] : 0;
+            return $cid === $courseId;
+          }));
+        }
+
         $ids = array_map(fn($r)=>(int)$r['id'], $nbs);
         $counts = [];
         if ($ids) {
@@ -47,9 +78,11 @@ try {
           $stC->execute($ids);
           foreach ($stC->fetchAll() as $r) { $counts[(int)$r['notebook_id']] = (int)$r['c']; }
         }
-        $items = array_map(function($r) use ($counts) {
+        $items = array_map(function($r) use ($counts, $subjMap) {
           $id = (int)$r['id'];
-          return [ 'id'=>$id, 'title'=>$r['title'], 'color'=>$r['color'], 'subject_id'=>null, 'created'=>null, 'pages_count'=> (int)($counts[$id] ?? 0) ];
+          $sid = isset($r['subject_id']) ? (int)$r['subject_id'] : null;
+          $cid = ($sid && isset($subjMap[$sid])) ? (int)$subjMap[$sid] : null;
+          return [ 'id'=>$id, 'title'=>$r['title'], 'color'=>$r['color'], 'subject_id'=>$sid, 'course_id'=>$cid, 'created'=>null, 'pages_count'=> (int)($counts[$id] ?? 0) ];
         }, $nbs);
         echo json_encode(['success'=>true, 'items'=>$items]);
         exit;

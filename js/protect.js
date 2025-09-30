@@ -55,6 +55,15 @@
   }
 
   // Função para redirecionar para login
+  function getRootPaths(){
+    try{
+      const raw=location.pathname||''; const lower=raw.toLowerCase();
+      const pos=lower.indexOf('/html/');
+      const root = pos>=0 ? raw.slice(0,pos+1) : raw.slice(0, raw.lastIndexOf('/')+1);
+      return { root, index: root + 'index.html' };
+    }catch{ return { root: '/', index: '/index.html' }; }
+  }
+
   function redirectToLogin(reason = 'session_expired') {
     if (isPublic) return;
 
@@ -68,13 +77,14 @@
       sessionStorage.setItem(REDIR_KEY, String(now));
 
       // Remove dados de usuário do localStorage
-      try {
-        localStorage.removeItem('pv_user');
-      } catch {}
+      try { localStorage.removeItem('pv_user'); } catch {}
 
     } catch {}
 
-    window.location.href = 'index.html?login=1&reason=' + encodeURIComponent(reason);
+    const p=getRootPaths();
+    // Sinaliza motivo para a landing exibir banner
+    try { sessionStorage.setItem('pv_redirect_reason', reason); } catch {}
+    window.location.href = p.index + '?login=1&reason=' + encodeURIComponent(reason);
   }
 
   async function ensureSession(force = false) {
@@ -123,9 +133,43 @@
           return false;
         }
       } else {
-        // Erro de servidor - não redirecionar imediatamente, manter estado atual
+        // Erro de servidor - log detalhado e não redirecionar imediatamente
         console.warn('[Auth] Erro no servidor ao verificar sessão:', res.status);
-        return null; // Mantém estado atual
+
+        // Tenta capturar detalhes do erro para debug
+        try {
+          const errorText = await res.text();
+          if (errorText) {
+            console.error('[Auth] Detalhes do erro do servidor:', errorText);
+          }
+        } catch (e) {
+          console.warn('[Auth] Não foi possível capturar detalhes do erro');
+        }
+
+        // Para erro 500, manter estado atual e tentar novamente mais tarde
+        if (res.status === 500) {
+          console.warn('[Auth] Erro interno do servidor - mantendo estado atual');
+          return null; // Mantém estado atual
+        }
+
+        // Para outros erros de servidor (502, 503, etc)
+        if (res.status >= 500) {
+          console.warn('[Auth] Erro de servidor temporário - mantendo estado atual');
+          return null;
+        }
+
+        // Para erros 4xx que não são 401, tratar como problema de autenticação
+        if (res.status >= 400 && res.status < 500 && res.status !== 401) {
+          console.warn('[Auth] Erro de cliente:', res.status);
+          isSessionValid = false;
+          clearSessionCache();
+          if (!isPublic) {
+            redirectToLogin('client_error_' + res.status);
+          }
+          return false;
+        }
+
+        return null; // Mantém estado atual para casos não cobertos
       }
     } catch (e) {
       // Sem conectividade ou erro de rede - não bloquear

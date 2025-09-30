@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Imagens do Carrossel</title>
+    <link rel="icon" href="../img/icone.png" type="image/png">
+    <link rel="apple-touch-icon" href="../img/icone.png">
+    <link rel="stylesheet" href="../css/app.css?v=2">
+</head>
+<body class="page-animate">
+    <main id="main-content" class="app-main">
+        <header class="page-header page-header--band cabecalho-page">
+                <h1 class="page-header__title h3 m-0">Teste de Imagens</h1>
+                <p class="page-header__subtitle m-0">Validação de carregamento e formatos.</p>
+            </header>
+            <section class="page-section">
+                <!-- Conteúdo de teste abaixo -->
+            </section>
+    </main>
+        <div class="image-test">
+            <h3>Hero 1</h3>
+            <img src="../img/hero-1.jpg" alt="Hero 1" onload="this.nextElementSibling.innerHTML='✅ Carregada'" onerror="this.nextElementSibling.innerHTML='❌ Erro ao carregar'">
+            <div class="status">Verificando...</div>
+        </div>
+
+        <div class="image-test">
+            <h3>Hero 2</h3>
+            <img src="../img/hero-2.jpg" alt="Hero 2" onload="this.nextElementSibling.innerHTML='✅ Carregada'" onerror="this.nextElementSibling.innerHTML='❌ Erro ao carregar'">
+            <div class="status">Verificando...</div>
+        </div>
+
+        <div class="image-test">
+            <h3>Hero 3</h3>
+            <img src="/img/hero-3.jpg" alt="Hero 3" onload="this.nextElementSibling.innerHTML='✅ Carregada'" onerror="this.nextElementSibling.innerHTML='❌ Erro ao carregar'">
+            <div class="status">Verificando...</div>
+        </div>
+
+        <div class="image-test">
+            <h3>Hero 4</h3>
+            <img src="../img/hero-4.jpg" alt="Hero 4" onload="this.nextElementSibling.innerHTML='✅ Carregada'" onerror="this.nextElementSibling.innerHTML='❌ Erro ao carregar'">
+            <div class="status">Verificando...</div>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; padding: 15px; background: white; border-radius: 8px;">
+        <h2>Paths das Imagens:</h2>
+        <ul>
+            <li><code>../img/hero-1.jpg</code></li>
+            <li><code>../img/hero-2.jpg</code></li>
+            <li><code>/img/hero-3.jpg</code></li>
+            <li><code>../img/hero-4.jpg</code></li>
+        </ul>
+    </div>
+
+    <script>
+        // Log de debug
+        console.log('Teste de imagens iniciado...');
+
+        // Verifica se as imagens estão disponíveis
+        const images = document.querySelectorAll('img');
+        images.forEach((img, index) => {
+            img.addEventListener('load', () => {
+                console.log(`✅ Imagem ${index + 1} carregada:`, img.src);
+            });
+            img.addEventListener('error', () => {
+                console.error(`❌ Erro ao carregar imagem ${index + 1}:`, img.src);
+            });
+        });
+    </script>
+</body>
+</html>

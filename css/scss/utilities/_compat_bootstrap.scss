@@ -1,0 +1,6 @@
+/* compat_bootstrap.scss PODADO
+   Todo o conteúdo legado de classes .btn, .modal, .form-control, .dropdown, utilitários etc foi removido.
+   Arquivo mantido vazio (apenas marcador) para prevenir erros de import até limpeza final do build. */
+
+// Marcador para facilitar busca que confirme remoção completa.
+:root { --bootstrap-compat: 0; }

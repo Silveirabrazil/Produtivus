@@ -38,9 +38,9 @@
   `;
 
   function injectStyles(){
-    // Prefer compiled stylesheet (styles.css) from SASS workflow. If present, don't inject inline styles.
+    // Prefer compiled stylesheet (app.css) do workflow SASS. Se presente, não injeta estilos inline.
     try {
-      if (document.querySelector('link[href*="styles.css"]')) return;
+      if (document.querySelector('link[href*="app.css"]')) return;
     } catch(e) {}
     if (document.getElementById('pv-assist-style')) return;
     const st = document.createElement('style'); st.id = 'pv-assist-style'; st.textContent = CSS; document.head.appendChild(st);
@@ -75,7 +75,7 @@
           <strong>Assistente de Estudos</strong>
           <button type="button" class="btn-close pv-assist-close" aria-label="Fechar"></button>
         </div>
-        <div class="card-body pv-assist-log p-2" id="pv-assist-log" style="overflow:auto; max-height:48vh;"></div>
+  <div class="card-body pv-assist-log p-2" id="pv-assist-log"></div>
         <div class="card-footer pv-assist-form p-2 d-flex gap-2 align-items-start">
           <textarea class="form-control form-control-sm pv-assist-input" id="pv-assist-input" placeholder="Pergunte algo sobre seus estudos..." rows="2"></textarea>
           <button class="btn btn-sm btn-primary pv-assist-send" id="pv-assist-send">Enviar</button>

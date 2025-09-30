@@ -1,7 +1,7 @@
 {
-  "../../img/estudantes.png": {
-    "file": "assets/estudantes.png",
-    "src": "../../img/estudantes.png"
+  "../../img/icone.png": {
+    "file": "assets/icone.png",
+    "src": "../../img/icone.png"
   },
   "_vendor-handsontable.js": {
     "file": "assets/vendor-handsontable.js",
@@ -35,7 +35,7 @@
       "assets/index.css"
     ],
     "assets": [
-      "assets/estudantes.png"
+      "assets/icone.png"
     ]
   }
 }

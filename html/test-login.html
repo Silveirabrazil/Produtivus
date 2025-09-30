@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Login Modal - Produtivus</title>
+    <link rel="icon" href="../img/icone.png" type="image/png">
+    <link rel="apple-touch-icon" href="../img/icone.png">
+    <link rel="stylesheet" href="../css/app.css?v=2">
+    <!-- Removido Bootstrap: usando design system custom -->
+</head>
+<body class="debug-page page-animate">
+        <main id="main-content" class="pb-5">
+            <div class="page-shell py-4">
+                <header class="page-header cabecalho-page">
+                    <h1 class="page-header__title h3 m-0">🧪 Teste da Modal de Login</h1>
+                    <p class="page-header__subtitle m-0">Ferramentas de depuração para autenticação.</p>
+                </header>
+                <section class="page-section">
+                <div class="coluna p-0">
+        <div class="grade grade--duas gap-lg">
+            <div class="bloco">
+                <h3>Controles de Teste</h3>
+                <div class="grupo-botoes coluna gap-sm">
+                  <button class="botao botao--primario" onclick="window.openLoginModal && window.openLoginModal()">Abrir Modal de Login</button>
+                  <button class="botao botao--suave" onclick="testAPIs()">Testar APIs do Backend</button>
+                  <button class="botao botao--suave" onclick="clearLogs()">Limpar Logs</button>
+                </div>
+            </div>
+            <div class="bloco">
+                <h3>Status dos Serviços</h3>
+                <div id="api-status" class="debug-info">
+                    <p><strong>Status das APIs:</strong></p>
+                    <ul id="api-list">
+                        <li>Verificando...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="coluna mt-lg">
+                <h3>Console de Debug</h3>
+                <div id="debug-console" class="debug-info" style="height: 300px; overflow-y: auto;">
+                    <p><strong>Logs do sistema:</strong></p>
+                    <div id="log-entries"></div>
+                </div>
+            </div>
+                </div>
+                </section>
+            </div>
+        </main>
+
+    <!-- bootstrap-shim removido -->
+    <script src="../js/modules/login-modal.js"></script>
+
+    <script>
+        const originalConsole = {
+            log: console.log,
+            warn: console.warn,
+            error: console.error
+        };
+
+        function addLogEntry(type, ...args) {
+            const logEntries = document.getElementById('log-entries');
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg =>
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+
+            const entry = document.createElement('div');
+            entry.className = `mb-2 p-2 rounded ${type === 'error' ? 'error-log' : type === 'warn' ? 'alert alert-warning' : 'success-log'}`;
+            entry.innerHTML = `<strong>[${timestamp}] ${type.toUpperCase()}:</strong> ${message}`;
+
+            logEntries.appendChild(entry);
+            logEntries.scrollTop = logEntries.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            addLogEntry('log', ...args);
+            originalConsole.log.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+            addLogEntry('warn', ...args);
+            originalConsole.warn.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            addLogEntry('error', ...args);
+            originalConsole.error.apply(console, args);
+        };
+
+        async function testAPIs() {
+            const apis = [
+                '/server/api/public_config.php',
+                '/server/api/google_login.php',
+                '/server/api/login.php',
+                '/server/api/register.php'
+            ];
+
+            const statusList = document.getElementById('api-list');
+            statusList.innerHTML = '';
+
+            for (const api of apis) {
+                try {
+                    const response = await fetch(api, { method: 'HEAD' });
+                    const status = response.ok ? '✅ Disponível' : `❌ ${response.status} ${response.statusText}`;
+                    const li = document.createElement('li');
+                    li.innerHTML = `<code>${api}</code>: ${status}`;
+                    statusList.appendChild(li);
+
+                    console.log(`API ${api}: ${status}`);
+                } catch (error) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<code>${api}</code>: ❌ Erro de rede`;
+                    statusList.appendChild(li);
+
+                    console.error(`API ${api}: Erro de rede`, error);
+                }
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('log-entries').innerHTML = '';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Teste de login modal inicializado');
+            testAPIs();
+        });
+    </script>
+</body>
+</html>

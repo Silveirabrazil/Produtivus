@@ -63,6 +63,16 @@ try {
         session_destroy();
     }
 
+    // Expira cookie de remember-me (usa o mesmo domínio do set)
+    try {
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $domain = '';
+        $main = '.cesarbrasilfotografia.com.br';
+        if ($host) { $h = strtolower($host); if (substr($h, -strlen($main)) === $main) { $domain = $main; } }
+        $secure = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off') || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])==='https');
+        setcookie('PVREMEMBER', '', [ 'expires'=>time()-3600, 'path'=>'/', 'domain'=>$domain ?: '', 'secure'=>$secure, 'httponly'=>true, 'samesite'=>'Lax' ]);
+    } catch (Exception $e) { /* noop */ }
+
     echo json_encode([
         'success' => true,
         'message' => 'Logout realizado com sucesso',

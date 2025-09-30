@@ -1,0 +1,33 @@
+// SIMPLES: Variáveis globais — substitui tokens/layers
+// Uso: importar primeiro em app.scss
+:root {
+  --color-bg:#ffffff;
+  --color-surface:#f7f8f9;
+  --color-border:#d9dde1;
+  --color-text:#2d2d2d;
+  --color-text-muted:#6b7175;
+  --color-brand:#3A9FA9;
+  --color-brand-accent:#318a92;
+  /* Novos tokens extraídos de cores hardcoded */
+  --color-accent-warm:#c29d67; /* balões / CTA quentes */
+  --color-accent-hero:#ffb86b; /* título hero */
+  --color-accent-pill:#ffaa4f; /* pill nav active */
+  --color-deep:#365562; /* ícones hero / fundos escuros intermediários */
+  --color-danger:#dc3545;
+  --color-warn:#e0b33a;
+  --color-success:#198754;
+  --space-0:0; --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem; --space-5:1.25rem; --space-6:1.5rem; --space-7:2rem; --space-8:3rem;
+  --radius-xs:.25rem; --radius-sm:.375rem; --radius:.5rem; --radius-lg:.75rem; --radius-pill:50rem;
+  --font-base:'Dosis',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  --font-size-sm:.825rem; --font-size-base:1rem; --font-size-lg:1.25rem;
+  --z-header:100;
+  --transition-fast:.18s;
+}
+
+$brand: #3A9FA9;
+$brand-accent: #318a92;
+$accent-warm: #c29d67;
+$accent-hero: #ffb86b;
+$accent-pill: #ffaa4f;
+$deep: #365562;
+$easing: ease;

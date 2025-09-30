@@ -228,6 +228,7 @@ import { ref, onMounted, onUnmounted, nextTick, computed } from "vue";
 // mapa para restaurar dropdowns ao fechar
 // Controle de dropdowns flutuantes (position: fixed)
 const floatMap = new WeakMap<HTMLElement, { onScroll: () => void }>();
+const cleanupStack: Array<() => void> = [];
 import X6Editor from "./components/X6Editor.vue";
 import { loadCurrent, saveCurrent, loadNotebook, saveNotebook, createGroup, createMap, renameGroup, renameMap } from "./store";
 
@@ -434,6 +435,8 @@ function addMap(groupId?: string){
 // removido: prompts substituídos por renomeação inline
 
 onMounted(() => {
+  cleanupStack.length = 0;
+  const pushCleanup = (fn: () => void) => cleanupStack.push(fn);
   const raw = loadCurrent();
   // Migrar dados legados (nodes/edges) para X6 (cells) se necessário
   const isLegacy = raw && Array.isArray(raw.nodes) && Array.isArray(raw.edges);
@@ -488,72 +491,146 @@ onMounted(() => {
         });
         el.classList.add("btn-outline-secondary");
       });
-      // Abrir/fechar menubar dropdown (flutuante)
-      root.querySelectorAll('.mm-menubar .mm-menu-btn').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          const anchor = e.currentTarget as HTMLElement;
-          const menu = anchor.closest('.mm-menu');
-          if (!menu) return;
-          const dd = menu.querySelector('.mm-menu-dropdown') as HTMLElement | null;
-          const isOpen = menu.classList.contains('open');
-          // fechar todos existentes
-          root.querySelectorAll('.mm-menubar .mm-menu.open').forEach((m) => m.classList.remove('open'));
-          root.querySelectorAll('.mm-menubar .mm-menu .mm-menu-dropdown').forEach((el) => closeFloating(el as HTMLElement));
-          if (!isOpen) {
-            menu.classList.add('open');
-            if (dd) floatDropdown(anchor, dd, { offsetY: 6 });
+      const menubar = root.querySelector('.mm-menubar') as HTMLElement | null;
+      const details = root.querySelector('details.mm-dropdown') as HTMLDetailsElement | null;
+      const menubarState = (() => {
+        let activeAnchor: HTMLElement | null = null;
+        let activeDropdown: HTMLElement | null = null;
+        const contains = (target: HTMLElement | null) => {
+          if (!target) return false;
+          if (target.closest('.mm-menubar')) return true;
+          const dd = target.closest('.mm-menu-dropdown');
+          return !!(dd && dd.closest('.mm-menubar'));
+        };
+        const close = () => {
+          if (!activeDropdown || !activeAnchor) {
+            activeDropdown = null;
+            activeAnchor = null;
+            return;
           }
+          closeFloating(activeDropdown);
+          activeAnchor.setAttribute('aria-expanded', 'false');
+          activeAnchor.closest('.mm-menu')?.classList.remove('open');
+          activeDropdown = null;
+          activeAnchor = null;
+        };
+        const open = (anchor: HTMLElement, dropdown: HTMLElement) => {
+          if (activeDropdown === dropdown) return;
+          close();
+          menubar?.querySelectorAll('.mm-menu.open').forEach((m) => {
+            if (m !== anchor.closest('.mm-menu')) m.classList.remove('open');
+          });
+          menubar?.querySelectorAll('.mm-menu-btn[aria-expanded="true"]').forEach((btn) => {
+            if (btn !== anchor) (btn as HTMLElement).setAttribute('aria-expanded', 'false');
+          });
+          menubar?.querySelectorAll('.mm-menu-dropdown').forEach((el) => {
+            if (el !== dropdown) closeFloating(el as HTMLElement);
+          });
+          activeAnchor = anchor;
+          activeDropdown = dropdown;
+          anchor.setAttribute('aria-expanded', 'true');
+          anchor.closest('.mm-menu')?.classList.add('open');
+          floatDropdown(anchor, dropdown, { offsetY: 6 });
+        };
+        const toggle = (anchor: HTMLElement, dropdown: HTMLElement) => {
+          if (activeDropdown === dropdown) {
+            close();
+          } else {
+            open(anchor, dropdown);
+          }
+        };
+        return { get activeAnchor() { return activeAnchor; }, get activeDropdown() { return activeDropdown; }, close, open, toggle, contains };
+      })();
+      const closeShapesDropdown = () => {
+        if (!details?.open) return;
+        const menu = details.querySelector('.mm-dropdown-menu') as HTMLElement | null;
+        details.open = false;
+        if (menu) closeFloating(menu);
+      };
+
+      if (menubar) {
+        menubar.querySelectorAll('.mm-menu').forEach((menu) => {
+          const anchor = menu.querySelector('.mm-menu-btn') as HTMLElement | null;
+          const dropdown = menu.querySelector('.mm-menu-dropdown') as HTMLElement | null;
+          if (!anchor || !dropdown) return;
+          anchor.setAttribute('aria-expanded', 'false');
+          const onClick = (e: Event) => {
+            e.preventDefault();
+            menubarState.toggle(anchor, dropdown);
+          };
+          anchor.addEventListener('click', onClick);
+          pushCleanup(() => anchor.removeEventListener('click', onClick));
         });
-      });
-      document.addEventListener('click', (ev) => {
-        const t = ev.target as HTMLElement;
-        const isInsideMenu = t.closest('.mm-menubar') || t.closest('.mm-menu-dropdown');
-        if (!isInsideMenu) {
-          root.querySelectorAll('.mm-menubar .mm-menu.open').forEach((m) => m.classList.remove('open'));
-          root.querySelectorAll('.mm-menubar .mm-menu .mm-menu-dropdown').forEach((el) => closeFloating(el as HTMLElement));
-        }
-      });
+
+        const onPointerDown = (ev: PointerEvent) => {
+          const target = ev.target as HTMLElement | null;
+          const insideMenubar = menubarState.contains(target);
+          if (!insideMenubar) menubarState.close();
+          if (details?.open && (!target || !details.contains(target))) closeShapesDropdown();
+        };
+        window.addEventListener('pointerdown', onPointerDown, true);
+        pushCleanup(() => window.removeEventListener('pointerdown', onPointerDown, true));
+
+        const onFocusIn = (ev: FocusEvent) => {
+          const target = ev.target as HTMLElement | null;
+          const insideMenubar = menubarState.contains(target);
+          if (!insideMenubar) menubarState.close();
+          if (details?.open && (!target || !details.contains(target))) closeShapesDropdown();
+        };
+        window.addEventListener('focusin', onFocusIn);
+        pushCleanup(() => window.removeEventListener('focusin', onFocusIn));
+
+        const onKeydown = (ev: KeyboardEvent) => {
+          if (ev.key !== 'Escape') return;
+          let handled = false;
+          if (menubarState.activeDropdown) {
+            menubarState.close();
+            handled = true;
+          }
+          if (details?.open) {
+            closeShapesDropdown();
+            handled = true;
+          }
+          if (handled) ev.stopPropagation();
+        };
+        window.addEventListener('keydown', onKeydown);
+        pushCleanup(() => window.removeEventListener('keydown', onKeydown));
+      }
 
       // Dropdown de Formas (details) como flutuante + fechar ao clicar fora/ESC
-      const details = root.querySelector('details.mm-dropdown') as HTMLDetailsElement | null;
       if (details) {
-        details.addEventListener('toggle', (ev: any) => {
+        const summary = details.querySelector('summary') as HTMLElement | null;
+        summary?.setAttribute('aria-expanded', 'false');
+        const onToggle = (ev: Event) => {
           const det = ev.currentTarget as HTMLDetailsElement;
           if (det.open) {
             const sum = det.querySelector('summary') as HTMLElement | null;
             const menu = det.querySelector('.mm-dropdown-menu') as HTMLElement | null;
-            if (sum && menu) floatDropdown(sum, menu, { offsetY: 6 });
+            if (sum && menu) {
+              floatDropdown(sum, menu, { offsetY: 6 });
+              sum.setAttribute('aria-expanded', 'true');
+            }
           } else {
             const menu = det.querySelector('.mm-dropdown-menu') as HTMLElement | null;
+            const sum = det.querySelector('summary') as HTMLElement | null;
             if (menu) closeFloating(menu);
+            sum?.setAttribute('aria-expanded', 'false');
           }
-        });
-        const onDocClickForShapes = (ev: MouseEvent) => {
-          if (!details.open) return;
-          const t = ev.target as HTMLElement;
-          // se o clique ocorreu dentro do details (inclui menu), não fechar
-          if (t && details.contains(t)) return;
-          const menu = details.querySelector('.mm-dropdown-menu') as HTMLElement | null;
-          details.open = false;
-          if (menu) closeFloating(menu);
         };
-        const onEscForShapes = (ev: KeyboardEvent) => {
-          if (ev.key !== 'Escape') return;
-          if (!details.open) return;
-          const menu = details.querySelector('.mm-dropdown-menu') as HTMLElement | null;
-          details.open = false;
-          if (menu) closeFloating(menu);
-        };
-        document.addEventListener('click', onDocClickForShapes, true);
-        document.addEventListener('keydown', onEscForShapes);
-        // limpar listeners quando o componente desmontar
-        onUnmounted(() => {
-          try { document.removeEventListener('click', onDocClickForShapes, true); } catch {}
-          try { document.removeEventListener('keydown', onEscForShapes); } catch {}
-        });
+        details.addEventListener('toggle', onToggle);
+        pushCleanup(() => details.removeEventListener('toggle', onToggle));
       }
     } catch {}
   });
+});
+
+onUnmounted(() => {
+  while (cleanupStack.length) {
+    const fn = cleanupStack.pop();
+    try {
+      fn?.();
+    } catch {}
+  }
 });
 
 function floatDropdown(anchor: HTMLElement, menuEl: HTMLElement, opts?: { offsetY?: number }) {

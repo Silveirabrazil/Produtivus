@@ -11,72 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
 		return;
 	}
 
-	// Sistema automatizado de Google Calendar
-	function setupAutoGoogleCalendar() {
-		try {
-			// Verificar se usuário tem acesso ao calendário
-			const user = JSON.parse(localStorage.getItem('pv_user') || '{}');
-			const accessToken = localStorage.getItem('pv_google_calendar_token');
-
-			if (user.calendar_access && accessToken) {
-				console.info('[FullCalendar] Usuário autenticado com acesso ao Google Calendar');
-
-				// Configurar automaticamente usando o token OAuth
-				calendar.setOption('googleCalendarApiKey', ''); // Não precisamos de API Key
-
-				// Usar diretamente a API OAuth para listar calendários
-				fetchUserCalendars(accessToken).then(calendars => {
-					if (calendars && calendars.length > 0) {
-						console.info('[FullCalendar] Encontrados', calendars.length, 'calendários do usuário');
-
-						// Adicionar calendário principal automaticamente
-						const primaryCalendar = calendars.find(cal => cal.primary) || calendars[0];
-						if (primaryCalendar) {
-							// Usar token OAuth em vez de API Key
-							calendar.addEventSource({
-								googleCalendarId: primaryCalendar.id,
-								className: 'gcal-source-auto',
-								extraParams: {
-									access_token: accessToken
-								}
-							});
-
-							// Salvar configuração automática
-							const autoConfig = {
-								auto: true,
-								accessToken: accessToken,
-								calendars: calendars,
-								primaryId: primaryCalendar.id
-							};
-							localStorage.setItem('pv_gcal_auto_cfg', JSON.stringify(autoConfig));
-
-							// Sem notificações: manter silencioso
-						}
-					}
-				}).catch(error => {
-					console.warn('[FullCalendar] Erro ao buscar calendários do usuário:', error);
-					// Fallback para configuração manual
-					showCalendarSetupPrompt();
-				});
-			}
-		} catch (error) {
-			console.warn('[FullCalendar] Erro na configuração automática:', error);
-		}
-	}
-
-	// Buscar calendários do usuário via OAuth
-	async function fetchUserCalendars(accessToken) {
-		try {
-			const response = await fetch(`https://www.googleapis.com/calendar/v3/users/me/calendarList?access_token=${accessToken}`);
-			if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-			const data = await response.json();
-			return data.items || [];
-		} catch (error) {
-			console.error('[GoogleCalendar] Erro ao buscar calendários:', error);
-			return null;
-		}
-	}
 
 	// Helpers de permissão
 	function isAdminUser() {
@@ -89,13 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		try{ const p=new URLSearchParams(location.search); return p.get('dev')==='1'; }catch{return false}
 	}
 
-	// Removido: prompt/configuração manual do Google Calendar
-
-	// Aplicar configuração inicial automatizada
-	setTimeout(setupAutoGoogleCalendar, 100);
-
-	// --- Google Calendar: UI de configuração ---
-	// Removido: modal de configuração manual do Google Calendar
+	// Removido: integração e configuração do Google Calendar
 	// Detect possible legacy calendar renderer (legacy calendar.js uses #cal-grid and exposes window.renderCalendar)
 	try {
 		var legacyDetected = Boolean(window.renderCalendar || document.getElementById('cal-grid'));
@@ -155,7 +83,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	editable: true,
 		// a chave plugins não é obrigatória nos global builds; mantida para compat
 		plugins: plugins,
-		googleCalendarApiKey: (function(){ try{ return (readGCalConfig().apiKey||'').trim(); }catch{return ''} })(),
 		headerToolbar: {
 			left: 'prev,next today',
 			center: 'title',
@@ -251,97 +178,42 @@ document.addEventListener('DOMContentLoaded', function () {
 	});
 	calendar.render();
 
-	// Botão para conectar Google Agenda (apenas OAuth)
+	// Duplo clique: abrir modal de nova tarefa pré-preenchida
 	try {
-		setTimeout(()=>{
-			const tb = calendarEl.querySelector('.fc-header-toolbar .fc-toolbar-chunk:last-child');
-			if (!tb) return;
-			const btn = document.createElement('button');
-			btn.type='button'; btn.className='btn btn-sm btn-outline-secondary ms-2'; btn.textContent='Google';
-			btn.addEventListener('click', function(){
-				try {
-					const user = JSON.parse(localStorage.getItem('pv_user') || '{}');
-					if (user.calendar_access) {
-						// Reconectar
-						setupAutoGoogleCalendar();
-					} else if (window.googleAuth && window.googleAuth.signInWithCalendar) {
-						// Login com permissões de calendário (OAuth) para todos
-						window.googleAuth.signInWithCalendar();
-					} else {
-						// Serviço de login não carregou ainda
-						try { window.pvNotify?.({ title:'Conectar Google', message:'Clique novamente em alguns segundos; o serviço de login ainda está carregando.', type:'info' }); } catch{}
+		// 1) Dblclick em célula do mês (dayGrid)
+		calendar.setOption('dayCellDidMount', function(arg) {
+			try {
+				arg.el.addEventListener('dblclick', function(e){
+					e.preventDefault(); e.stopPropagation();
+					const dateStr = arg.date && typeof arg.date.toISOString === 'function'
+						? arg.date.toISOString().slice(0,10)
+						: (arg.dateStr || '');
+					if (typeof window.openTaskModal === 'function' && dateStr) {
+						window.openTaskModal(null, { start: dateStr });
 					}
-				} catch {
-					// ignora
+				});
+			} catch {}
+		});
+		// 2) Dblclick em slot/timeGrid (sem arg.date direto)
+		calendar.on('dateClick', function(info){
+			try {
+				let clicks = info.jsEvent && (info.jsEvent.__pvClicks = (info.jsEvent.__pvClicks||0)+1);
+				if (clicks === 2) {
+					// normaliza para data YYYY-MM-DD
+					const iso = info.dateStr || '';
+					const dateOnly = iso ? iso.slice(0,10) : '';
+					if (typeof window.openTaskModal === 'function' && dateOnly) {
+						window.openTaskModal(null, { start: dateOnly });
+					}
+					info.jsEvent.__pvClicks = 0;
+					return;
 				}
-			});
-			tb.appendChild(btn);
-
-			// Atualizar texto do botão baseado no status
-			function updateGoogleButton() {
-				try {
-					const user = JSON.parse(localStorage.getItem('pv_user') || '{}');
-					const autoConfig = JSON.parse(localStorage.getItem('pv_gcal_auto_cfg') || '{}');
-
-					if (user.calendar_access && autoConfig.auto) {
-						btn.textContent = 'Google ✓';
-						btn.className = 'btn btn-sm btn-success ms-2';
-						btn.title = 'Google Calendar conectado automaticamente';
-					} else {
-						btn.textContent = 'Google';
-						btn.className = 'btn btn-sm btn-outline-secondary ms-2';
-						btn.title = 'Conectar Google Calendar';
-					}
-				} catch {}
-			}
-
-			updateGoogleButton();
-
-			// Atualizar quando configuração mudar
-			window.addEventListener('pv:gcal:updated', updateGoogleButton);
-			document.addEventListener('pv:user:changed', updateGoogleButton);
-		}, 0);
+				setTimeout(()=>{ if(info.jsEvent) info.jsEvent.__pvClicks = 0; }, 280);
+			} catch {}
+		});
 	} catch {}
 
-	// Botão "Outlook" (placeholder) para futura integração Microsoft Graph
-	try {
-		setTimeout(()=>{
-			const tb = calendarEl.querySelector('.fc-header-toolbar .fc-toolbar-chunk:last-child');
-			if (!tb || tb.querySelector('.btn-outlook')) return;
-			const btn = document.createElement('button');
-			btn.type='button'; btn.className='btn btn-sm btn-outline-secondary ms-2 btn-outlook'; btn.textContent='Outlook';
-			btn.addEventListener('click', function(){
-				try { alert('Conectar ao Outlook (em breve): adicionaremos login Microsoft e sincronização.'); } catch{}
-			});
-			tb.appendChild(btn);
-		}, 0);
-	} catch {}
-
-	// Ao atualizar config, refazer fontes do Google
-	window.addEventListener('pv:gcal:updated', function(){
-		try {
-			const cfg = readGCalConfig();
-			calendar.setOption('googleCalendarApiKey', (cfg.apiKey||'').trim());
-			// Remove fontes anteriores do Google
-			calendar.getEventSources().forEach(src=>{ try { if (src.internal && src.internal.source && src.internal.source.meta && src.internal.source.meta.googleCalendarId) src.remove(); } catch{} });
-			// Adiciona novas
-			if (Array.isArray(cfg.ids)) {
-				cfg.ids.forEach(id=>{ if (!id) return; calendar.addEventSource({ googleCalendarId: id, className: 'gcal-source' }); });
-			}
-			calendar.refetchEvents();
-		} catch (e) { console.warn('Falha ao aplicar config Google Calendar', e); }
-	});
-
-	// Aplicar config existente ao carregar
-	(function applyInitialGCal(){
-		try {
-			const cfg = readGCalConfig();
-			if (cfg.apiKey && Array.isArray(cfg.ids) && cfg.ids.length) {
-				cfg.ids.forEach(id=>{ if (!id) return; calendar.addEventSource({ googleCalendarId: id, className: 'gcal-source' }); });
-				if (cfg.timeZone) { try { calendar.setOption('timeZone', cfg.timeZone); } catch {} }
-			}
-		} catch {}
-	})();
+	// Removido: botões e fontes relacionados ao Google Calendar/Outlook
 	// Ajuste fino: tentar deixar as células da visão mês o mais quadradas possível
 	function adjustSquareHeight(){
 		try {
@@ -370,23 +242,21 @@ document.addEventListener('DOMContentLoaded', function () {
 	setTimeout(() => { try { calendar.refetchEvents(); } catch (e) { console.debug('[FullCalendar] refetchEvents failed', e); } }, 600);
 	// Expose a helper to refresh events from other modules
 	window.refreshCalendarEvents = function() { try { calendar.refetchEvents(); } catch (e) { console.debug('[FullCalendar] refreshCalendarEvents failed', e); } };
-	// Quando o usuário clica em um dia, abrir dropdown com tarefas do dia (em vez de modal)
+	// Quando o usuário clica em um dia, abrir modal com agenda do dia
 	calendar.on('dateClick', function(info) {
 		try {
 			const dateStr = info.dateStr; // YYYY-MM-DD or date-time
-			const anchorEl = info.dayEl || info.jsEvent?.target || calendarEl;
-			openTasksForDate(dateStr, calendar, anchorEl);
+			if (dateStr) openTasksForDate(dateStr, calendar);
 		} catch (e) { console.error('dateClick handler failed', e); }
 	});
 
-	// Clique em evento: abrir dropdown ancorado ao próprio evento (sem modal)
+	// Clique em evento: abrir modal ancorado na data do evento
 	calendar.on('eventClick', function(evt) {
 		try {
 			if (evt.jsEvent) { evt.jsEvent.preventDefault(); evt.jsEvent.stopPropagation(); }
 			const startStr = evt.event && typeof evt.event.startStr === 'string' ? evt.event.startStr : '';
 			const dateStr = startStr ? startStr.slice(0, 10) : (evt.event.start ? evt.event.start.toISOString().slice(0,10) : '');
-			const anchorEl = evt.el || (evt.jsEvent && evt.jsEvent.target) || calendarEl;
-			if (dateStr) openTasksForDate(dateStr, calendar, anchorEl);
+			if (dateStr) openTasksForDate(dateStr, calendar);
 		} catch (e) { console.error('eventClick handler failed', e); }
 	});
 
@@ -533,8 +403,72 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 	}
 
-	// Helper: abrir dropdown com tarefas do dia ancorado ao elemento clicado
-	window.openTasksForDate = async function(dateStr, calendarRef, anchorEl) {
+	// Helpers: modal de agenda diária
+	const dayModalId = 'calendar-day-modal';
+	let dayModalBound = false;
+	let dayModalKeyHandler = null;
+
+	const formatDayTitle = (iso) => {
+		try {
+			const dt = new Date(`${iso}T00:00:00`);
+			return dt.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+		} catch { return iso; }
+	};
+
+	const escapeHtml = (value) => String(value ?? '')
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#039;');
+
+	function ensureDayModalBindings() {
+		if (dayModalBound) return;
+		const modal = document.getElementById(dayModalId);
+		if (!modal) return;
+		const closeBtn = modal.querySelector('[data-cal-day-close]');
+		if (closeBtn) closeBtn.addEventListener('click', closeCalendarDayModal);
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) closeCalendarDayModal();
+		});
+		dayModalBound = true;
+	}
+
+	function openCalendarDayModal(modal) {
+		if (!modal) return;
+		const otherOpen = document.querySelector('.janela.janela--aberta');
+		if (!otherOpen) {
+			modal.dataset.prevOverflow = document.body.style.overflow || '';
+			document.body.style.overflow = 'hidden';
+		}
+		ensureDayModalBindings();
+		requestAnimationFrame(() => modal.classList.add('janela--aberta'));
+		modal.setAttribute('aria-hidden', 'false');
+		const focusTarget = modal.querySelector('[data-day-add]') || modal.querySelector('[data-cal-day-close]');
+		setTimeout(() => { try { focusTarget && focusTarget.focus(); } catch { } }, 140);
+		dayModalKeyHandler = function (ev) { if (ev.key === 'Escape') closeCalendarDayModal(); };
+		document.addEventListener('keydown', dayModalKeyHandler);
+	}
+
+	function closeCalendarDayModal() {
+		const modal = document.getElementById(dayModalId);
+		if (!modal) return;
+		if (!modal.classList.contains('janela--aberta')) return;
+		modal.classList.remove('janela--aberta');
+		modal.setAttribute('aria-hidden', 'true');
+		if (dayModalKeyHandler) {
+			document.removeEventListener('keydown', dayModalKeyHandler);
+			dayModalKeyHandler = null;
+		}
+		if (!document.querySelector('.janela.janela--aberta')) {
+			document.body.style.overflow = modal.dataset.prevOverflow || '';
+		}
+	}
+
+	window.closeCalendarDayModal = closeCalendarDayModal;
+
+	// Helper: abrir modal com tarefas do dia
+	window.openTasksForDate = async function(dateStr, calendarRef) {
 		try {
 			let tasks = [];
 			const tasksLoader = window.getTasks || (typeof getTasks === 'function' ? getTasks : null);
@@ -548,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					tasks = (j && j.success && Array.isArray(j.items)) ? j.items : [];
 				} catch (e) { tasks = []; }
 			}
-			// Helpers para cronogramas (aulas) extraídos da descrição
+
 			const parseStudy = (t) => {
 				try { return (window.study && window.study.parseStudyMetaFromDesc) ? window.study.parseStudyMetaFromDesc(t.desc || t.description || '') : null; } catch { return null; }
 			};
@@ -561,6 +495,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			const hasTimePart = (s) => typeof s === 'string' && /\d{2}:\d{2}/.test(s);
 			const isDateOnly = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 			const isMidnight = (s) => typeof s === 'string' && /T00:00(:00)?$/.test(s);
+			const fmtTime = (dt) => { try { return dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); } catch { return ''; } };
 
 			const dRef = new Date(dateStr + 'T00:00:00');
 			const dayTasks = [];
@@ -572,11 +507,9 @@ document.addEventListener('DOMContentLoaded', function () {
 					if (sch && Array.isArray(sch.weekdays) && sch.weekdays.length) {
 						const sY = ymdToDate(sch.startDate);
 						const eY = ymdToDate(sch.endDate);
-						if (!inRangeYMD(dRef, sY, eY)) { /* fora do período */ }
-						else {
+						if (inRangeYMD(dRef, sY, eY)) {
 							const dows = normalizeWeekdayList(sch.weekdays);
 							if (dows.includes(dRef.getDay())) {
-								// ocorre neste dia: compute start/end do dia
 								const startIso = buildIso(dRef, sch.time);
 								const durationMin = Number(meta?.estimatedMinutes || 0) || 60;
 								const endIso = sch.endTime ? buildIso(dRef, sch.endTime) : addMinutesIso(startIso, durationMin);
@@ -585,7 +518,6 @@ document.addEventListener('DOMContentLoaded', function () {
 						}
 						continue;
 					}
-					// Não é cronograma: filtrar por inclusão de dia
 					const ds = String(dateStr);
 					if (t.start && String(t.start).startsWith(ds)) { dayTasks.push(t); continue; }
 					if (t.end && String(t.end).startsWith(ds)) { dayTasks.push(t); continue; }
@@ -608,145 +540,75 @@ document.addEventListener('DOMContentLoaded', function () {
 				} catch(_) { /* ignore */ }
 			}
 
-			// Dropdown container (reutilizável)
-			let drop = document.getElementById('calendar-day-tasks-dropdown');
-			if (!drop) {
-				drop = document.createElement('div');
-				drop.id = 'calendar-day-tasks-dropdown';
-				drop.className = 'dropdown-menu show shadow calendar-day-dropdown p-2';
-				drop.setAttribute('role', 'menu');
-				drop.style.position = 'absolute';
-				drop.style.minWidth = '260px';
-				drop.style.maxWidth = '360px';
-				drop.style.maxHeight = '320px';
-				drop.style.overflow = 'auto';
-				drop.style.zIndex = '1060';
-				document.body.appendChild(drop);
+			const modal = document.getElementById(dayModalId);
+			if (!modal) {
+				if (typeof window.openTaskModal === 'function') window.openTaskModal(null, { start: dateStr });
+				return dayTasks;
 			}
 
-			// Conteúdo
-			drop.innerHTML = '';
-			const head = document.createElement('div');
-			head.className = 'dropdown-header';
-			head.textContent = `Tarefas em ${dateStr}`;
-			drop.appendChild(head);
+			const titleEl = modal.querySelector('#calendar-day-title');
+			if (titleEl) titleEl.textContent = formatDayTitle(dateStr);
+			const summaryEl = modal.querySelector('[data-day-summary]');
+			if (summaryEl) summaryEl.textContent = dayTasks.length ? `${dayTasks.length} tarefa${dayTasks.length === 1 ? '' : 's'} agendada${dayTasks.length === 1 ? '' : 's'}` : 'Nenhuma tarefa cadastrada para este dia.';
 
-			const body = document.createElement('div');
-			body.id = 'cdt-body';
-			drop.appendChild(body);
-			if (!dayTasks.length) {
-				body.innerHTML = '<div class="small muted">Nenhuma tarefa neste dia.</div>';
-			} else {
-				const fmtTime = (dt) => { try { return dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); } catch { return ''; } };
+			const listEl = modal.querySelector('[data-day-list]');
+			const emptyEl = modal.querySelector('[data-day-empty]');
+			if (listEl) listEl.innerHTML = '';
+			if (dayTasks.length && listEl) {
+				dayTasks.sort((a, b) => {
+					const sa = a.__computedStart || a.start || '';
+					const sb = b.__computedStart || b.start || '';
+					return sa.localeCompare(sb);
+				});
 				dayTasks.forEach(t => {
 					const sRaw = t.__computedStart || t.start;
 					const eRaw = t.__computedEnd || t.end;
 					const start = sRaw ? new Date(sRaw) : null;
 					const end = eRaw ? new Date(eRaw) : null;
-					const hasTimeStart = typeof t.start === 'string' && /\d{2}:\d{2}/.test(t.start);
-					const hasTimeEnd = typeof t.end === 'string' && /\d{2}:\d{2}/.test(t.end);
-					const sameDay = (start && end) ? (start.getFullYear()===end.getFullYear() && start.getMonth()===end.getMonth() && start.getDate()===end.getDate()) : false;
-					const isAllDay = Boolean(t.allDay || ((t.start || t.end) && !hasTimeStart && !hasTimeEnd));
+					const hasTimeStart = Boolean(sRaw && /\d{2}:\d{2}/.test(String(sRaw)));
+					const hasTimeEnd = Boolean(eRaw && /\d{2}:\d{2}/.test(String(eRaw)));
+					const sameDay = (start && end) ? (start.toDateString() === end.toDateString()) : false;
+					const isAllDay = Boolean(t.allDay || (!hasTimeStart && !hasTimeEnd));
 					let timeStr = '';
-					if (hasTimeStart && hasTimeEnd && sameDay) timeStr = `${fmtTime(start)}–${fmtTime(end)}`;
+					if (hasTimeStart && hasTimeEnd && sameDay) timeStr = `${fmtTime(start)} – ${fmtTime(end)}`;
 					else if (hasTimeStart) timeStr = fmtTime(start);
 					else if (hasTimeEnd) timeStr = fmtTime(end);
 					else if (isAllDay) timeStr = 'Dia todo';
 					const item = document.createElement('button');
 					item.type = 'button';
-					item.className = 'dropdown-item d-flex align-items-center justify-content-between gap-2 cdt-item-btn';
-					item.innerHTML = `<span class="cdt-title" data-id="${t.id}">${t.title}</span><span class="cdt-time small text-secondary">${timeStr}</span>`;
+					item.className = 'calendar-day-modal__item';
+					item.innerHTML = `
+						<div class="calendar-day-modal__item-info">
+							<div class="calendar-day-modal__item-title">${escapeHtml(t.title || t.desc || 'Tarefa')}</div>
+							${t.course ? `<div class="calendar-day-modal__item-meta">${escapeHtml(t.course)}</div>` : ''}
+						</div>
+						<div class="calendar-day-modal__item-meta">${escapeHtml(timeStr)}</div>
+					`;
 					item.addEventListener('click', () => {
-						closeDropdown();
+						closeCalendarDayModal();
 						if (typeof window.openTaskModal === 'function') window.openTaskModal(t.id);
 					});
-					body.appendChild(item);
+					listEl.appendChild(item);
 				});
 			}
+			if (emptyEl) emptyEl.style.display = dayTasks.length ? 'none' : '';
+			if (listEl) listEl.style.display = dayTasks.length ? 'flex' : 'none';
 
-			// Ações
-			const divider = document.createElement('div');
-			divider.className = 'dropdown-divider';
-			drop.appendChild(divider);
+			const addBtn = modal.querySelector('[data-day-add]');
+			if (addBtn) {
+				addBtn.onclick = () => {
+					closeCalendarDayModal();
+					if (typeof window.openTaskModal === 'function') window.openTaskModal(null, { start: dateStr });
+				};
+			}
 
-			const addBtn = document.createElement('button');
-			addBtn.id = 'cdt-add';
-			addBtn.className = 'btn btn-sm btn-primary w-100';
-			addBtn.textContent = '+ Nova tarefa neste dia';
-			addBtn.addEventListener('click', () => {
-				closeDropdown();
-				if (typeof window.openTaskModal === 'function') window.openTaskModal(null, { start: dateStr });
-			});
-			drop.appendChild(addBtn);
-
-			// Posicionamento
-			positionDropdown(drop, anchorEl || calendarRef?.el || calendarEl);
-
-			// Fechamento
-			setupDropdownClose(drop);
+			openCalendarDayModal(modal);
+			return dayTasks;
 		} catch (err) {
 			console.error('[openTasksForDate] falha', err);
+			return [];
 		}
 	};
-
-	function positionDropdown(menuEl, anchor) {
-		try {
-			const a = anchor && anchor.nodeType === 1 ? anchor : calendarEl;
-			const rect = a.getBoundingClientRect();
-			menuEl.style.visibility = 'hidden';
-			menuEl.style.left = '0px';
-			menuEl.style.top = '0px';
-			// anexar para medir
-			if (!document.body.contains(menuEl)) document.body.appendChild(menuEl);
-			// medir após anexar
-			const vw = window.innerWidth;
-			const vh = window.innerHeight;
-			const menuW = Math.min(menuEl.offsetWidth || 320, 380);
-			const menuH = Math.min(menuEl.offsetHeight || 240, 380);
-			let left = rect.left + window.scrollX;
-			let top = rect.bottom + 8 + window.scrollY;
-			// ajustar se transbordar à direita
-			if (left + menuW > vw + window.scrollX - 8) left = Math.max(8 + window.scrollX, vw + window.scrollX - menuW - 8);
-			// se transbordar abaixo, abrir para cima
-			if (top + menuH > vh + window.scrollY - 8) top = Math.max(8 + window.scrollY, rect.top - menuH - 8 + window.scrollY);
-			menuEl.style.left = left + 'px';
-			menuEl.style.top = top + 'px';
-			menuEl.style.visibility = 'visible';
-		} catch (e) { /* noop */ }
-	}
-
-	function setupDropdownClose(menuEl){
-		// Fechar dropdown anterior
-		try { closeDropdown(); } catch(_) {}
-		window.__pv_calendar_dropdown_open = menuEl;
-		const onDoc = function(e){
-			const el = window.__pv_calendar_dropdown_open;
-			if (!el) return;
-			if (el.contains(e.target)) return; // inside
-			closeDropdown();
-		};
-		const onEsc = function(e){ if (e.key === 'Escape') { closeDropdown(); } };
-		const onResize = function(){ try { closeDropdown(); } catch(_){} };
-		document.addEventListener('mousedown', onDoc, { capture: true });
-		document.addEventListener('keydown', onEsc);
-		window.addEventListener('resize', onResize);
-		window.addEventListener('scroll', onResize, true);
-		menuEl.__cleanup = () => {
-			document.removeEventListener('mousedown', onDoc, { capture: true });
-			document.removeEventListener('keydown', onEsc);
-			window.removeEventListener('resize', onResize);
-			window.removeEventListener('scroll', onResize, true);
-		};
-	}
-
-	function closeDropdown(){
-		const el = window.__pv_calendar_dropdown_open;
-		if (el && el.parentNode) {
-			try { if (typeof el.__cleanup === 'function') el.__cleanup(); } catch(_){}
-			el.parentNode.removeChild(el);
-		}
-		window.__pv_calendar_dropdown_open = null;
-	}
 });
 
 /*

@@ -20,8 +20,13 @@
 
 	function bindUndoRedo(root){
 		const area = root.querySelector('[data-editor-area]');
-		root.querySelector('[data-editor-action="undo"]')?.addEventListener('click', ()=>{ document.execCommand('undo'); area.focus(); });
-		root.querySelector('[data-editor-action="redo"]')?.addEventListener('click', ()=>{ document.execCommand('redo'); area.focus(); });
+		const undoBtn = root.querySelector('[data-editor-action="undo"]');
+		const redoBtn = root.querySelector('[data-editor-action="redo"]');
+		function restoreSel(){ try { if (window.PVEditorToolbar && typeof window.PVEditorToolbar.restoreSelection==='function'){ window.PVEditorToolbar.restoreSelection(); } } catch(e){} }
+		undoBtn?.addEventListener('mousedown', (e)=>{ e.preventDefault(); });
+		redoBtn?.addEventListener('mousedown', (e)=>{ e.preventDefault(); });
+		undoBtn?.addEventListener('click', ()=>{ restoreSel(); document.execCommand('undo'); area.focus(); });
+		redoBtn?.addEventListener('click', ()=>{ restoreSel(); document.execCommand('redo'); area.focus(); });
 	}
 
 	function bindShortcuts(root){
@@ -29,9 +34,10 @@
 		root.addEventListener('keydown', (e)=>{
 			if(!(e.ctrlKey||e.metaKey)) return;
 			const k = e.key.toLowerCase();
-			if (k==='b'){ e.preventDefault(); document.execCommand('bold'); area.focus(); }
-			if (k==='i'){ e.preventDefault(); document.execCommand('italic'); area.focus(); }
-			if (k==='u'){ e.preventDefault(); document.execCommand('underline'); area.focus(); }
+			const restoreSel = ()=>{ try { if (window.PVEditorToolbar && typeof window.PVEditorToolbar.restoreSelection==='function'){ window.PVEditorToolbar.restoreSelection(); } } catch(e){} };
+			if (k==='b'){ e.preventDefault(); restoreSel(); document.execCommand('bold'); area.focus(); }
+			if (k==='i'){ e.preventDefault(); restoreSel(); document.execCommand('italic'); area.focus(); }
+			if (k==='u'){ e.preventDefault(); restoreSel(); document.execCommand('underline'); area.focus(); }
 			if (k==='z'){ /* deixar default para desfazer */ }
 			if (k==='y'){ /* deixar default para refazer */ }
 		});
@@ -45,16 +51,11 @@
 			+ '<div class="pv-editor-wrap">\n'
 			+ '  <div class="row g-3">\n'
 			+ '    <div class="col-12">\n'
-			+ '      <div class="d-flex align-items-center gap-3 flex-wrap">\n'
-			+ '        <input type="text" class="form-control form-control-lg flex-grow-1" placeholder="Título do documento" aria-label="Título" data-editor-title>\n'
-			+ '        <div class="d-flex align-items-center gap-2">\n'
+			+ '      <div class="btn-toolbar gap-2" role="toolbar" aria-label="Ferramentas do editor" data-editor-toolbar>\n'
+			+ '        <div class="btn-group" role="group" aria-label="Histórico">\n'
 			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-action="undo" title="Desfazer (Ctrl+Z)">⟲</button>\n'
 			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-action="redo" title="Refazer (Ctrl+Y)">⟳</button>\n'
 			+ '        </div>\n'
-			+ '      </div>\n'
-			+ '    </div>\n'
-			+ '    <div class="col-12">\n'
-			+ '      <div class="btn-toolbar gap-2" role="toolbar" aria-label="Ferramentas do editor" data-editor-toolbar>\n'
 			+ '        <div class="btn-group" role="group" aria-label="Estilo">\n'
 			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-command="bold" title="Negrito (Ctrl+B)"><strong>B</strong></button>\n'
 			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-command="italic" title="Itálico (Ctrl+I)"><em>I</em></button>\n'
@@ -65,17 +66,18 @@
 			+ '        </div>\n'
 			+ '        <div class="btn-group" role="group" aria-label="Fontes">\n'
 			+ '          <div class="dropdown">\n'
-			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Fonte</button>\n'
+			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">Fonte</button>\n'
 			+ '            <ul class="dropdown-menu p-1 max-h-280 overflow-auto" data-editor-fonts></ul>\n'
 			+ '          </div>\n'
 			+ '          <div class="dropdown">\n'
-			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Tamanho</button>\n'
+			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">Tamanho</button>\n'
 			+ '            <ul class="dropdown-menu p-1" data-editor-sizes></ul>\n'
 			+ '          </div>\n'
+			+ '          <input type="number" min="8" max="96" step="1" value="16" class="form-control form-control-sm size-input" title="Tamanho (px)" data-editor-size-input>\n'
 			+ '        </div>\n'
 			+ '        <div class="btn-group" role="group" aria-label="Cores">\n'
 			+ '          <div class="dropdown">\n'
-			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Cor</button>\n'
+			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">Cor</button>\n'
 			+ '            <div class="dropdown-menu p-2 w-260">\n'
 			+ '              <div class="color-grid" data-editor-fore-colors></div>\n'
 			+ '              <div class="mt-2 d-flex align-items-center gap-2">\n'
@@ -85,7 +87,7 @@
 			+ '            </div>\n'
 			+ '          </div>\n'
 			+ '          <div class="dropdown">\n'
-			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Fundo</button>\n'
+			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">Fundo</button>\n'
 			+ '            <div class="dropdown-menu p-2 w-260" data-menu-back>\n'
 			+ '              <div class="color-grid" data-editor-back-colors></div>\n'
 			+ '              <div class="mt-2 d-flex align-items-center gap-2">\n'
@@ -97,7 +99,7 @@
 			+ '        </div>\n'
 			+ '        <div class="btn-group" role="group" aria-label="Parágrafo">\n'
 			+ '          <div class="dropdown">\n'
-			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Bloco</button>\n'
+			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">Bloco</button>\n'
 			+ '            <ul class="dropdown-menu" data-editor-blocks>\n'
 			+ '              <li><button class="dropdown-item" type="button" data-format-block="p">Parágrafo</button></li>\n'
 			+ '              <li><button class="dropdown-item" type="button" data-format-block="h1">Título 1</button></li>\n'
@@ -113,10 +115,10 @@
 			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-command="justifyFull" title="Justificar">≣</button>\n'
 			+ '        </div>\n'
 			+ '        <div class="btn-group" role="group" aria-label="Listas e recuo">\n'
-			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-command="insertUnorderedList" title="Lista pontuada">• List</button>\n'
-			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-command="insertOrderedList" title="Lista numerada">1. List</button>\n'
-			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-command="outdent" title="Diminuir recuo">⇤</button>\n'
-			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-command="indent" title="Aumentar recuo">⇥</button>\n'
+			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-command="insertUnorderedList" title="Lista pontuada">Lista</button>\n'
+			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-command="insertOrderedList" title="Lista numerada">Lista 1.</button>\n'
+			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-command="outdent" title="Diminuir recuo">Recuo −</button>\n'
+			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-command="indent" title="Aumentar recuo">Recuo +</button>\n'
 			+ '        </div>\n'
 			+ '        <div class="btn-group" role="group" aria-label="Inserir">\n'
 			+ '          <button class="btn btn-outline-secondary" type="button" data-editor-insert="link">Link</button>\n'
@@ -125,7 +127,7 @@
 			+ '        </div>\n'
 			+ '        <div class="btn-group" role="group" aria-label="Tabela">\n'
 			+ '          <div class="dropdown">\n'
-			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Bordas</button>\n'
+			+ '            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">Bordas</button>\n'
 			+ '            <ul class="dropdown-menu p-2" data-editor-table-borders>\n'
 			+ '              <li><button class="dropdown-item" type="button" data-table-border="bottom">Borda Inferior</button></li>\n'
 			+ '              <li><button class="dropdown-item" type="button" data-table-border="top">Borda Superior</button></li>\n'
@@ -185,46 +187,34 @@
 			+ '<div class="modal fade" id="editorLinkModal" tabindex="-1" aria-hidden="true">\n'
 			+ '  <div class="modal-dialog modal-dialog-centered">\n'
 			+ '    <div class="modal-content">\n'
-			+ '      <div class="modal-header"><h5 class="modal-title">Inserir link</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>\n'
-			+ '      <div class="modal-body">\n'
-			+ '        <div class="mb-3"><label class="form-label">URL</label><input type="url" class="form-control" placeholder="https://" data-editor-link-url></div>\n'
-			+ '        <div class="form-check"><input class="form-check-input" type="checkbox" id="ed-link-blank" checked data-editor-link-blank><label class="form-check-label" for="ed-link-blank">Abrir em nova aba</label></div>\n'
-			+ '      </div>\n'
-			+ '      <div class="modal-footer"><button type="button" class="btn btn-primary" data-editor-confirm-link>Inserir</button></div>\n'
+			+ '      <div class="modal-header"><h5 class="modal-title">Inserir link</h5><button type="button" class="btn-close" data-dismiss="modal" aria-label="Fechar"></button></div>\n'
+			+ '      <div class="modal-body"><input type="text" class="form-control" placeholder="URL do link" data-editor-link-url><input type="text" class="form-control mt-2" placeholder="Texto a exibir (opcional)" data-editor-link-text></div>\n'
+			+ '      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button><button type="button" class="btn btn-primary" data-editor-confirm-link>Inserir</button></div>\n'
 			+ '    </div>\n'
 			+ '  </div>\n'
 			+ '</div>\n'
 			+ '<div class="modal fade" id="editorImageModal" tabindex="-1" aria-hidden="true">\n'
 			+ '  <div class="modal-dialog modal-dialog-centered">\n'
 			+ '    <div class="modal-content">\n'
-			+ '      <div class="modal-header"><h5 class="modal-title">Inserir imagem</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>\n'
-			+ '      <div class="modal-body">\n'
-			+ '        <div class="mb-3"><label class="form-label">URL</label><input type="url" class="form-control" placeholder="https://" data-editor-image-url></div>\n'
-			+ '        <div class="mb-3"><label class="form-label">Arquivo</label><input type="file" class="form-control" accept="image/*" data-editor-image-file></div>\n'
-			+ '        <div class="mb-3"><label class="form-label">Alt (texto alternativo)</label><input type="text" class="form-control" data-editor-image-alt></div>\n'
-			+ '      </div>\n'
-			+ '      <div class="modal-footer"><button type="button" class="btn btn-primary" data-editor-confirm-image>Inserir</button></div>\n'
+			+ '      <div class="modal-header"><h5 class="modal-title">Inserir imagem</h5><button type="button" class="btn-close" data-dismiss="modal" aria-label="Fechar"></button></div>\n'
+			+ '      <div class="modal-body"><input type="text" class="form-control" placeholder="URL da imagem" data-editor-image-url></div>\n'
+			+ '      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button><button type="button" class="btn btn-primary" data-editor-confirm-image>Inserir</button></div>\n'
 			+ '    </div>\n'
 			+ '  </div>\n'
 			+ '</div>\n'
 			+ '<div class="modal fade" id="editorTableModal" tabindex="-1" aria-hidden="true">\n'
 			+ '  <div class="modal-dialog modal-dialog-centered">\n'
 			+ '    <div class="modal-content">\n'
-			+ '      <div class="modal-header"><h5 class="modal-title">Inserir tabela</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>\n'
-			+ '      <div class="modal-body">\n'
-			+ '        <div class="row g-2">\n'
-			+ '          <div class="col"><label class="form-label">Linhas</label><input type="number" min="1" max="50" class="form-control" value="3" data-editor-table-rows></div>\n'
-			+ '          <div class="col"><label class="form-label">Colunas</label><input type="number" min="1" max="20" class="form-control" value="3" data-editor-table-cols></div>\n'
-			+ '        </div>\n'
-			+ '      </div>\n'
-			+ '      <div class="modal-footer"><button type="button" class="btn btn-primary" data-editor-confirm-table>Inserir</button></div>\n'
+			+ '      <div class="modal-header"><h5 class="modal-title">Inserir tabela</h5><button type="button" class="btn-close" data-dismiss="modal" aria-label="Fechar"></button></div>\n'
+			+ '      <div class="modal-body"><div class="row"><div class="col"><input type="number" class="form-control" placeholder="Linhas" value="2" data-editor-table-rows></div><div class="col"><input type="number" class="form-control" placeholder="Colunas" value="2" data-editor-table-cols></div></div></div>\n'
+			+ '      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button><button type="button" class="btn btn-primary" data-editor-confirm-table>Inserir</button></div>\n'
 			+ '    </div>\n'
 			+ '  </div>\n'
 			+ '</div>\n'
 			+ '<div class="modal fade" id="editorTableBorderModal" tabindex="-1" aria-hidden="true">\n'
 			+ '  <div class="modal-dialog modal-dialog-centered">\n'
 			+ '    <div class="modal-content">\n'
-			+ '      <div class="modal-header"><h5 class="modal-title">Bordas e sombreamento</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>\n'
+			+ '      <div class="modal-header"><h5 class="modal-title">Bordas e sombreamento</h5><button type="button" class="btn-close" data-dismiss="modal" aria-label="Fechar"></button></div>\n'
 			+ '      <div class="modal-body">\n'
 			+ '        <div class="row g-2">\n'
 			+ '          <div class="col-4"><label class="form-label small">Largura</label><input type="number" class="form-control" min="0" max="12" value="1" data-table-border-width></div>\n'
@@ -232,7 +222,7 @@
 			+ '          <div class="col-4"><label class="form-label small">Cor</label><input type="color" class="form-control form-control-color" value="#000000" data-table-border-color></div>\n'
 			+ '        </div>\n'
 			+ '      </div>\n'
-			+ '      <div class="modal-footer"><button type="button" class="btn btn-primary" data-table-border-apply>Aplicar</button></div>\n'
+			+ '      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button><button type="button" class="btn btn-primary" data-table-border-apply>Aplicar</button></div>\n'
 			+ '    </div>\n'
 			+ '  </div>\n'
 			+ '</div>\n'

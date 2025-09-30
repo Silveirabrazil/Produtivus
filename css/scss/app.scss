@@ -1,0 +1,69 @@
+// ENTRYPOINT SIMPLES (substituto futuro de main.scss)
+// Build usa este arquivo: npm run build:css -> css/scss/app.scss -> css/app.css
+// Todas as diretivas @use devem vir antes de qualquer regra CSS.
+@use 'settings/variables';
+@use 'settings/mixins';
+@use 'layout/pages-structure';
+// Layout (BEM .app-header / .app-footer / hero / sections)
+@use 'layout/header' as appHeader;
+@use 'layout/sections' as pageSections;
+// (Removido components/header para evitar conflito com o novo .app-header)
+@use 'components/cards';
+// @use 'components/dashboard';
+@use 'components/buttons';
+@use 'componentes/botoes'; // novos botões PT-BR sem Bootstrap
+@use 'componentes/modais'; // modais refinados PT-BR
+@use 'componentes/formularios'; // formulários PT-BR
+@use 'componentes/avisos'; // avisos/toasts PT-BR
+@use 'components/notebooks';
+@use 'components/notifications';
+@use 'components/calendar';
+@use 'components/carousel';
+@use 'components/modals';
+@use 'components/editor' as editor;
+@use 'pages/index';
+@use 'pages/cadernos';
+@use 'pages/cadernos-novo';
+@use 'pages/tarefas.page';
+@use 'pages/dashboard';
+@use 'utilities/compat';
+@use 'utilities/compat_bootstrap'; // TEMP: camada ponte para classes Bootstrap
+@use 'utilities/util_ptbr'; // Novas utilidades PT-BR (flex, alinhamento, gaps)
+@use 'utilities/a11y';
+@use 'apps/sheets';
+@use 'apps/mindmaps';
+
+@use 'layout/footer';
+
+// Fonts (mantidas via @import para preservar comportamento dos arquivos CSS gerados)
+@import url('./fonts/dosis.css');
+@import url('./fonts/material-symbols.css');
+
+// @use 'pages/dashboard.page'; // páginas específicas (se necessário)
+// @use 'legacy/deprecated'; // zona de transição
+
+// =============================
+// BASE GLOBAL (vem depois dos @use; baixa especificidade)
+// =============================
+html,body {margin:0;padding:0;font-family:var(--font-base);color:var(--color-text);background:var(--color-bg);}
+body {min-height:100vh;}
+
+// Tipografia básica
+h1,h2,h3,h4,h5 {font-weight:600;line-height:1.15;margin:0 0 .75rem;}
+p {margin:0 0 1rem;}
+
+// Utils simples ad-hoc (mantidos aqui para não criar novo arquivo)
+.u-flex {display:flex;}
+.u-flex-center {display:flex;align-items:center;justify-content:center;}
+.u-gap-sm {gap:.5rem;}
+.u-gap-md {gap:1rem;}
+.u-mt-0 {margin-top:0;}
+.u-mb-0 {margin-bottom:0;}
+.u-hidden {display:none !important;}
+
+// =============================================
+// INJECT: Layout mixins (header, footer, hero, sections)
+// Mantidos após base global para baixa especificidade previsível
+// =============================================
+@include pageSections.render();
+@include editor.render();

@@ -145,13 +145,12 @@ function showTasksApiError(message) {
             } catch {}
         }
 
-        var existing = document.querySelector('.tasks-api-error');
-        if (existing) existing.remove();
+	var existing = document.querySelector('.tasks-api-error');
+	if (existing) existing.remove();
 	var el = document.createElement('div');
-	el.className = 'tasks-api-error alert alert-warning d-flex align-items-center';
+	el.className = 'tasks-api-error';
 	el.setAttribute('role','alert');
-	el.style.margin = '0.75rem 0';
-	el.innerHTML = `<div class="me-2">⚠️</div><div>${message}</div>`;
+	el.innerHTML = `<span class="ico" aria-hidden="true">⚠️</span><span>${message}</span>`;
         var parent = document.getElementById('main-content') || document.body;
         parent.insertBefore(el, parent.firstChild);
     } catch (e) { console.warn('[Tasks] não foi possível inserir aviso de erro no DOM', e); }
@@ -169,7 +168,34 @@ function safeShow(target) {
 			return;
 		}
 	} catch {}
-	// Fallback for legacy overlays
+	// Suporte a modais custom (.janela)
+	if (el.classList.contains('janela')) {
+		try { el.__pv_prevActive = document.activeElement; } catch(e) { el.__pv_prevActive = null; }
+		// Bind de fechamento por ESC e clique fora (uma vez)
+		if (!el.__pv_boundJanela) {
+			el.__pv_onOverlayClick = (ev) => { if (ev.target === el) safeHide(el); };
+			el.addEventListener('mousedown', el.__pv_onOverlayClick);
+			el.__pv_onKeyDown = (ev) => { if (ev.key === 'Escape') safeHide(el); };
+			document.addEventListener('keydown', el.__pv_onKeyDown);
+			// Botões com data-fechar
+			el.querySelectorAll('[data-fechar]').forEach(btn => {
+				btn.addEventListener('click', () => safeHide(el));
+			});
+			el.__pv_boundJanela = true;
+		} else {
+			// garantir listener de ESC ativo
+			if (el.__pv_onKeyDown) document.addEventListener('keydown', el.__pv_onKeyDown);
+		}
+		el.classList.add('janela--aberta');
+		el.removeAttribute('aria-hidden');
+		// foco inicial
+		try {
+			const focusable = el.querySelector('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
+			if (focusable && typeof focusable.focus === 'function') setTimeout(()=> focusable.focus(), 0);
+		} catch {}
+		return;
+	}
+	// Fallback para elementos simples (mostrar/remover classe hidden)
 	try { el.__pv_prevActive = document.activeElement; } catch(e) { el.__pv_prevActive = null; }
 	try { el.classList.remove('hidden'); el.setAttribute('aria-hidden','false'); } catch(e) {}
 	try {
@@ -188,6 +214,23 @@ function safeHide(target) {
 			return;
 		}
 	} catch {}
+	// Suporte a modais custom (.janela)
+	if (el.classList.contains('janela')) {
+		// animação de fechamento
+		el.classList.add('janela--fechando');
+		setTimeout(() => {
+			el.classList.remove('janela--aberta', 'janela--fechando');
+			el.setAttribute('aria-hidden','true');
+			try { if (el.__pv_onKeyDown) document.removeEventListener('keydown', el.__pv_onKeyDown); } catch {}
+			// restaurar foco
+			try {
+				const prev = el.__pv_prevActive;
+				if (prev && document.contains(prev) && typeof prev.focus === 'function') prev.focus();
+				el.__pv_prevActive = null;
+			} catch {}
+		}, 220);
+		return;
+	}
 	// Fallback legacy overlay
 	try {
 		const active = document.activeElement;
@@ -271,7 +314,12 @@ async function addOrEditTask(task, editId = null) {
 		subject_id: task.subject_id || null,
 		series_id: task.series_id || null,
 		done: typeof task.done === 'boolean' ? task.done : false,
-		subtasks: Array.isArray(task.subtasks) ? task.subtasks : []
+		subtasks: Array.isArray(task.subtasks) ? task.subtasks : [],
+		// Campos adicionais para aulas e tarefas avançadas
+		meta: task.meta || null,
+		is_private: typeof task.is_private === 'boolean' ? task.is_private : false,
+		reminder_minutes: task.reminder_minutes || null,
+		location: task.location || null
 	};
 	// Em PUT, não envie campos vazios para não sobrescrever no banco
 	if (editId) {
@@ -279,10 +327,15 @@ async function addOrEditTask(task, editId = null) {
 		if (!task.end) delete body.end;
 		if (!task.subject_id) delete body.subject_id;
 		if (!task.series_id) delete body.series_id;
+		if (!task.meta) delete body.meta;
+		if (!task.location) delete body.location;
+		if (task.reminder_minutes === null || task.reminder_minutes === undefined) delete body.reminder_minutes;
 	}
 	let url = API_TASKS;
 	if (editId && !isNaN(Number(editId))) url += '?id=' + Number(editId);
 	console.log('[addOrEditTask] Enviando para API:', body, 'URL:', url);
+	console.log('[DEBUG] Payload completo:', JSON.stringify(body, null, 2));
+	console.log('[DEBUG] É uma aula?', body.meta && body.meta.includes('lesson'));
 	let resp;
 	try {
 		resp = await fetch(url, {
@@ -302,10 +355,22 @@ async function addOrEditTask(task, editId = null) {
 	}
 	console.log('[addOrEditTask] Resposta da API:', resp.status, result);
 	if (resp.ok && result?.success) {
+		console.log('[addOrEditTask] ✅ SUCESSO! Tarefa/Aula salva com sucesso');
+		const itemType = (body.meta && body.meta.includes('lesson')) ? 'Aula' : 'Tarefa';
+		const actionText = editId ? 'atualizada' : 'criada';
+		console.log(`[addOrEditTask] ${itemType} ${actionText} com ID:`, result.id || 'novo');
+
 		// atualiza UI no chamador; retorna sucesso para que o handler feche o modal
 		try { window.dispatchEvent(new CustomEvent('pv:tasks-updated')); } catch (e) {}
+
+		// Toast de sucesso
+		if (window.pvShowToast) {
+			window.pvShowToast(`${itemType} ${actionText} com sucesso!`, { background:'#4a7c59' });
+		}
+
 		return true;
 	} else {
+		console.error('[addOrEditTask] ❌ ERRO na API:', { status: resp.status, result });
 		if (window.pvShowToast) {
 			const msg = 'Erro ao salvar tarefa: ' + (result?.message || resp.status);
 			window.pvShowToast(msg, { background:'#b94a4a' });
@@ -345,14 +410,14 @@ async function renderCards() {
 	}
 	if (!Array.isArray(tasks) || tasks.length === 0) {
 		const no1 = document.createElement('div');
-	no1.className = 'no-tasks text-muted p-3';
-	no1.innerHTML = `<div>Nenhuma tarefa encontrada.</div><div class="mt-2"><button type="button" class="btn btn-primary" id="no-tasks-add">+ Criar primeira tarefa</button></div>`;
+		no1.className = 'no-tasks texto-fraco px-md pt-md pb-md';
+		no1.innerHTML = `<div>Nenhuma tarefa encontrada.</div><div class="mt-sm"><button type="button" class="botao botao--primario" id="no-tasks-add">+ Criar primeira tarefa</button></div>`;
 		pendentesEl.appendChild(no1);
 		const btn = document.getElementById('no-tasks-add');
 		if (btn) btn.addEventListener('click', () => openTaskModal());
 
 		const no2 = document.createElement('div');
-	no2.className = 'no-tasks-muted text-muted p-3';
+		no2.className = 'no-tasks-muted texto-fraco px-md pt-md pb-md';
 		no2.textContent = 'Nenhuma tarefa concluída.';
 		feitasEl.appendChild(no2);
 		return;
@@ -430,9 +495,9 @@ async function renderCards() {
 			return Math.min(100, mainDone + subsDone);
 		});
 		const percent = percentList.length ? Math.round(percentList.reduce((a,b)=>a+b,0)/percentList.length) : 0;
-		const card = document.createElement('div');
-		// manter classe custom e adicionar utilitários Bootstrap
-		card.className = 'card card-tarefa card-series mb-2';
+	const card = document.createElement('div');
+	// manter classe custom e adicionar utilitários PT-BR
+	card.className = 'card card-tarefa card-series mb-sm';
 		card.classList.add('enter');
 		card.dataset.id = first.id; // referência
 		card.dataset.seriesId = sid;
@@ -441,18 +506,18 @@ async function renderCards() {
 		const periodoStr = `${minStart?fmtDate(minStart.toISOString()):'-'} — ${maxEnd?fmtDate(maxEnd.toISOString()):'-'}`;
 		const proxStr = upcoming? fmtDate(upcoming.toISOString()) : '-';
 		card.innerHTML = `
-			<div class="card-body p-2">
-			  <div class="card-row d-flex justify-content-between align-items-center mb-1">
-				<div class="card-title h6 mb-0">${first.title} <span class="title-suffix small text-muted">(S rie   ${items.length})</span></div>
-				<div class="card-progress small text-muted">${percent}%</div>
-			  </div>
+						<div class="card-body">
+							<div class="card-row flexo justifica-entre alinha-centro mb-xs">
+								<div class="card-title">${first.title} <span class="title-suffix texto-miudo texto-fraco">(Série • ${items.length})</span></div>
+								<div class="card-progress texto-miudo texto-fraco">${percent}%</div>
+							</div>
 			  ${subjHtml}
-			  <div class="card-desc mb-2">${(function(){ try { return (window.study && window.study.stripStudyMetaFromDesc) ? window.study.stripStudyMetaFromDesc(first.desc||first.description||'') : (first.desc||''); } catch { return first.desc||''; } })()}</div>
-			  <div class="card-dates small text-muted mb-2"><span>Per odo: ${periodoStr}</span> | <span>Pr xima: ${proxStr}</span></div>
-			  <div class="card-actions d-flex gap-2">
-				<button type="button" class="btn btn-sm btn-primary btn-done" title="Concluir">${first.done? 'Desfazer':'Concluir'}</button>
-				<button type="button" class="btn btn-sm btn-outline-secondary btn-edit" title="Editar">✎</button>
-				<button type="button" class="btn btn-sm btn-outline-danger btn-delete" title="Excluir">🗑</button>
+							<div class="card-desc mb-sm">${(function(){ try { return (window.study && window.study.stripStudyMetaFromDesc) ? window.study.stripStudyMetaFromDesc(first.desc||first.description||'') : (first.desc||''); } catch { return first.desc||''; } })()}</div>
+							<div class="card-dates texto-miudo texto-fraco mb-sm"><span>Período: ${periodoStr}</span> | <span>Próxima: ${proxStr}</span></div>
+							<div class="card-actions flexo gap-sm">
+								<button type="button" class="botao botao--pequeno botao--primario btn-done" title="Concluir">${first.done? 'Desfazer':'Concluir'}</button>
+								<button type="button" class="botao botao--pequeno botao--contorno-secundario btn-edit" title="Editar">✎</button>
+								<button type="button" class="botao botao--pequeno botao--contorno-perigo btn-delete" title="Excluir">🗑</button>
 			  </div>
 			</div>
 		`;
@@ -469,7 +534,7 @@ async function renderCards() {
 			if (meta && meta.schedule && Array.isArray(meta.schedule.weekdays)) { isLesson = true; lessonInfo = meta; }
 		} catch {}
 		const card = document.createElement('div');
-		card.className = 'card card-tarefa' + (isLesson? ' card-lesson' : '');
+	card.className = 'card card-tarefa' + (isLesson? ' card-lesson' : '');
 		// marcar para animação de entrada
 		card.classList.add('enter');
 		card.dataset.id = task.id;
@@ -497,21 +562,21 @@ async function renderCards() {
 			const horas = `${(sc.time||'--:--')}${sc.endTime? ' — '+sc.endTime : ''}`;
 			return `<div class="card-lesson-schedule small">Período: ${periodo} • Dias: ${diasStr} • Horário: ${horas}</div>`;
 		})();
-		card.innerHTML = `
-				<div class="card-body p-2">
-				  <div class="card-row d-flex justify-content-between align-items-center mb-1">
-					<div class="card-title h6 mb-0">${task.title}${isLesson? ' <span class="title-suffix small text-muted">(Aula)</span>' : ''}</div>
-					<div class="card-progress small text-muted">${percent}%</div>
-				  </div>
+				card.innerHTML = `
+								<div class="card-body">
+									<div class="card-row flexo justifica-entre alinha-centro mb-xs">
+										<div class="card-title">${task.title}${isLesson? ' <span class="title-suffix texto-miudo texto-fraco">(Aula)</span>' : ''}</div>
+										<div class="card-progress texto-miudo texto-fraco">${percent}%</div>
+									</div>
 				  ${subjHtml}
 				  ${scheduleHtml}
-				  <div class="card-desc mb-2">${(function(){ try { return (window.study && window.study.stripStudyMetaFromDesc) ? window.study.stripStudyMetaFromDesc(task.desc||task.description||'') : (task.desc||''); } catch { return task.desc||''; } })()}</div>
-				  <div class="card-dates small text-muted mb-2"><span>In cio: ${startStr}</span> | <span>Fim: ${endStr}</span></div>
-				  <div class="card-details small mb-2">${task.details||''}</div>
-				  <div class="card-actions d-flex gap-2">
-					<button type="button" class="btn btn-sm btn-primary btn-done" title="Concluir">${task.done? 'Desfazer':'Concluir'}</button>
-					<button type="button" class="btn btn-sm btn-outline-secondary btn-edit" title="Editar">✎</button>
-					<button type="button" class="btn btn-sm btn-outline-danger btn-delete" title="Excluir">🗑</button>
+									<div class="card-desc mb-sm">${(function(){ try { return (window.study && window.study.stripStudyMetaFromDesc) ? window.study.stripStudyMetaFromDesc(task.desc||task.description||'') : (task.desc||''); } catch { return task.desc||''; } })()}</div>
+									<div class="card-dates texto-miudo texto-fraco mb-sm"><span>Início: ${startStr}</span> | <span>Fim: ${endStr}</span></div>
+									<div class="card-details texto-miudo mb-sm">${task.details||''}</div>
+									  <div class="card-actions flexo gap-sm">
+										<button type="button" class="botao botao--pequeno botao--primario btn-done" title="Concluir">${task.done? 'Desfazer':'Concluir'}</button>
+										<button type="button" class="botao botao--pequeno botao--contorno-secundario btn-edit" title="Editar">✎</button>
+										<button type="button" class="botao botao--pequeno botao--contorno-perigo btn-delete" title="Excluir">🗑</button>
 				  </div>
 				</div>
 			`;
@@ -801,8 +866,20 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		// abrir modal Bootstrap
 		safeShow('taskModal');
-		// focar primeiro campo para evitar que foco reste em elementos ocultos
-		setTimeout(() => { try { const first = form.querySelector('#task-title'); if (first) first.focus(); } catch {} }, 0);
+		// Focar o primeiro campo quando a modal estiver realmente visível
+		try {
+			const mEl = document.getElementById('taskModal');
+			if (mEl && window.bootstrap && window.bootstrap.Modal) {
+				const onShown = () => {
+					try { const first = form.querySelector('#task-title'); if (first) first.focus(); } catch {}
+					mEl.removeEventListener('shown.bs.modal', onShown);
+				};
+				mEl.addEventListener('shown.bs.modal', onShown);
+			} else {
+				// fallback: se não for modal Bootstrap, usar timeout simples
+				setTimeout(() => { try { const first = form.querySelector('#task-title'); if (first) first.focus(); } catch {} }, 0);
+			}
+		} catch {}
 	}
 
 	function closeTaskModal() {
@@ -1116,12 +1193,17 @@ function showFieldError(el, message){
 }
 
 async function onLessonFormSubmit(form) {
+	console.log('[AULA] Iniciando submissão do formulário de aula');
+
 	// validar
 	const title = form.querySelector('#lesson-title')?.value?.trim();
 	const color = form.querySelector('#lesson-color')?.value || '#E0B33A';
 	const course = form.querySelector('#lesson-course')?.value;
 	const subject = form.querySelector('#lesson-subject')?.value;
 	const duration = form.querySelector('#lesson-duration')?.value;
+
+	console.log('[AULA] Dados coletados:', { title, color, course, subject, duration });
+
 	const occ = buildOccurrencesFromForm(form);
 	const errs = [];
 	if (!title) errs.push('Título é obrigatório.');
@@ -1129,7 +1211,12 @@ async function onLessonFormSubmit(form) {
 	if (!subject) errs.push('Selecione uma matéria.');
 	if (occ.error) errs.push(occ.error);
 	if (!occ.datetimes?.length) errs.push('Selecione ao menos um dia no período.');
-	if (errs.length) { window.pvShowToast?.(errs[0], { background:'#b94a4a' }); return false; }
+	if (errs.length) {
+		console.error('[AULA] Erro de validação:', errs[0]);
+		window.pvShowToast?.(errs[0], { background:'#b94a4a' });
+		return false;
+	}
+
 	// Montar meta agregando o cronograma inteiro dentro de [[STUDY]]
 	const schedule = {
 		startDate: form.querySelector('#lesson-start-date')?.value || '',
@@ -1138,19 +1225,50 @@ async function onLessonFormSubmit(form) {
 		endTime: form.querySelector('#lesson-end-time')?.value || '',
 		weekdays: Array.from(form.querySelectorAll('[data-dow]')).filter(x=>x.checked).map(x=> Number(x.getAttribute('data-dow')))
 	};
+
 	const meta = { subjectId: subject || null, estimatedMinutes: duration ? Number(duration) : null, schedule };
 	const desc = window.study?.buildStudyMetaString?.(meta) || '';
-	// Criar/editar UMA tarefa representando a Aula
+
+	console.log('[AULA] Schedule criado:', schedule);
+	console.log('[AULA] Meta criado:', meta);
+
+	// Criar/editar UMA tarefa representando a Aula com campos específicos de aula
 	const payload = {
 		title,
 		color,
 		description: desc,
 		subject_id: subject || null,
 		start: schedule.startDate ? schedule.startDate + 'T' + (schedule.time || '00:00') : null,
-		end: schedule.endDate ? schedule.endDate + 'T' + (schedule.endTime || schedule.time || '00:00') : null
+		end: schedule.endDate ? schedule.endDate + 'T' + (schedule.endTime || schedule.time || '00:00') : null,
+		// Marcar que é uma aula com metadados específicos
+		meta: JSON.stringify({
+			type: 'lesson',
+			schedule: schedule,
+			estimatedMinutes: duration ? Number(duration) : null,
+			course_id: course || null
+		}),
+		// Campos específicos de aula
+		is_private: false,
+		reminder_minutes: 15, // Lembrete padrão para aulas
+		location: null,
+		subtasks: [] // Aulas não têm subtarefas por padrão
 	};
+
+	console.log('[AULA] Payload final para API:', payload);
+
 	const editId = form.dataset.editId ? Number(form.dataset.editId) : null;
+	console.log('[AULA] EditId:', editId);
+
 	const ok = await addOrEditTask(payload, editId);
+
+	console.log('[AULA] Resultado da API:', ok);
+
+	if (ok) {
+		console.log('[AULA] ✅ Aula salva com sucesso!');
+	} else {
+		console.error('[AULA] ❌ Erro ao salvar aula');
+	}
+
 	return ok;
 }
 
@@ -1305,9 +1423,35 @@ async function openLessonModal(editId) {
 		if (t) {
 			form.querySelector('#lesson-title').value = t.title || '';
 			form.querySelector('#lesson-color').value = t.color || '#E0B33A';
-			// meta
-			const meta = window.study?.parseStudyMetaFromDesc?.(t.desc || t.description || '') || {};
-			const sid = (t.subject_id ? String(t.subject_id) : '') || (meta.subjectId ? String(meta.subjectId) : '');
+
+			// Tentar extrair meta do campo meta primeiro (novo formato), depois da description
+			let meta = null;
+			let schedule = null;
+			let estimatedMinutes = null;
+
+			try {
+				// Novo formato: campo meta JSON
+				if (t.meta) {
+					const metaObj = JSON.parse(t.meta);
+					if (metaObj.type === 'lesson') {
+						schedule = metaObj.schedule;
+						estimatedMinutes = metaObj.estimatedMinutes;
+						console.log('Carregando aula do novo formato meta:', metaObj);
+					}
+				}
+			} catch (e) {
+				console.log('Meta field não é JSON válido, usando método antigo');
+			}
+
+			// Formato antigo: extrair da description se não encontrou no meta
+			if (!schedule) {
+				meta = window.study?.parseStudyMetaFromDesc?.(t.desc || t.description || '') || {};
+				schedule = meta.schedule;
+				estimatedMinutes = meta.estimatedMinutes;
+				console.log('Carregando aula do formato antigo (description):', meta);
+			}
+
+			const sid = (t.subject_id ? String(t.subject_id) : '') || (meta && meta.subjectId ? String(meta.subjectId) : '');
 			if (sid) {
 				try {
 					const subj = await window.study?.getSubject?.(sid);
@@ -1322,17 +1466,22 @@ async function openLessonModal(editId) {
 					selSubject.value = sid;
 				} catch {}
 			}
-			if (meta && meta.estimatedMinutes) {
-				const dur = form.querySelector('#lesson-duration'); if (dur) dur.value = String(meta.estimatedMinutes);
+
+			if (estimatedMinutes) {
+				const dur = form.querySelector('#lesson-duration');
+				if (dur) dur.value = String(estimatedMinutes);
 			}
-			const sc = meta && meta.schedule ? meta.schedule : null;
-			if (sc) {
-				if (sc.startDate) form.querySelector('#lesson-start-date').value = sc.startDate;
-				if (sc.endDate) form.querySelector('#lesson-end-date').value = sc.endDate;
-				if (sc.time) form.querySelector('#lesson-time').value = sc.time;
-				if (sc.endTime) form.querySelector('#lesson-end-time').value = sc.endTime;
-				const dows = new Set(Array.isArray(sc.weekdays) ? sc.weekdays : []);
-				form.querySelectorAll('[data-dow]').forEach(chk => { const v = Number(chk.getAttribute('data-dow')); chk.checked = dows.has(v); });
+
+			if (schedule) {
+				if (schedule.startDate) form.querySelector('#lesson-start-date').value = schedule.startDate;
+				if (schedule.endDate) form.querySelector('#lesson-end-date').value = schedule.endDate;
+				if (schedule.time) form.querySelector('#lesson-time').value = schedule.time;
+				if (schedule.endTime) form.querySelector('#lesson-end-time').value = schedule.endTime;
+				const dows = new Set(Array.isArray(schedule.weekdays) ? schedule.weekdays : []);
+				form.querySelectorAll('[data-dow]').forEach(chk => {
+					const v = Number(chk.getAttribute('data-dow'));
+					chk.checked = dows.has(v);
+				});
 			}
 		}
 	} catch (e) { console.warn('[Lessons] prefill failed', e); }
@@ -1482,22 +1631,44 @@ function renderSubtasksInModal(list) {
 			// abrir modal Bootstrap
 			safeShow('taskDetailsModal');
 			setTimeout(()=>{ try { const btn = document.getElementById('close-task-details'); if (btn) btn.focus(); } catch{} }, 0);
-			// wire Editar: se for aula (tem schedule), abrir modal de Aulas; senão, modal de tarefa
+			// wire Editar: verificar se é aula através do meta ou schedule na description
 			try {
-				const meta = (window.study && window.study.parseStudyMetaFromDesc) ? window.study.parseStudyMetaFromDesc(t.desc || t.description || '') : null;
-				const isLesson = !!(meta && meta.schedule && Array.isArray(meta.schedule.weekdays) && meta.schedule.weekdays.length);
+				let isLesson = false;
+
+				// Primeira verificação: campo meta (nova forma de identificar aulas)
+				try {
+					const metaStr = t.meta || '';
+					const metaObj = metaStr ? JSON.parse(metaStr) : null;
+					if (metaObj && metaObj.type === 'lesson') {
+						isLesson = true;
+					}
+				} catch (e) {
+					// Se meta não existir ou for inválido, usar método antigo
+					const meta = (window.study && window.study.parseStudyMetaFromDesc) ? window.study.parseStudyMetaFromDesc(t.desc || t.description || '') : null;
+					isLesson = !!(meta && meta.schedule && Array.isArray(meta.schedule.weekdays) && meta.schedule.weekdays.length);
+				}
+
 				const btnEdit = document.getElementById('td-edit');
 				if (btnEdit) {
 					btnEdit.onclick = function(){
 						try {
 							// fecha detalhes antes de abrir edição
 							try { safeHide('taskDetailsModal'); } catch {}
-							if (isLesson && typeof window.openLessonModal === 'function') window.openLessonModal(id);
-							else if (typeof window.openTaskModal === 'function') window.openTaskModal(id);
-						} catch(e) {}
+							if (isLesson && typeof window.openLessonModal === 'function') {
+								console.log('Abrindo modal de aula para editar tarefa ID:', id);
+								window.openLessonModal(id);
+							} else if (typeof window.openTaskModal === 'function') {
+								console.log('Abrindo modal de tarefa comum para editar tarefa ID:', id);
+								window.openTaskModal(id);
+							}
+						} catch(e) {
+							console.error('Erro ao abrir modal de edição:', e);
+						}
 					};
 				}
-			} catch{}
+			} catch(e) {
+				console.error('Erro ao configurar botão de edição:', e);
+			}
 		});
 	}
 

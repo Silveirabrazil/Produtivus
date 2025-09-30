@@ -1,0 +1,20 @@
+@use '../abstracts' as *;
+
+// CSS Variables de tema unificadas (harmonizadas com header/footer já aplicados)
+:root {
+	--pv-primary: #3A9FA9;          /* brand/accent principal */
+	--pv-accent: #3A9FA9;           /* alias p/ consistência */
+	--pv-on-surface: #1D1D1D;       /* fundo escuro header/footer */
+	--pv-surface: #ffffff;          /* superfícies claras padrão */
+	--pv-text: #2d2d2d;             /* cor base do texto */
+	--pv-muted: #6c757d;            /* texto secundário */
+	--pv-radius: 0.6rem;            /* raio padrão */
+	--pv-radius-lg: 0.6rem;         /* raio ampliado */
+	--pv-shadow: 0 2px 2px rgba(17, 24, 39, 0.08);
+	--pv-shadow-lg: 0 2px 2px rgba(17, 24, 39, 0.08);
+}
+
+/* Utilitário genérico com a brand */
+.text-brand { color: var(--pv-primary) !important; }
+.bg-brand { background-color: var(--pv-primary) !important; }
+.border-brand { border-color: var(--pv-primary) !important; }

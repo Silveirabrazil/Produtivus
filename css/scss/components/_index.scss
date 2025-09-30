@@ -1,0 +1,19 @@
+@use './buttons' as buttons;
+@use './cards' as cards;
+@use './modals' as modals;
+@use './dashboard' as dashboard;
+@use './calendar' as calendar;
+@use './notebooks' as notebooks;
+@use './carousel' as carousel;
+@use './editor' as editor;
+
+@mixin render() {
+  @include buttons.render();
+  @include cards.render();
+  @include modals.render();
+  @include dashboard.render();
+  @include calendar.render();
+  @include notebooks.render();
+  @include carousel.render();
+  @include editor.render();
+}

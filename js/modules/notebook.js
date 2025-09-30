@@ -2,12 +2,27 @@
 (function (global) {
   "use strict";
 
-  const API = {
-    notebooks: "server/api/notebooks.php",
-    pages: "server/api/notebook_pages.php",
-    subjects: "server/api/subjects.php",
-    courses: "server/api/courses.php",
-  };
+  const API = (function(){
+    const hasCfg = typeof window !== 'undefined' && window.ProdutivusAPI && window.ProdutivusAPI.endpoints;
+    if (hasCfg) {
+      const e = window.ProdutivusAPI.endpoints;
+      // Garante compatibilidade quando notebook_pages não estiver no config ainda
+      const pages = e.notebookPages || (e.base ? (e.base.replace(/\/$/, '') + '/server/api/notebook_pages.php') : 'server/api/notebook_pages.php');
+      return {
+        notebooks: e.notebooks,
+        pages,
+        subjects: e.subjects,
+        courses: e.courses,
+      };
+    }
+    // Fallback relativo
+    return {
+      notebooks: 'server/api/notebooks.php',
+      pages: 'server/api/notebook_pages.php',
+      subjects: 'server/api/subjects.php',
+      courses: 'server/api/courses.php',
+    };
+  })();
 
   async function jget(url) {
     const r = await fetch(url, { credentials: "same-origin" });
@@ -51,8 +66,8 @@
 
   function layout() {
     return `
-    <div class="row g-3" data-nb-layout>
-      <aside class="col-12 col-md-3" data-nb-aside>
+    <div data-nb-layout>
+      <aside data-nb-aside>
         <button class="btn btn-sm btn-outline-secondary mb-2 pv-nb-toggle" type="button" data-nb-toggle-aside title="Colapsar painel" aria-label="Colapsar painel"><i class="bi bi-chevron-double-left" aria-hidden="true"></i></button>
         <div class="pv-nb-content">
 								<div class="d-flex align-items-center justify-content-between mb-2">
@@ -85,20 +100,10 @@
 				<div class="list-group small" data-nb-list></div>
         </div>
 			</aside>
-      <section class="col-12 col-md-9" data-nb-main>
+      <section data-nb-main>
 				<div class="card nb-card">
 					<div class="card-body">
               <ul class="nav nav-tabs align-items-center" data-page-tabs role="tablist"></ul>
-              <div class="d-flex align-items-center gap-2 mt-2 justify-content-between">
-                <div class="text-muted small">Caderno: <span data-nb-current-title>-</span> <span class="ms-2" data-save-status title="Status de salvamento">—</span></div>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="btn-group btn-group-sm" role="group" aria-label="Ações do caderno selecionado">
-                    <button class="btn btn-sm btn-outline-secondary" data-nb-edit-inline title="Editar caderno" aria-label="Editar caderno"><i class="bi bi-pencil" aria-hidden="true"></i></button>
-                    <button class="btn btn-sm btn-outline-danger" data-nb-delete-inline title="Apagar caderno" aria-label="Apagar caderno"><i class="bi bi-trash" aria-hidden="true"></i></button>
-                  </div>
-                  <button class="btn btn-sm btn-primary" data-page-new title="Nova página" aria-label="Nova página"><i class="bi bi-plus-lg" aria-hidden="true"></i></button>
-                </div>
-              </div>
 						<div class="mt-3" id="nb-editor-host"></div>
 					</div>
 				</div>
@@ -107,86 +112,105 @@
   }
 
   function showToast(text, type) {
+    // Wrapper simplificado usando sistema unificado de avisos (.aviso)
     try {
-      const wrap = el(
-        '<div class="position-fixed" style="top:10px; right:10px;"></div>'
-      );
-      const node = el(`<div class="toast align-items-center ${
-        type ? "text-bg-" + type : ""
-      } border-0" role="status" aria-live="polite" aria-atomic="true">
-				<div class="d-flex align-items-center gap-2"><div class="toast-body">${text}</div><button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button></div>
-			</div>`);
-      wrap.appendChild(node);
-      document.body.appendChild(wrap);
-      // Bootstrap 5 Toast API se disponível
-      try {
-        if (window.bootstrap && window.bootstrap.Toast) {
-          const t = new window.bootstrap.Toast(node, { delay: 2000 });
-          node.addEventListener('hidden.bs.toast', () => { try { wrap.remove(); } catch(e){} });
-          t.show();
-        } else if (window.jQuery && typeof jQuery.fn.toast === 'function') {
-          // compat jQuery se BS4/legacy ainda presente em alguma página
-          jQuery(node).toast({ delay: 2000 }).toast('show');
-          jQuery(node).on('hidden.bs.toast', function(){ try { wrap.remove(); } catch(e){} });
-        } else {
-          // Fallback simplificado
-          node.classList.add('show');
-          setTimeout(() => { try { wrap.remove(); } catch(e){} }, 2200);
-        }
-      } catch(e) {
-        node.classList.add('show');
-        setTimeout(() => { try { wrap.remove(); } catch(e2){} }, 2200);
+      if (window.pvShowToast) {
+        // mapeia tipos bootstrap para variantes nossas
+        const map = { success: 'sucesso', danger: 'erro', warning: 'alerta', info: 'info', primary: 'info', secondary: 'info' };
+        const variante = map[type] || (type ? String(type) : '');
+        window.pvShowToast(text, { type: variante });
+      } else {
+        console.log('[notebook] toast:', text);
       }
-    } catch (e) {}
+    } catch(e) {}
   }
 
-  // Utilitário: abre modal de forma consistente (BS5 se disponível; fallback com backdrop manual)
-  function openModal(node, onHidden) {
-    let ctrl = {
-      hide: () => {},
-      dispose: () => {},
-    };
+  // Novo openModal: reaproveita o markup original do modal e aplica overlay customizado
+  function openModal(node, onHidden){
     try {
-      if (window.bootstrap && window.bootstrap.Modal) {
-        try { node.style.zIndex = '1065'; } catch(e){}
-        const inst = new window.bootstrap.Modal(node, { backdrop: true, keyboard: true });
-        const onHiddenOnce = () => { try { node.removeEventListener('hidden.bs.modal', onHiddenOnce); } catch(e){}; try { onHidden && onHidden(); } catch(e){} };
-        node.addEventListener('hidden.bs.modal', onHiddenOnce, { once: true });
-        ctrl.hide = () => { try { inst.hide(); } catch(e){} };
-        ctrl.dispose = () => { try { inst.dispose(); } catch(e){} };
-        inst.show();
-        return ctrl;
+      const content = node.querySelector('.modal-content') || node;
+      const parent = content.parentElement;
+      if (!parent) return { hide: ()=>{}, dispose: ()=>{} };
+      const placeholder = document.createComment('pv-modal-placeholder');
+      parent.insertBefore(placeholder, content);
+      parent.removeChild(content);
+
+      const fundo = document.createElement('div');
+      fundo.className = 'janela-fundo';
+      Object.assign(fundo.style, {
+        position: 'fixed', inset: '0', background: 'rgba(0,0,0,.55)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: '1150', padding: '1.5rem'
+      });
+
+      const caixa = document.createElement('div');
+      caixa.className = 'janela janela--dialogo';
+      caixa.setAttribute('role', 'dialog');
+      caixa.setAttribute('aria-modal', 'true');
+      Object.assign(caixa.style, {
+        position: 'relative', maxWidth: '720px', width: '100%', maxHeight: '90vh',
+        overflow: 'auto', borderRadius: '12px', boxShadow: '0 18px 40px rgba(15,23,42,.35)',
+        background: 'transparent', color: '#1e293b', padding: '0'
+      });
+
+      content.classList.add('pv-modal-content', 'pv-modal');
+      Object.assign(content.style, {
+        display: 'block', width: '100%', margin: '0'
+      });
+
+      caixa.appendChild(content);
+      fundo.appendChild(caixa);
+      document.body.appendChild(fundo);
+
+      const closeHandlers = [];
+      content.querySelectorAll('[data-dismiss="modal"], .btn-close, [data-cancel]').forEach(btn => {
+        const handler = (ev)=>{ ev.preventDefault(); ev.stopPropagation(); fechar(); };
+        btn.addEventListener('click', handler);
+        closeHandlers.push({ btn, handler });
+      });
+
+      let restored = false;
+  const escHandler = (e)=>{ if (e.key === 'Escape') { document.removeEventListener('keydown', escHandler); fechar(); } };
+  document.addEventListener('keydown', escHandler);
+
+      function restore(){
+        if (restored) return;
+        restored = true;
+        closeHandlers.forEach(({ btn, handler })=> btn.removeEventListener('click', handler));
+        content.classList.remove('pv-modal-content');
+        content.classList.remove('pv-modal');
+        content.style.removeProperty('display');
+        content.style.removeProperty('margin');
+        content.style.removeProperty('width');
+        try {
+          placeholder.replaceWith(content);
+        } catch(e) {
+          try { parent.appendChild(content); } catch(_) {}
+        }
+        document.removeEventListener('keydown', escHandler);
       }
-      if (window.jQuery && typeof jQuery.fn.modal === 'function') {
-        const $n = window.jQuery(node);
-        $n.on('hidden.bs.modal', function(){ try { onHidden && onHidden(); } catch(e){} });
-        $n.modal('show');
-        ctrl.hide = () => { try { $n.modal('hide'); } catch(e){} };
-        ctrl.dispose = () => { try { $n.modal('dispose'); } catch(e){} };
-        return ctrl;
+
+      function fechar(){
+        if (!fundo.parentNode) return;
+        restore();
+        try { fundo.remove(); } catch(e){}
+        try { onHidden && onHidden(); } catch(e){}
       }
-    } catch (e) {}
-    // Fallback: sem BS nem jQuery — cria backdrop manual
-  const backdrop = document.createElement('div');
-    backdrop.className = 'modal-backdrop fade show';
-    document.body.appendChild(backdrop);
-    document.body.classList.add('modal-open');
-  node.classList.add('show'); node.style.display = 'block'; node.removeAttribute('aria-hidden'); node.setAttribute('aria-modal','true');
-  try { node.style.zIndex = '1065'; } catch(e){}
-    function cleanup() {
-      try { node.classList.remove('show'); node.style.display='none'; node.setAttribute('aria-hidden','true'); node.removeAttribute('aria-modal'); } catch(e){}
-      try { if (backdrop && backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); } catch(e){}
-      try { document.body.classList.remove('modal-open'); } catch(e){}
-      try { onHidden && onHidden(); } catch(e){}
+
+      fundo.addEventListener('click', (e)=>{ if (e.target === fundo) fechar(); });
+
+      setTimeout(()=>{
+        try {
+          const focusTarget = caixa.querySelector('[autofocus]') || caixa.querySelector('button, input, select, textarea, [tabindex]');
+          (focusTarget || caixa).focus();
+        } catch(e){}
+      }, 30);
+
+      return { hide: fechar, dispose: fechar };
+    } catch(e){
+      console.error('[notebook] openModal fallback error', e);
+      return { hide: ()=>{}, dispose: ()=>{} };
     }
-    // fecha ao clicar em [data-bs-dismiss], .btn-close ou ESC
-    const clickClose = (ev) => { if (ev.target.closest('[data-bs-dismiss], .btn-close')) { ev.preventDefault(); ctrl.hide(); } };
-    node.addEventListener('click', clickClose);
-    const escClose = (ev) => { if (ev.key === 'Escape') { ctrl.hide(); } };
-    document.addEventListener('keydown', escClose);
-    ctrl.hide = () => { node.removeEventListener('click', clickClose); document.removeEventListener('keydown', escClose); cleanup(); };
-    ctrl.dispose = () => { ctrl.hide(); };
-    return ctrl;
   }
 
   function showConfirm(title, message) {
@@ -198,11 +222,11 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title">${title || "Confirmar"}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Fechar"></button>
               </div>
               <div class="modal-body"><p class="m-0">${message || ""}</p></div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" data-cancel>Cancelar</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal" data-cancel>Cancelar</button>
                 <button type="button" class="btn btn-sm btn-primary" data-ok>Apagar</button>
               </div>
             </div>
@@ -273,7 +297,7 @@
 			<div class="modal fade" tabindex="-1" aria-hidden="true">
 				<div class="modal-dialog modal-dialog-centered">
 					<div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Criar cadernos por matérias</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
+      <div class="modal-header"><h5 class="modal-title">Criar cadernos por matérias</h5><button type="button" class="btn-close" data-dismiss="modal" aria-label="Fechar"></button></div>
 						<div class="modal-body">
 							<div class="mb-2" style="max-height:40vh;overflow:auto;">${list}</div>
 							<div class="border-top pt-2">
@@ -434,6 +458,36 @@
           restore: false,
           remoteSave: doRemoteSave,
         });
+        // Insere ações do caderno na toolbar do editor
+        try {
+          const root = els.editorHost.querySelector('.pv-editor');
+          const toolbar = root && root.querySelector('[data-editor-toolbar]');
+          if (toolbar && !toolbar.querySelector('[data-nb-toolbar-actions]')) {
+            const group = document.createElement('div');
+            group.className = 'btn-group';
+            group.setAttribute('role','group');
+            group.setAttribute('aria-label','Caderno');
+            group.setAttribute('data-nb-toolbar-actions','');
+            group.innerHTML = `
+              <button class="btn btn-outline-secondary" type="button" title="Editar caderno" aria-label="Editar caderno" data-nb-toolbar-edit><i class="bi bi-pencil" aria-hidden="true"></i></button>
+              <button class="btn btn-outline-danger" type="button" title="Apagar caderno" aria-label="Apagar caderno" data-nb-toolbar-delete><i class="bi bi-trash" aria-hidden="true"></i></button>
+              <button class="btn btn-primary" type="button" title="Nova página" aria-label="Nova página" data-nb-toolbar-new-page><i class="bi bi-plus-lg" aria-hidden="true"></i></button>
+            `;
+            toolbar.insertBefore(group, toolbar.firstChild);
+            // binds
+            const btnEdit = group.querySelector('[data-nb-toolbar-edit]');
+            const btnDelete = group.querySelector('[data-nb-toolbar-delete]');
+            const btnNewPage = group.querySelector('[data-nb-toolbar-new-page]');
+            if (btnEdit) btnEdit.addEventListener('click', ()=> showEditNotebookDialog());
+            if (btnDelete) btnDelete.addEventListener('click', async ()=>{
+              if (!state.currentNotebookId) { showToast('Selecione um caderno', 'secondary'); return; }
+              if (await showConfirm('Excluir caderno', 'Tem certeza que deseja excluir este caderno?')) {
+                await deleteNotebook();
+              }
+            });
+            if (btnNewPage) btnNewPage.addEventListener('click', ()=> createPage());
+          }
+        } catch(e) { /* noop */ }
         // guarda referência para reiniciar autosave por página
         try {
           const root = els.editorHost.querySelector(".pv-editor");
@@ -690,7 +744,7 @@
       <div class="modal fade" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Novo caderno</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
+            <div class="modal-header"><h5 class="modal-title">Novo caderno</h5><button type="button" class="btn-close" data-dismiss="modal" aria-label="Fechar"></button></div>
             <div class="modal-body">
               <div class="mb-2"><label class="form-label small">Título</label><input type="text" class="form-control form-control-sm" data-new-title value="${defaultTitle}"></div>
               <div class="mb-2"><label class="form-label small">Curso</label><select class="form-select form-select-sm" data-new-course>${courseOptions}</select></div>
@@ -784,14 +838,14 @@
     function renderTabs() {
       els.pageTabs.innerHTML = "";
       state.pages.forEach((p) => {
-        const li = el(`<li class="nav-item" role="presentation">
-                    <button class="nav-link d-flex align-items-center gap-2" type="button">
-                        <span class="tab-title text-truncate" style="max-width: 200px;">${
-              p.title || "Página"
-            }</span>
-                        <span role="button" class="btn btn-sm btn-primary py-0 px-1" title="Excluir página" data-page-close aria-label="Excluir página">&times;</span>
-                    </button>
-                </li>`);
+    const li = el(`<li class="nav-item" role="presentation">
+          <button class="nav-link nb-tab-link d-flex align-items-center gap-2" type="button">
+            <span class="tab-title text-truncate">${
+        p.title || "Página"
+      }</span>
+            <span role="button" class="nb-tab-close" title="Excluir página" data-page-close aria-label="Excluir página">&times;</span>
+          </button>
+        </li>`);
         const btnEl = li.querySelector('.nav-link');
         if (p.id === state.currentPageId)
           btnEl.classList.add("active");
@@ -859,7 +913,7 @@
       });
       // aba de + nova página
       const addLi = el(
-        `<li class="nav-item" role="presentation"><button class="nav-link" type="button" title="Nova página" aria-label="Nova página"><i class="bi bi-plus-lg" aria-hidden="true"></i></button></li>`
+        `<li class="nav-item" role="presentation"><button class="nav-link nb-tab-link" type="button" data-page-new title="Nova página" aria-label="Nova página"><i class="bi bi-plus-lg" aria-hidden="true"></i></button></li>`
       );
       addLi.addEventListener("click", createPage);
       els.pageTabs.appendChild(addLi);
@@ -934,7 +988,7 @@
     });
   els.nbSubject.addEventListener("change", renderNotebookList);
   els.nbSubject.addEventListener('change', ()=> { try { localStorage.setItem('pv.nb.lastSubject', els.nbSubject.value||''); } catch(e){} });
-    els.pageNew.addEventListener("click", createPage);
+    if (els.pageNew) els.pageNew.addEventListener("click", createPage);
   if (els.nbEdit) els.nbEdit.addEventListener("click", showEditNotebookDialog);
     if (els.nbEditInline) els.nbEditInline.addEventListener('click', showEditNotebookDialog);
     if (els.nbDeleteInline) els.nbDeleteInline.addEventListener('click', async ()=>{
@@ -1017,7 +1071,7 @@
       <div class="modal fade" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Editar caderno</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
+            <div class="modal-header"><h5 class="modal-title">Editar caderno</h5><button type="button" class="btn-close" data-dismiss="modal" aria-label="Fechar"></button></div>
             <div class="modal-body">
               <div class="mb-2"><label class="form-label small">Título</label><input type="text" class="form-control form-control-sm" data-ed-title value="${(nb && nb.title) || ''}"></div>
               <div class="mb-2"><label class="form-label small">Curso</label><select class="form-select form-select-sm" data-ed-course>${courseOptions}</select></div>

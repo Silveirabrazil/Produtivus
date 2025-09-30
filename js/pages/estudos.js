@@ -22,35 +22,7 @@
 			if (hubHost && window.pvStudiesHub?.mount) window.pvStudiesHub.mount(hubHost);
 		} catch{}
 
-		// Normalização: aplicar Bootstrap nos botões dentro de Estudos
-		function normalizeStudyButtons(root){
-			const scope = root || document;
-			const sel = 'button, input[type="button"], input[type="submit"], a[role="button"]';
-			const items = (scope instanceof Element ? scope : document).querySelectorAll(sel);
-			items.forEach(el=>{
-				// pular tabs e controles que não devem ser estilizados como .btn
-					if (el.classList.contains('estudos-tab') || el.classList.contains('tab') || el.closest('.estudos-tab, .tabs')) return;
-					// pular controles de modal/Bootstrap que usam classes ou atributos próprios
-					if (el.classList.contains('btn-close') || el.hasAttribute('data-bs-dismiss') || el.hasAttribute('data-bs-toggle') || el.closest('.modal')) return;
-					// se o elemento já tem uma variante de btn (ex.: btn-outline-*, btn-danger) ou 'btn' presente, não sobrescrever
-					const hasBtnVariant = Array.from(el.classList).some(c => c === 'btn' || c === 'btn-sm' || c.startsWith('btn-'));
-					if (!hasBtnVariant) {
-						el.classList.add('btn','btn-sm','btn-primary');
-					}
-			});
-		}
-
-		// aplicar imediatamente e observar mudanças dinâmicas
-		try { normalizeStudyButtons(document.getElementById('main-content') || document); } catch {}
-		try {
-			const obsTarget = document.getElementById('main-content') || document.body;
-			const mo = new MutationObserver(muts=>{
-				for (const m of muts){
-					for (const n of m.addedNodes){ if (n.nodeType === 1) normalizeStudyButtons(n); }
-				}
-			});
-			mo.observe(obsTarget, { childList: true, subtree: true });
-		} catch {}
+		// (Removido) normalização de botões bootstrap — o design system próprio já provê estilos
 	});
 })();
 
@@ -59,110 +31,86 @@
 		'use strict';
 
 		async function renderCoursesOnPage() {
-				var host = document.getElementById('page-courses-accordion-host');
-				if (!host) return;
-				var courses = await (window.study && window.study.loadCourses ? window.study.loadCourses() : Promise.resolve([]));
-				var subjects = await (window.study && window.study.loadSubjects ? window.study.loadSubjects() : Promise.resolve([]));
-				host.innerHTML = '';
-				if (!courses || courses.length === 0) {
-						host.innerHTML = '<div class="text-muted">Nenhum curso cadastrado.</div>';
-						return;
-				}
-				var acc = document.createElement('div'); acc.className = 'accordion';
-				courses.forEach(function(c) {
-						var id = 'page-course-' + String(c.id);
-						var headerId = 'heading-' + id;
-						var collapseId = 'collapse-' + id;
-						var item = document.createElement('div'); item.className = 'accordion-item mb-2';
-
-						var h2 = document.createElement('h2'); h2.className = 'accordion-header'; h2.id = headerId;
-						var btn = document.createElement('button'); btn.className = 'accordion-button collapsed'; btn.type = 'button';
-						btn.setAttribute('data-bs-toggle','collapse'); btn.setAttribute('data-bs-target','#' + collapseId); btn.setAttribute('aria-expanded','false'); btn.setAttribute('aria-controls', collapseId);
-						btn.textContent = c.name || '';
-						h2.appendChild(btn);
-
-						var collapse = document.createElement('div'); collapse.id = collapseId; collapse.className = 'accordion-collapse collapse'; collapse.setAttribute('aria-labelledby', headerId); collapse.setAttribute('data-bs-parent', '#page-courses-accordion-host');
-						var body = document.createElement('div'); body.className = 'accordion-body';
-						var ul = document.createElement('ul'); ul.className = 'list-group list-group-flush';
-						var subs = subjects.filter(function(s){ return String(s.course_id) === String(c.id); });
-						subs.forEach(function(s){
-								var li = document.createElement('li'); li.className = 'list-group-item d-flex justify-content-between align-items-center';
-								var span = document.createElement('span'); span.textContent = s.name || '';
-								var divbtn = document.createElement('div');
-								var open = document.createElement('button'); open.className = 'btn btn-sm btn-outline-secondary btn-open-caderno'; open.setAttribute('data-subject-id', s.id); open.textContent = 'Abrir';
-								divbtn.appendChild(open);
-								li.appendChild(span); li.appendChild(divbtn); ul.appendChild(li);
-						});
-						body.appendChild(ul); collapse.appendChild(body);
-						item.appendChild(h2); item.appendChild(collapse); acc.appendChild(item);
+			const host = document.getElementById('page-courses-accordion-host');
+			if(!host) return;
+			const courses = await (window.study?.loadCourses ? window.study.loadCourses() : Promise.resolve([]));
+			const subjects = await (window.study?.loadSubjects ? window.study.loadSubjects() : Promise.resolve([]));
+			host.innerHTML = '';
+			if(!courses?.length){ host.innerHTML = '<div class="texto-suave pequeno">Nenhum curso cadastrado.</div>'; return; }
+			const wrap = document.createElement('div'); wrap.className = 'acordeao acordeao--lista';
+			courses.forEach(c=>{
+				const item = document.createElement('div'); item.className = 'acordeao__item'; item.setAttribute('data-curso-id', c.id);
+				const cab = document.createElement('button'); cab.type = 'button'; cab.className = 'acordeao__cabeca'; cab.setAttribute('aria-expanded','false'); cab.textContent = c.name || '';
+				const conteudo = document.createElement('div'); conteudo.className = 'acordeao__conteudo'; conteudo.hidden = true;
+				const ul = document.createElement('ul'); ul.className = 'lista-simples';
+				const subs = subjects.filter(s=> String(s.course_id) === String(c.id));
+				subs.forEach(s=>{
+					const li = document.createElement('li'); li.className = 'acordeao__linha';
+					const nome = document.createElement('span'); nome.textContent = s.name || '';
+					const ac = document.createElement('div'); ac.className = 'linha-acoes';
+					const open = document.createElement('button'); open.className = 'botao botao--suave botao--micro btn-open-caderno'; open.setAttribute('data-subject-id', s.id); open.textContent = 'Abrir';
+					ac.appendChild(open); li.appendChild(nome); li.appendChild(ac); ul.appendChild(li);
 				});
-				host.appendChild(acc);
-
-				// wire buttons
-				var opens = host.querySelectorAll('.btn-open-caderno');
-				opens.forEach(function(btn){ btn.addEventListener('click', function(){ var sid = btn.getAttribute('data-subject-id'); if(window.openCadernoBySubjectId) return window.openCadernoBySubjectId(sid); if(window.study && window.study.openCaderno) return window.study.openCaderno(sid); }); });
+				conteudo.appendChild(ul);
+				item.appendChild(cab); item.appendChild(conteudo); wrap.appendChild(item);
+			});
+			host.appendChild(wrap);
+			// interação acordeão
+			host.querySelectorAll('.acordeao__cabeca').forEach(btn=>{
+				btn.addEventListener('click', ()=>{
+					const expanded = btn.getAttribute('aria-expanded') === 'true';
+					btn.setAttribute('aria-expanded', String(!expanded));
+					const content = btn.nextElementSibling; if(content){ content.hidden = expanded; }
+				});
+			});
+			// abrir caderno
+			host.querySelectorAll('.btn-open-caderno').forEach(b=>{
+				b.addEventListener('click', ()=>{ const sid = b.getAttribute('data-subject-id'); if(window.openCadernoBySubjectId) return window.openCadernoBySubjectId(sid); if(window.study?.openCaderno) return window.study.openCaderno(sid); });
+			});
 		}
 
-		async function loadModalData() {
-				var acc = document.getElementById('modal-courses-accordion'); if(!acc) return;
-				var courses = await (window.study && window.study.loadCourses ? window.study.loadCourses() : Promise.resolve([]));
-				var subjects = await (window.study && window.study.loadSubjects ? window.study.loadSubjects() : Promise.resolve([]));
-				acc.innerHTML = '';
-				courses.forEach(function(c){
-						var id = 'modal-course-' + String(c.id);
-						var headerId = 'heading-' + id;
-						var collapseId = 'collapse-' + id;
-						var item = document.createElement('div'); item.className = 'accordion-item mb-2';
-
-						var h2 = document.createElement('h2'); h2.className = 'accordion-header'; h2.id = headerId;
-						var btn = document.createElement('button'); btn.className = 'accordion-button collapsed'; btn.type = 'button';
-						btn.setAttribute('data-bs-toggle','collapse'); btn.setAttribute('data-bs-target','#' + collapseId); btn.setAttribute('aria-expanded','false'); btn.setAttribute('aria-controls', collapseId);
-						btn.textContent = c.name || '';
-						h2.appendChild(btn);
-
-						var collapse = document.createElement('div'); collapse.id = collapseId; collapse.className = 'accordion-collapse collapse'; collapse.setAttribute('aria-labelledby', headerId); collapse.setAttribute('data-bs-parent', '#modal-courses-accordion');
-						var body = document.createElement('div'); body.className = 'accordion-body';
-
-						var topRow = document.createElement('div'); topRow.className = 'd-flex justify-content-between mb-2';
-						var left = document.createElement('div'); var small = document.createElement('small'); small.className = 'text-muted'; small.textContent = 'Matérias:'; left.appendChild(small);
-						var right = document.createElement('div'); var del = document.createElement('button'); del.className = 'btn btn-sm btn-outline-danger btn-delete-course'; del.setAttribute('data-course-id', c.id); del.textContent = 'Remover Curso'; right.appendChild(del);
-						topRow.appendChild(left); topRow.appendChild(right);
-
-						// Formulário para adicionar nova matéria neste curso
-						var form = document.createElement('div'); form.className = 'input-group input-group-sm mb-2';
-						var inputName = document.createElement('input'); inputName.type = 'text'; inputName.placeholder = 'Nova matéria'; inputName.className = 'form-control form-control-sm'; inputName.id = 'modal-subject-name-' + c.id; inputName.setAttribute('data-course-id', c.id);
-						var inputColor = document.createElement('input'); inputColor.type = 'color'; inputColor.className = 'form-control form-control-sm input-color-sm'; inputColor.value = c.color || '#365562'; inputColor.id = 'modal-subject-color-' + c.id;
-						var addBtn = document.createElement('button'); addBtn.type = 'button'; addBtn.className = 'btn btn-sm btn-outline-primary btn-add-subject'; addBtn.textContent = 'Adicionar Matéria'; addBtn.setAttribute('data-course-id', c.id);
-						form.appendChild(inputName); form.appendChild(inputColor); form.appendChild(addBtn);
-
-						var ul = document.createElement('ul'); ul.className = 'list-group list-group-flush mb-2';
-						var subs = subjects.filter(function(s){ return String(s.course_id) === String(c.id); });
-						subs.forEach(function(s){ var li = document.createElement('li'); li.className = 'list-group-item d-flex justify-content-between align-items-center'; var span = document.createElement('span'); span.textContent = s.name || ''; var rb = document.createElement('div'); var rbtn = document.createElement('button'); rbtn.className = 'btn btn-sm btn-outline-danger btn-remove-subject'; rbtn.setAttribute('data-subject-id', s.id); rbtn.textContent = 'Remover'; rb.appendChild(rbtn); li.appendChild(span); li.appendChild(rb); ul.appendChild(li); });
-
-						body.appendChild(topRow); body.appendChild(form); body.appendChild(ul); collapse.appendChild(body); item.appendChild(h2); item.appendChild(collapse); acc.appendChild(item);
-				});
-
-				// wire delete handlers
-				acc.querySelectorAll('.btn-delete-course').forEach(function(b){ b.addEventListener('click', async function(){ var id = b.getAttribute('data-course-id'); if(!id) return; var ok = window.pvShowConfirm ? await window.pvShowConfirm('Remover este curso?') : confirm('Remover este curso?'); if(!ok) return; await window.study.removeCourse(id); await loadModalData(); await renderCoursesOnPage(); }); });
-				acc.querySelectorAll('.btn-remove-subject').forEach(function(b){ b.addEventListener('click', async function(){ var id = b.getAttribute('data-subject-id'); if(!id) return; var ok = window.pvShowConfirm ? await window.pvShowConfirm('Remover esta matéria?') : confirm('Remover esta matéria?'); if(!ok) return; await window.study.removeSubject(id); await loadModalData(); await renderCoursesOnPage(); }); });
-				// wire add-subject handlers
-				acc.querySelectorAll('.btn-add-subject').forEach(function(b){
-					b.addEventListener('click', async function(){
-						var courseId = b.getAttribute('data-course-id');
-						if(!courseId) return;
-						var nameEl = document.getElementById('modal-subject-name-' + courseId);
-						var colorEl = document.getElementById('modal-subject-color-' + courseId);
-						var name = nameEl ? nameEl.value.trim() : '';
-						var color = colorEl ? colorEl.value : '#365562';
-						if(!name) return;
-						try {
-							await window.study.addSubject(name, color, courseId);
-							if(nameEl) nameEl.value = '';
-							await loadModalData();
-							await renderCoursesOnPage();
-						} catch(e) {}
-					});
-				});
+		async function loadModalData(){
+			const acc = document.getElementById('modal-courses-accordion'); if(!acc) return;
+			const courses = await (window.study?.loadCourses ? window.study.loadCourses() : Promise.resolve([]));
+			const subjects = await (window.study?.loadSubjects ? window.study.loadSubjects() : Promise.resolve([]));
+			acc.innerHTML='';
+			courses.forEach(c=>{
+				const item = document.createElement('div'); item.className = 'acordeao__item'; item.setAttribute('data-curso-id', c.id);
+				const cab = document.createElement('button'); cab.type='button'; cab.className='acordeao__cabeca'; cab.setAttribute('aria-expanded','false'); cab.textContent = c.name || '';
+				const conteudo = document.createElement('div'); conteudo.className='acordeao__conteudo'; conteudo.hidden = true;
+				// linha topo
+				const topo = document.createElement('div'); topo.className='linha-topo';
+				const info = document.createElement('div'); info.className='info'; info.innerHTML = '<small class="texto-suave">Matérias:</small>';
+				const acoes = document.createElement('div'); acoes.className='acoes';
+				const del = document.createElement('button'); del.className='botao botao--perigo botao--micro btn-delete-course'; del.setAttribute('data-course-id', c.id); del.textContent='Remover Curso'; acoes.appendChild(del);
+				topo.appendChild(info); topo.appendChild(acoes);
+				// form add subject
+				const form = document.createElement('div'); form.className='linha-form';
+				const inputName = document.createElement('input'); inputName.type='text'; inputName.placeholder='Nova matéria'; inputName.className='campo campo--texto campo--micro'; inputName.id='modal-subject-name-' + c.id; inputName.setAttribute('data-course-id', c.id);
+				const inputColor = document.createElement('input'); inputColor.type='color'; inputColor.className='campo campo--cor campo--micro input-color-sm'; inputColor.value = c.color || '#365562'; inputColor.id='modal-subject-color-' + c.id;
+				const addBtn = document.createElement('button'); addBtn.type='button'; addBtn.className='botao botao--primario botao--micro btn-add-subject'; addBtn.textContent='Adicionar Matéria'; addBtn.setAttribute('data-course-id', c.id);
+				form.appendChild(inputName); form.appendChild(inputColor); form.appendChild(addBtn);
+				// lista matérias
+				const ul = document.createElement('ul'); ul.className='lista-simples lista-materias';
+				const subs = subjects.filter(s=> String(s.course_id) === String(c.id));
+				subs.forEach(s=>{ const li=document.createElement('li'); li.className='acordeao__linha'; const nome=document.createElement('span'); nome.textContent=s.name || ''; const rb=document.createElement('div'); rb.className='linha-acoes'; const rbtn=document.createElement('button'); rbtn.className='botao botao--perigo-suave botao--micro btn-remove-subject'; rbtn.setAttribute('data-subject-id', s.id); rbtn.textContent='Remover'; rb.appendChild(rbtn); li.appendChild(nome); li.appendChild(rb); ul.appendChild(li); });
+				conteudo.appendChild(topo); conteudo.appendChild(form); conteudo.appendChild(ul);
+				item.appendChild(cab); item.appendChild(conteudo); acc.appendChild(item);
+			});
+			// interações
+			acc.querySelectorAll('.acordeao__cabeca').forEach(btn=>{
+				btn.addEventListener('click', ()=>{ const expanded = btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded', String(!expanded)); const c = btn.nextElementSibling; if(c) c.hidden = expanded; });
+			});
+			// handlers de curso/matéria
+			acc.querySelectorAll('.btn-delete-course').forEach(b=>{
+				b.addEventListener('click', async()=>{ const id = b.getAttribute('data-course-id'); if(!id) return; const ok = window.pvShowConfirm ? await window.pvShowConfirm('Remover este curso?') : confirm('Remover este curso?'); if(!ok) return; await window.study.removeCourse(id); await loadModalData(); await renderCoursesOnPage(); });
+			});
+			acc.querySelectorAll('.btn-remove-subject').forEach(b=>{
+				b.addEventListener('click', async()=>{ const id = b.getAttribute('data-subject-id'); if(!id) return; const ok = window.pvShowConfirm ? await window.pvShowConfirm('Remover esta matéria?') : confirm('Remover esta matéria?'); if(!ok) return; await window.study.removeSubject(id); await loadModalData(); await renderCoursesOnPage(); });
+			});
+			acc.querySelectorAll('.btn-add-subject').forEach(b=>{
+				b.addEventListener('click', async()=>{ const courseId = b.getAttribute('data-course-id'); if(!courseId) return; const nameEl = document.getElementById('modal-subject-name-'+courseId); const colorEl = document.getElementById('modal-subject-color-'+courseId); const name = nameEl ? nameEl.value.trim() : ''; const color = colorEl ? colorEl.value : '#365562'; if(!name) return; try { await window.study.addSubject(name, color, courseId); if(nameEl) nameEl.value=''; await loadModalData(); await renderCoursesOnPage(); }catch(e){} });
+			});
 		}
 
 		// Single DOMContentLoaded handler: wire buttons, mount tools, initial render
@@ -171,8 +119,17 @@
 
 				try{ var all = Array.from(document.querySelectorAll('#btn-manage-courses')); if(all.length>1) all.slice(1).forEach(function(n){ n.remove(); }); }catch(e){}
 
-				var btn = document.getElementById('btn-manage-courses');
-				if(btn) btn.addEventListener('click', function(){ var modalEl = document.getElementById('modal-manage-courses'); if(!modalEl) return; var modal = new bootstrap.Modal(modalEl); modal.show(); try{ loadModalData(); }catch(e){} });
+								const btn = document.getElementById('btn-manage-courses');
+								if(btn){
+									const modalEl = document.getElementById('modal-manage-courses');
+									const focusSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+									function abrirJanela(){ if(!modalEl) return; modalEl.classList.add('janela--aberta'); modalEl.removeAttribute('aria-hidden'); try{ loadModalData(); }catch(e){} trapFocus(); }
+									function fecharJanela(){ if(!modalEl) return; modalEl.classList.remove('janela--aberta'); modalEl.setAttribute('aria-hidden','true'); document.activeElement && typeof document.activeElement.blur === 'function' && document.activeElement.blur(); }
+									function trapFocus(){ if(!modalEl) return; const focables = Array.from(modalEl.querySelectorAll(focusSelectors)).filter(el=>!el.hasAttribute('disabled')); if(!focables.length) return; const first=focables[0], last=focables[focables.length-1]; first.focus(); function keyHandler(e){ if(e.key==='Escape'){ fecharJanela(); document.removeEventListener('keydown', keyHandler); } else if(e.key==='Tab'){ if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); } else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); } } } document.addEventListener('keydown', keyHandler); }
+									btn.addEventListener('click', abrirJanela);
+									modalEl?.querySelectorAll('[data-fechar-janela]').forEach(f=> f.addEventListener('click', fecharJanela));
+									modalEl?.addEventListener('mousedown', e=>{ if(e.target === modalEl) fecharJanela(); });
+								}
 
 				// modal add course handler
 				var addCourseBtn = document.getElementById('modal-course-add');

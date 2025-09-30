@@ -31,8 +31,8 @@ Header always set Cross-Origin-Embedder-Policy "unsafe-none"
 # Favicon fallback
 RewriteEngine On
 RewriteCond %{REQUEST_URI} ^/favicon\.ico$
-RewriteCond %{DOCUMENT_ROOT}/img/image.png -f
-RewriteRule ^favicon\.ico$ /img/image.png [L]
+RewriteCond %{DOCUMENT_ROOT}/img/icone.png -f
+RewriteRule ^favicon\.ico$ /img/icone.png [L]
 
 <IfModule mod_headers.c>
 	# Cache-Control para assets estáticos

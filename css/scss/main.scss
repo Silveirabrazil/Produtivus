@@ -1,0 +1,75 @@
+// Produtivus SCSS entrypoint (7-1 architecture)
+// Imports order: abstracts -> vendors -> base -> layout -> components -> pages -> utilities -> themes
+
+// 1) Abstracts (variables, mixins, functions)
+// Migrado para @use via índice para evitar poluição global futura;
+// por ora expomos como * para manter compatibilidade até migrarmos os demais arquivos.
+@use './abstracts' as *;
+@use 'sass:color';
+
+// 2) Vendors (Bootstrap and third-party overrides)
+// Carregar tema do Bootstrap antes, usando @use with
+@use './themes/bootstrap-theme' as bt;
+@use "bootstrap" with (
+	$primary: bt.$pv-brand-primary,
+	$secondary: #6c757d,
+	$success: #198754,
+	$info: #0dcaf0,
+	$warning: #ffc107,
+	$danger: #dc3545,
+	$light: #f8f9fa,
+	$dark: bt.$pv-brand-dark,
+	$body-color: bt.$pv-text,
+	$border-radius: .6rem,
+	$border-radius-sm: .6rem,
+	$border-radius-lg: .6rem,
+	$btn-border-radius: .6rem,
+	$btn-border-radius-lg: .6rem,
+	$btn-border-radius-sm: .6rem,
+	$link-color: bt.$pv-brand-primary,
+		$link-hover-color: color.scale(bt.$pv-brand-primary, $lightness: -10%)
+);
+@use "bootstrap" as *;
+
+// 3) Base (reset, typography) — via módulos (@use no topo; inclusão via mixin mais abaixo)
+@use './base' as base;
+// 4) Layout — via módulos (@use no topo; inclusão via mixin mais abaixo)
+@use './layout' as layout;
+@use './components' as components;
+@use './components/navbar';
+@use './vendors' as vendors;
+@use './core/tokens';
+@use './core/utilities' as coreUtils;
+@use './pages';
+@use './utilities';
+@use './themes';
+
+// Declaração das camadas deve vir após todos os @use para evitar erro do Sass.
+@layer base, layout, vendors, components, pages, utilities, themes, overrides;
+
+// Render da camada base na ordem adequada
+@include base.render();
+
+// 4) Layout (header, footer, grid, hero, menu)
+@include layout.render();
+
+// Vendors (render via mixin quando aplicável)
+@include vendors.render();
+
+// 5) Components (buttons, cards, modals, dashboard, calendar, notebooks)
+@include components.render();
+// Navbar já declarado em @layer overrides via import direto acima
+
+// 6) Pages (apenas usar o índice para incluir os arquivos)
+// Os próprios parciais de páginas emitem o CSS; @use já os carrega.
+
+// 7) Utilities (helpers) - carregadas via @use do índice
+// Core utilities OCSS (adicionadas separadamente)
+
+// 8) Themes (optional) - carregado via índice
+
+// 9) Fonts (kept as url imports to preserve original behavior)
+@import url('./fonts/dosis.css');
+@import url('./fonts/material-symbols.css');
+
+// 10) Import legado removido para evitar duplicações e conflitos

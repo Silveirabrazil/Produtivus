@@ -1,1 +1,67 @@
- 
+<footer class="rodape">
+	<div class="rodape__fundo">
+		<div class="rodape__conteudo">
+			<div class="rodape__grade">
+				<div class="rodape__coluna rodape__coluna--sobre">
+					<h6 class="rodape__titulo">Sobre</h6>
+					<p class="rodape__texto">Produtivus — foco em estudos, organização e evolução acadêmica.</p>
+				</div>
+				<div class="rodape__coluna rodape__coluna--links">
+					<h6 class="rodape__titulo">Links</h6>
+					<ul class="rodape__links" id="rodape-links"></ul>
+				</div>
+				<div class="rodape__coluna rodape__coluna--acoes">
+					<h6 class="rodape__titulo">Ações</h6>
+					<button type="button" class="rodape__botao" id="rodape-entrar">Entrar</button>
+					<div class="rodape__social">
+						<button type="button" class="rodape__social-btn" aria-label="GitHub">
+							<svg class="rodape__social-ic" width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 .2a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33C4.73 14.4 4.14 13 4.14 13c-.36-.93-.88-1.18-.88-1.18-.72-.5.05-.49.05-.49.8.06 1.22.83 1.22.83.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.1 0 0 .67-.21 2.2.82a7.62 7.62 0 0 1 2-.27 7.6 7.6 0 0 1 2 .27c1.53-1.03 2.2-.82 2.2-.82.44 1.09.16 1.9.08 2.1.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.19c0 .21.15.45.55.38A8 8 0 0 0 8 .2Z"/></svg>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="rodape__linha-final">
+				<div class="rodape__copy">© <span id="rodape-ano"></span> Produtivus</div>
+			</div>
+		</div>
+	</div>
+</footer>
+<script>
+	(function(){
+		function pronto(f){document.readyState!=='loading'?f():document.addEventListener('DOMContentLoaded',f)}
+		function getPaths(){
+			var raw=location.pathname||'';var lower=raw.toLowerCase();var pos=lower.indexOf('/html/');
+			var root= pos>=0 ? raw.slice(0,pos+1) : raw.slice(0, raw.lastIndexOf('/')+1);
+			return {root:root, pages: root+'html/', index: root+'index.html'};
+		}
+		function getUser(){ try { return JSON.parse(localStorage.getItem('pv_user')||'null'); } catch { return null; } }
+		function montarLinks(){
+			var box=document.getElementById('rodape-links'); if(!box) return; var p=getPaths(); var u=getUser();
+			// deslogado: sem links
+			if(!u){ box.innerHTML=''; return; }
+			var items=[
+				{pg:'index.html', label:'Home'},
+				{pg:'dashboard.html', label:'Dashboard'},
+				{pg:'tarefas.html', label:'Tarefas'},
+				{pg:'estudos.html', label:'Estudos'},
+				{pg:'calendario.html', label:'Calendário'},
+				{pg:'caderno.html', label:'Cadernos'},
+				{pg:'planilhas.html', label:'Planilhas'},
+				{pg:'mapas.html', label:'Mapas Mentais'}
+			];
+			box.innerHTML = items.map(function(it){
+				var href = it.pg==='index.html' ? p.index : (p.pages + it.pg);
+				return '<li><a class="rodape__link" href="'+href+'">'+it.label+'</a></li>';
+			}).join('');
+		}
+		function wire(){
+			var ano=document.getElementById('rodape-ano'); if(ano) ano.textContent=new Date().getFullYear();
+			var btn=document.getElementById('rodape-entrar');
+			if(btn){ btn.addEventListener('click',function(){ var p=getPaths(); if(window.openLoginModal) window.openLoginModal(); else location.href=p.index+'?login=1'; }); }
+			montarLinks();
+		}
+		pronto(wire);
+		// Reidrata ao logar/deslogar
+		window.addEventListener('pv-auth-changed', montarLinks);
+	})();
+</script>

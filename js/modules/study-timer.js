@@ -143,57 +143,36 @@
     obs.observe(document.body, { childList:true, subtree:true });
   }
 
-  // Modal de som (Bootstrap)
+  // Modal de som (sem Bootstrap)
   window.openAlarmModal = function(){
     try {
-      const id = 'pv-alarm-modal';
-      let m = document.getElementById(id);
-      if (!m) {
-        const wrap = document.createElement('div');
-        wrap.innerHTML = `
-<div class="modal fade" id="${id}" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Alarme do Timer</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label for="alarm-file" class="form-label">Arquivo de som</label>
-          <input type="file" id="alarm-file" class="form-control" accept="audio/*">
+      const fundo = document.createElement('div');
+      fundo.className='janela-fundo';
+      Object.assign(fundo.style,{position:'fixed',inset:'0',background:'rgba(0,0,0,.55)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:'1180'});
+      const caixa = document.createElement('div');
+      caixa.className='janela janela--dialogo'; caixa.setAttribute('role','dialog'); caixa.setAttribute('aria-modal','true');
+      Object.assign(caixa.style,{background:'#fff',color:'#222',minWidth:'280px',maxWidth:'520px',padding:'1rem 1rem .75rem',borderRadius:'10px',boxShadow:'0 10px 30px rgba(0,0,0,.35)'});
+      caixa.innerHTML = `<div class="janela__cabecalho"><h2 class="janela__titulo" style="margin:0;font-size:1.1rem;">Alarme do Timer</h2></div>
+      <div class="janela__corpo" style="margin-top:.5rem;">
+        <div style="margin-bottom:.75rem;">
+          <label for="alarm-file" class="small" style="display:block;margin-bottom:.25rem;">Arquivo de som</label>
+          <input type="file" id="alarm-file" accept="audio/*" class="campo" style="width:100%;">
         </div>
-        <div class="small text-body-secondary">O som será tocado ao finalizar cada fase quando a opção "Som ao finalizar" estiver marcada no Timer.</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
-        <button type="button" class="btn btn-primary" id="alarm-test">Testar</button>
-      </div>
-    </div>
-  </div>
-</div>`;
-        m = wrap.firstElementChild;
-        document.body.appendChild(m);
-      }
-      const inst = window.bootstrap ? window.bootstrap.Modal.getOrCreateInstance(m, { backdrop:'static' }) : null;
-      // wire listeners on each open to ensure they exist
-      const file = m.querySelector('#alarm-file');
-      const testBtn = m.querySelector('#alarm-test');
-      if (file && !file._bound) {
-        file.addEventListener('change', ()=>{ const f = file.files && file.files[0]; if (!f) return; const url = URL.createObjectURL(f); try{ localStorage.setItem('pv_timer_sound_src', url); }catch{} });
-        file._bound = true;
-      }
-      if (testBtn && !testBtn._bound) {
-        testBtn.addEventListener('click', ()=>{ try{ (new Audio(localStorage.getItem('pv_timer_sound_src')||'')).play(); }catch{} });
-        testBtn._bound = true;
-      }
-      if (inst) {
-        m.addEventListener('hidden.bs.modal', ()=>{ /* keep modal for reuse */ }, { once:true });
-        inst.show();
-      } else {
-        m.style.display = 'block';
-      }
-    } catch {}
+        <div class="small" style="color:#555;">O som será tocado ao finalizar cada fase quando a opção "Som ao finalizar" estiver marcada no Timer.</div>
+      </div>`;
+      const rodape = document.createElement('div'); rodape.className='janela__acoes'; Object.assign(rodape.style,{display:'flex',justifyContent:'flex-end',gap:'.5rem',marginTop:'1rem'});
+      const btnFechar = document.createElement('button'); btnFechar.className='botao botao--suave'; btnFechar.textContent='Fechar';
+      const btnTest = document.createElement('button'); btnTest.className='botao botao--primario'; btnTest.id='alarm-test'; btnTest.textContent='Testar';
+      rodape.appendChild(btnFechar); rodape.appendChild(btnTest); caixa.appendChild(rodape); fundo.appendChild(caixa); document.body.appendChild(fundo);
+      function fechar(){ try{ fundo.remove(); }catch{} }
+      fundo.addEventListener('click', e=>{ if(e.target===fundo) fechar(); });
+      btnFechar.addEventListener('click', fechar);
+      document.addEventListener('keydown', function esc(e){ if(e.key==='Escape'){ document.removeEventListener('keydown', esc); fechar(); } });
+      const file = caixa.querySelector('#alarm-file'); const testBtn = caixa.querySelector('#alarm-test');
+      if(file){ file.addEventListener('change', ()=>{ const f = file.files && file.files[0]; if(!f) return; const url = URL.createObjectURL(f); try{ localStorage.setItem('pv_timer_sound_src', url); }catch{} }); }
+      if(testBtn){ testBtn.addEventListener('click', ()=>{ try{ (new Audio(localStorage.getItem('pv_timer_sound_src')||'')).play(); }catch{} }); }
+      setTimeout(()=>{ try{ (file||btnTest).focus(); }catch{} }, 30);
+    } catch(e){}
   }
 
   window.pvStudyTimer = { mount, mountCompact, getState: ()=>({ ...state }), start, pause, reset, skip };
@@ -201,21 +180,22 @@
 
 // Modal simplificada do Timer para abrir via ícone do header
 window.openTimerModal = function(){
-  // Compat: abrir o dropdown do header e montar o timer lá
-  try{
-    const btn = document.getElementById('btn-timer');
-    if (!btn) return;
-    // garantir script do timer
+  // Abre uma pequena janela flutuante com o timer (sem Bootstrap)
+  try {
     if (!window.pvStudyTimer && !document.querySelector('script[data-pv="study-timer"]')){
       const st=document.createElement('script'); st.src='js/modules/study-timer.js'; st.defer=true; st.setAttribute('data-pv','study-timer'); document.body.appendChild(st);
     }
-    // abrir dropdown
-    if (window.bootstrap?.Dropdown){
-      const dd = window.bootstrap.Dropdown.getOrCreateInstance(btn, { autoClose:'outside' });
-      dd.show();
-      // evento shown será usado no header para montar o timer
-    } else {
-      btn.click();
-    }
-  }catch{}
+    const fundo = document.createElement('div');
+    fundo.className='janela-fundo'; Object.assign(fundo.style,{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:'1190'});
+    const caixa = document.createElement('div'); caixa.className='janela janela--timer'; Object.assign(caixa.style,{background:'#fff',minWidth:'300px',maxWidth:'480px',padding:'1rem',borderRadius:'10px',boxShadow:'0 10px 25px rgba(0,0,0,.35)'});
+    caixa.innerHTML = '<div class="janela__cabecalho" style="display:flex;align-items:center;justify-content:space-between;"><h2 class="janela__titulo" style="margin:0;font-size:1.1rem;">Timer</h2><button type="button" class="botao botao--suave" data-fechar>×</button></div><div class="janela__corpo" data-timer-host style="margin-top:.5rem;"></div>';
+    fundo.appendChild(caixa); document.body.appendChild(fundo);
+    function fechar(){ try{ fundo.remove(); }catch{} }
+    fundo.addEventListener('click', e=>{ if(e.target===fundo) fechar(); });
+    caixa.querySelector('[data-fechar]').addEventListener('click', fechar);
+    document.addEventListener('keydown', function esc(e){ if(e.key==='Escape'){ document.removeEventListener('keydown', esc); fechar(); } });
+    // montar timer completo dentro
+    const host = caixa.querySelector('[data-timer-host]');
+    try { window.pvStudyTimer.mount(host); } catch{}
+  } catch{}
 }

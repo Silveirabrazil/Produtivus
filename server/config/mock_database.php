@@ -7,6 +7,8 @@
 class MockDatabase {
     private $dataFile;
     private $data;
+    private $lastInsertId = 0;
+    private $inTransaction = false;
 
     public function __construct() {
         $dataDir = __DIR__ . '/../data';
@@ -62,6 +64,31 @@ class MockDatabase {
         return $stmt->execute();
     }
 
+    public function beginTransaction() {
+        $this->inTransaction = true;
+        return true;
+    }
+
+    public function commit() {
+        $this->inTransaction = false;
+        $this->saveData();
+        return true;
+    }
+
+    public function rollBack() {
+        $this->inTransaction = false;
+        $this->loadData();
+        return true;
+    }
+
+    public function inTransaction() {
+        return $this->inTransaction;
+    }
+
+    public function lastInsertId() {
+        return $this->lastInsertId;
+    }
+
     public function getUsers() {
         return $this->data['users'] ?? [];
     }
@@ -76,6 +103,7 @@ class MockDatabase {
         }
         $user['id'] = count($this->data['users']) + 1;
         $this->data['users'][] = $user;
+        $this->lastInsertId = $user['id'];
         $this->saveData();
         return $user['id'];
     }
@@ -86,6 +114,7 @@ class MockDatabase {
         }
         $task['id'] = count($this->data['tasks']) + 1;
         $this->data['tasks'][] = $task;
+        $this->lastInsertId = $task['id'];
         $this->saveData();
         return $task['id'];
     }

@@ -175,7 +175,7 @@
         item.type = 'button';
         item.title = `${nb.pages_count||0} páginas`;
         item.textContent = nb.title;
-        item.addEventListener('click', ()=>{ window.location.href = `cadernos.html?nb=${encodeURIComponent(nb.id)}`; });
+  item.addEventListener('click', ()=>{ window.location.href = `caderno.html?nb=${encodeURIComponent(nb.id)}`; });
         ul.appendChild(item);
       });
       sec.appendChild(ul);

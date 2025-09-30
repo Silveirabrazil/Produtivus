@@ -29,8 +29,8 @@ async function renderCards() {
 }
 function createTaskCard(task) {
     const card = document.createElement('div');
-        // mantém classe custom e adiciona utilitários Bootstrap
-        card.className = 'card card-tarefa mb-2';
+    // mantém classe custom e adiciona utilitários PT-BR
+    card.className = 'card card-tarefa mb-sm';
         card.dataset.id = task.id;
         card.style.setProperty('--card-border-color', task.color || '#c29d67');
     const subtasks = task.subtasks || [];
@@ -41,19 +41,19 @@ function createTaskCard(task) {
     const percent = Math.min(100, mainDone + subsDone);
     const startStr = task.start ? formatDateBR(task.start) : '';
     const endStr = task.end ? formatDateBR(task.end) : '';
-                card.innerHTML = `
-                        <div class="card-body p-2">
-                            <div class="card-row d-flex justify-content-between align-items-center mb-1">
-                                <div class="card-title h6 mb-0">${escapeHTML(task.title)}</div>
-                                <div class="card-progress small text-muted">${percent}%</div>
+        card.innerHTML = `
+            <div class="card-body">
+                            <div class="card-row flexo justifica-entre alinha-centro mb-xs">
+                                <div class="card-title">${escapeHTML(task.title)}</div>
+                                <div class="card-progress texto-miudo texto-fraco">${percent}%</div>
                             </div>
-                            <div class="card-desc card-text mb-2">${escapeHTML(task.description || task.desc || '')} <span class="card-progresso small text-muted">Progresso</span></div>
-                            <div class="card-dates small text-muted mb-2">Inio: <span>${startStr}</span> &nbsp;|&nbsp; Trmino: <span>${endStr}</span></div>
-                            <a href="#" class="card-details small">Ver detalhes</a>
-                            <div class="card-actions mt-2 d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary btn-edit">Editar</button>
-                                <button type="button" class="btn btn-sm btn-outline-danger btn-delete">Excluir</button>
-                                <button type="button" class="btn btn-sm btn-primary btn-done">${task.done ? 'Desfazer' : 'Concluir'}</button>
+                            <div class="card-desc mb-sm">${escapeHTML(task.description || task.desc || '')} <span class="card-progresso texto-miudo texto-fraco">Progresso</span></div>
+                            <div class="card-dates texto-miudo texto-fraco mb-sm">Início: <span>${startStr}</span> &nbsp;|&nbsp; Término: <span>${endStr}</span></div>
+                            <a href="#" class="card-details texto-miudo">Ver detalhes</a>
+                            <div class="card-actions flexo gap-sm" style="margin-top:.5rem">
+                                <button type="button" class="botao botao--pequeno botao--contorno-secundario btn-edit">Editar</button>
+                                <button type="button" class="botao botao--pequeno botao--contorno-perigo btn-delete">Excluir</button>
+                                <button type="button" class="botao botao--pequeno botao--primario btn-done">${task.done ? 'Desfazer' : 'Concluir'}</button>
                             </div>
                         </div>
                 `;

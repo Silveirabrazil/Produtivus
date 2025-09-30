@@ -1,0 +1,445 @@
+/*
+  ESTILOS GLOBAIS E VARIÁVEIS
+  ---------------------------------
+  Definições de variáveis globais e estilos básicos
+  que afetam toda a página, como fontes, cores e espaçamento.
+*/
+:root {
+  --landing-hero-overlay: rgba(0, 0, 0, 0.45);
+  --landing-hero-height: 60vh;
+  --pv-carousel-min-height: 320px;
+  --pv-transition: .25s ease;
+  --pv-transition-fast: .2s ease;
+  --pv-radius-lg: .75rem;
+  --pv-primary: #2a8bd8;
+  --pv-primary-dark: #16619b;
+  --pv-accent-3: #4cc3ff;
+  --pv-shadow-lg: 0 4px 18px -4px rgba(0, 0, 0, .4);
+}
+
+/*
+  SEÇÃO HERO
+  ---------------------------------
+  Estilos para o banner principal da página,
+  incluindo o carrossel, texto e botões de ação.
+*/
+.hero {
+  position: relative;
+  z-index: 100;
+  --landing-hero-height: clamp(420px, 60vh, 740px);
+  --landing-hero-carousel-ratio: 70%;
+  min-height: var(--landing-hero-height);
+  width: 100%;
+  max-width: 100%;
+  height: 30%;
+  overflow: hidden;
+  display: grid;
+}
+
+.hero.is-fullscreen {
+  --landing-hero-height: 100vh;
+}
+
+.hero > * {
+  position: relative;
+}
+
+/*
+  CARROSSEL (HERO SLIDES)
+  ---------------------------------
+  Estilos para a funcionalidade do carrossel em si,
+  com slides, transições, controles e indicadores.
+*/
+.hero-slides,
+.carrossel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: var(--pv-carousel-min-height);
+  overflow: hidden;
+}
+
+/* Forçar container de texto a ficar dentro das slides */
+.hero-slides .container-texto-carrossel {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* texto não bloqueia controles laterais */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem clamp(1rem, 3vw, 3rem);
+  z-index: 50;
+}
+
+.hero-slides .container-texto-carrossel .hero-caixa { pointer-events: auto; }
+
+/* Header full width override (navbar) */
+.barra-topo { width:100%; margin:0; padding:0; }
+.barra-topo > .pill-nav, .barra-topo .nav-wrapper { max-width:none !important; }
+
+/* Caso page-shell envolva header em outras páginas impedir restrição */
+header .page-shell, .barra-topo .page-shell { max-width:none; padding-left:0; padding-right:0; }
+
+.hero-slides--grande,
+.hero-slides--medio,
+.hero-slides--pequeno,
+.hero-slides--tela {
+  --pv-carousel-min-height: 480px;
+}
+
+.hero-slides > .hero-track,
+.hero-slides > .carrossel__faixas {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Transição de slides verticais */
+.hero-slides--vertical > .hero-track .hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: all 0.8s ease-in-out;
+}
+
+.hero-slides--vertical > .hero-track .hero-slide.ativo {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Efeito de fundo e animação */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top center;
+  animation: pv-verticalSlide 12s ease-in-out infinite;
+}
+
+@keyframes pv-verticalSlide {
+  0% {
+    background-position: top center;
+  }
+  50% {
+    background-position: bottom center;
+  }
+  100% {
+    background-position: top center;
+  }
+}
+
+/* Overlay do carrossel */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--landing-hero-overlay);
+}
+
+/* Pontos de navegação (dots) */
+.hero-dots {
+  position: absolute;
+  bottom: 1rem;
+  z-index: 3;
+  padding: 0 70vh;
+}
+
+.hero-dots button {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: transparent;
+  opacity: .6;
+  transition: var(--pv-transition-fast);
+}
+
+.hero-dots button.ativo {
+  opacity: 1;
+  background: #fff;
+  transform: scale(1.2);
+}
+
+/* Controles de navegação e pausa */
+.hero-control,
+.hero-pause {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, .42);
+  color: #fff;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: var(--pv-transition);
+  font-size: 1.1rem;
+  line-height: 1;
+  outline: none;
+  position: absolute;
+  z-index: 100;
+}
+
+.hero-control--prev {
+  left: .5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.hero-control--next {
+  right: .5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.hero-pause {
+  bottom: .75rem;
+  right: .75rem;
+  top: auto;
+  transform: none;
+  width: 46px;
+  height: 46px;
+  font-size: .95rem;
+  font-weight: 600;
+}
+
+.hero-control:hover,
+.hero-pause:hover {
+  background: rgba(0, 0, 0, .65);
+}
+
+/*
+  CONTEÚDO DO HERO (TEXTO E AÇÕES)
+  ---------------------------------
+  Estilos para o texto sobreposto ao carrossel.
+*/
+.container-texto-carrossel,
+.hero-caixa {
+  position: relative;
+  z-index: 3;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: clamp(1.5rem, 4vh, 3rem) 2rem;
+  gap: 1.25rem;
+}
+
+.container-texto-carrossel {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-titulo {
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  line-height: 1.05;
+  margin: 0 0 .75rem;
+  font-weight: 800;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, .3);
+}
+
+.hero-subtitulo {
+  font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+  margin: 0 auto 1.75rem;
+  opacity: .95;
+  max-width: 640px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+}
+
+.hero-caixa {
+  max-width: 760px;
+  width: 100%;
+  margin-left: auto;
+}
+
+.hero-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.hero-acoes--dir {
+  justify-content: flex-end;
+}
+
+/* Estilos dos botões do hero */
+.hero-acoes .botao {
+  padding: .875rem 2rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  border-radius: var(--pv-radius-lg);
+  text-decoration: none;
+  transition: var(--pv-transition);
+}
+
+.hero-acoes .botao--primario {
+  background: var(--pv-primary);
+  color: #fff;
+  border: 2px solid var(--pv-primary);
+}
+
+.hero-acoes .botao--primario:hover {
+  background: var(--pv-primary-dark);
+  border-color: var(--pv-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--pv-shadow-lg);
+}
+
+.hero-acoes .botao--claro {
+  background: transparent;
+  color: #fff;
+  border: 2px solid #fff;
+}
+
+.hero-acoes .botao--claro:hover {
+  background: #fff;
+  color: var(--pv-primary);
+  transform: translateY(-2px);
+}
+
+/*
+  PROVAS SOCIAIS
+  ---------------------------------
+  Estilos para a seção de selos e textos de destaque
+  logo abaixo do hero.
+*/
+.selo {
+  font-size:.7rem;
+  color:#5a646d;
+}
+
+.selo--amarelo {
+  color: #ffc107;
+}
+
+.selo--azul {
+  color: #2196f3;
+}
+
+.selo--verde {
+  color: #4caf50;
+}
+
+/*
+  RECURSOS PRINCIPAIS
+  ---------------------------------
+  Estilos para os cards de recursos.
+*/
+.feature-card {
+  text-decoration: none;
+}
+
+.feature-icon {
+  margin-bottom: .75rem;
+}
+
+.feature-card .card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.feature-card .card-text {
+  color: #5a646d;
+  font-size: .9rem;
+}
+
+/*
+  CTA FINAL
+  ---------------------------------
+  Estilos para a seção de call-to-action final.
+*/
+.cta-section {
+  background-color: #f8f9fa;
+  padding: 3rem;
+}
+
+/*
+  UTILITIES E RESPONSIVIDADE
+  ---------------------------------
+  Classes de utilidade reutilizáveis e media queries.
+*/
+.page-shell {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.flexo {
+  display: flex;
+}
+
+.flexo.quebra {
+  flex-wrap: wrap;
+}
+
+.justifica-entre {
+  justify-content: space-between;
+}
+
+.justifica-fim {
+  justify-content: flex-end;
+}
+
+.alinha-centro {
+  align-items: center;
+}
+
+.texto-centro {
+  text-align: center;
+}
+
+.peso-forte {
+  font-weight: 800;
+}
+
+.mb-sm {
+  margin-bottom: 0.5rem;
+}
+
+.mb-md {
+  margin-bottom: 1rem;
+}
+
+.gap-md {
+  gap: 1rem;
+}
+
+.gap-lg {
+  gap: 1.5rem;
+}
+
+.pt-sm {
+  padding-top: 1rem;
+}
+
+.pb-sm {
+  padding-bottom: 1rem;
+}
+
+.pt-xl {
+  padding-top: 4rem;
+}
+
+.pb-xl {
+  padding-bottom: 4rem;
+}
+
+.esconde {
+  display: none;
+}
+
+.md-mostra {
+  display: block;
+}
+
+@media (max-width: 700px) {
+  .hero {
+    --landing-hero-height: clamp(360px, 70vh, 640px);
+  }
+}

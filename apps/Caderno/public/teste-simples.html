@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editor Simples - Teste</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 20px; }
+      .app { max-width: 800px; margin: 0 auto; }
+      .header { background: #4F46E5; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+      .content { background: white; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; }
+      .btn { background: #4F46E5; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin: 5px; }
+      .btn:hover { background: #3730A3; }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="app">
+        <div class="header">
+          <h1>📝 Editor Caderno - Teste Simples</h1>
+          <p>Status: {{ status }}</p>
+        </div>
+
+        <div class="content">
+          <h2>🎉 Vue 3 funcionando!</h2>
+          <p>Contador: {{ contador }}</p>
+          <button @click="incrementar" class="btn">Incrementar</button>
+          <button @click="mostrarEditor" class="btn">Mostrar Editor</button>
+
+          <div v-if="editorVisivel" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 6px;">
+            <h3>📝 Editor de Texto</h3>
+            <div contenteditable="true"
+                 style="border: 1px solid #ccc; padding: 10px; min-height: 200px; background: white; border-radius: 4px;"
+                 @input="textoMudou">
+              Digite aqui seu texto...
+            </div>
+            <p style="margin-top: 10px; color: #666;">Caracteres: {{ texto.length }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const { createApp, ref } = Vue;
+
+      createApp({
+        setup() {
+          const status = ref('✅ Ativo');
+          const contador = ref(0);
+          const editorVisivel = ref(false);
+          const texto = ref('');
+
+          const incrementar = () => {
+            contador.value++;
+            status.value = `🚀 Clicou ${contador.value} vezes!`;
+          };
+
+          const mostrarEditor = () => {
+            editorVisivel.value = !editorVisivel.value;
+          };
+
+          const textoMudou = (event) => {
+            texto.value = event.target.innerText;
+          };
+
+          return {
+            status,
+            contador,
+            editorVisivel,
+            texto,
+            incrementar,
+            mostrarEditor,
+            textoMudou
+          };
+        }
+      }).mount('#app');
+    </script>
+  </body>
+</html>

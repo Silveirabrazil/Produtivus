@@ -1,0 +1,194 @@
+@use '../abstracts' as *;
+
+// Baseline de layout para páginas internas (fora landing, header e footer já definidos)
+// Objetivos:
+// - Garantir que o conteúdo principal expanda visualmente de forma organizada
+// - Remover sensação de "container espremido" adotando largura consistente
+// - Fornecer utilitários estruturais (.page-shell, .page-header, .page-section)
+// - Não interferir em componentes específicos já estilizados (cards, hero, etc.)
+@mixin render() {
+  :root {
+    --pv-page-max: 1280px; // fallback, se já existir mantém
+    --pv-page-side-padding: clamp(1rem, 2.2vw, 2.25rem);
+    --pv-page-vertical-gap: clamp(1rem, 2.6vw, 2.75rem);
+    --pv-page-section-gap: clamp(1.25rem, 3.2vw, 3.5rem);
+  }
+
+  /* Contêiner estrutural expandido que ocupa largura total mas centraliza conteúdo interno */
+  .page-shell {
+    width: 100%;
+    margin-inline: auto;
+    padding-left: var(--pv-page-side-padding);
+    padding-right: var(--pv-page-side-padding);
+    max-width: calc(var(--pv-page-max) + (var(--pv-page-side-padding) * 2));
+
+  }
+
+  /* Cabeçalho de página (títulos, breadcrumbs, ações) */
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    margin-bottom: clamp(0.75rem, 1.5vw, 1.5rem);
+  }
+  .page-header__title {
+    margin: 0;
+    line-height: 1.15;
+    font-weight: 600;
+  }
+  .page-header__subtitle { color: var(--bs-secondary-color, #6c757d); margin: 0; }
+  .page-header__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+  /* Seções principais – espaçamento vertical consistente */
+  .page-section {
+    position: relative;
+    margin-bottom: var(--pv-page-section-gap);
+  }
+  /* Variante sem padding lateral/extra */
+  .page-section--flush {
+    padding: 0 !important;
+  }
+  .page-section:last-child { margin-bottom: 0; }
+  .page-section__title { margin: 0 0 .75rem; font-size: clamp(1.1rem, 1.4rem + .5vw, 1.65rem); font-weight: 600; }
+  .page-section__desc { margin: -.25rem 0 1rem; color: var(--bs-secondary-color, #6c757d); }
+
+  /* Quebra de colunas utilitária (grid adaptável) */
+  .page-grid { --pg-gap: 1.25rem; display: grid; gap: var(--pg-gap); }
+  .page-grid--2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
+  .page-grid--3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+
+  /* Ajustar containers bootstrap dentro do main quando combinados com page-shell */
+  #main-content > .container, #main-content > .container-fluid {
+    padding-left: var(--pv-page-side-padding);
+    padding-right: var(--pv-page-side-padding);
+    max-width: calc(var(--pv-page-max) + (var(--pv-page-side-padding) * 2));
+  }
+
+  /* Estados de overflow horizontal indesejado (ex: long tables) */
+  .page-overflow-x { width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+
+  /* Espaçamento inferior global antes do footer */
+  #main-content { padding-bottom: clamp(2.5rem, 5vw, 4.5rem); }
+
+  /* Responsivo refinado */
+  @include mobile {
+    .page-header { gap: .5rem; }
+    .page-header__actions { gap: .4rem; }
+    .page-grid { --pg-gap: 1rem; }
+  }
+
+  /* ============================ */
+  /* Animações de entrada globais */
+  /* ============================ */
+  /* Fade-in suave do corpo da página para evitar flash
+     Observação: somente ativado quando .preload está presente
+     para não ocultar conteúdo em caso de falha de JS. */
+  body.page-animate.preload {
+    opacity: 0;
+  }
+  body.page-animate.is-ready {
+    opacity: 1;
+    transition: opacity .28s var(--pv-transition, ease);
+  }
+  /* Transições entre páginas (coordenadas por js/modules/page-transitions.js) */
+  body.page-animate.page-enter { opacity: 0; }
+  body.page-animate.page-enter.ready { opacity: 1; transition: opacity .24s var(--pv-transition, ease); }
+  body.page-animate.page-exit { opacity: 0; transition: opacity .24s var(--pv-transition, ease); }
+  @media (prefers-reduced-motion: reduce) {
+    body.page-animate.preload { opacity: 1; }
+    body.page-animate.is-ready { transition: none; }
+    body.page-animate.page-enter.ready, body.page-animate.page-exit { transition: none; }
+  }
+
+  @keyframes pvFadeSlideUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Importante: só aplicar animação se a página já sinalizou "carregado".
+     Evita páginas vazias caso o JS falhe ou seja bloqueado. */
+  .page-animate.is-ready .page-section {
+    animation: pvFadeSlideUp .6s var(--pv-transition, ease) forwards;
+    animation-delay: var(--pv-anim-delay, 0s);
+    will-change: opacity, transform;
+  }
+  /* Estado inicial SEM forçar invisibilidade (acessível mesmo sem JS) */
+  .page-section { opacity: 1; transform: none; }
+  /* Escalonamento: até 10 seções */
+  .page-animate.is-ready .page-section:nth-of-type(1) { --pv-anim-delay: .05s; }
+  .page-animate.is-ready .page-section:nth-of-type(2) { --pv-anim-delay: .12s; }
+  .page-animate.is-ready .page-section:nth-of-type(3) { --pv-anim-delay: .18s; }
+  .page-animate.is-ready .page-section:nth-of-type(4) { --pv-anim-delay: .24s; }
+  .page-animate.is-ready .page-section:nth-of-type(5) { --pv-anim-delay: .30s; }
+  .page-animate.is-ready .page-section:nth-of-type(6) { --pv-anim-delay: .36s; }
+  .page-animate.is-ready .page-section:nth-of-type(7) { --pv-anim-delay: .42s; }
+  .page-animate.is-ready .page-section:nth-of-type(8) { --pv-anim-delay: .48s; }
+  .page-animate.is-ready .page-section:nth-of-type(9) { --pv-anim-delay: .54s; }
+  .page-animate.is-ready .page-section:nth-of-type(10) { --pv-anim-delay: .60s; }
+
+  /* Opt-out */
+  .page-section--no-anim { animation: none !important; opacity: 1 !important; transform: none !important; }
+
+  /* Acessibilidade: reduzir movimento */
+  @media (prefers-reduced-motion: reduce) {
+    .page-animate .page-section { animation: none !important; opacity: 1 !important; transform: none !important; }
+  }
+
+  /* ============================ */
+  /* AJUSTES ESPECÍFICOS DE LAYOUT*/
+  /* ============================ */
+  /* Estudos: host das ferramentas (timer + flashcards) deve virar grid responsivo */
+  .studies-tools {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+    align-items: start;
+    width: 100%;
+  }
+
+  /* Tarefas: container genérico de cards reutilizável */
+  .cards-grid {
+    --cards-min: 260px; /* pode sobrescrever em páginas futuras */
+    display: grid;
+    gap: 1rem 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--cards-min)), 1fr));
+    align-items: stretch;
+  }
+
+  /* Cadernos: permitir que o editor ocupe mais largura e remover restrições que criam "faixa" vazia */
+  .cadernos-layout .notebooks-wrap {
+    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+    width: 100%;
+    max-width: none; /* retirar limite artificial */
+    margin: 0; /* já há padding vindo da page-shell */
+  }
+  .cadernos-layout .nb-editor { width: 100%; min-width: 0; }
+  .cadernos-layout .nb-main { min-width: 0; }
+
+  /* Responsivo: em telas menores empilhar sidebar acima do editor */
+  @media (max-width: 900px) {
+    .cadernos-layout .notebooks-wrap { grid-template-columns: 1fr; }
+  }
+
+  /* ============================================= */
+  /* OVERRIDES ESPECÍFICOS: conflito app Planilhas */
+  /* O bundle de planilhas injeta redefinições genéricas de .navbar.    */
+  /* Reforçamos o header global usando um escopo > body.page-animate etc */
+  /* Header global – reforçar contra overrides do bundle de Planilhas */
+  body #header-container > .container-fluid, body #header-container > .container { padding:0 !important; }
+  /* Normalizamos apenas estrutura mínima; estilos visuais agora centralizados em components/_navbar.scss (underline) */
+  body #header-container .navbar { padding:0 !important; min-height:56px; display:flex; align-items:stretch; box-shadow:none !important; }
+  body #header-container .navbar-nav { flex-direction:row; }
+  body #header-container .navbar-nav .nav-link { display:flex; align-items:center; height:56px; padding:0 1.05rem; font-weight:500; font-size:.95rem; background:transparent !important; box-shadow:none !important; }
+  /* Remove variação antiga de fundo colorido; active state visual (underline/cor) vem do arquivo de navbar principal */
+  body #header-container .navbar-brand { display:flex; align-items:center; padding:0 .75rem; margin-right:.5rem; }
+  body #header-container .navbar-brand img { height:40px; width:auto; }
+
+  /* Neutralizar variáveis customizadas que o bundle de planilhas injeta para .navbar */
+  body #header-container .navbar { --bs-nav-link-font-size: .95rem !important; }
+  body #header-container .navbar .nav-link { font-size:var(--bs-nav-link-font-size); }
+
+  /* Escopo do app de planilhas: restringir customizações internas só dentro do container do app */
+  #sheets-vue-app .navbar, #sheets-vue-app .navbar .nav-link { all: revert; }
+  /* Se o app precisar de barra própria, ele pode criar .sheets-toolbar em vez de reutilizar .navbar */
+}

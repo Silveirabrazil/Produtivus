@@ -1,0 +1,94 @@
+/* Utilidades PT-BR (substituem gradualmente utilitários bootstrap) */
+/* Display / Flex */
+.flexo { display:flex !important; }
+.flexo-coluna { flex-direction:column !important; }
+.quebra { flex-wrap:wrap !important; }
+
+/* Alinhamentos */
+.alinha-centro { align-items:center !important; }
+.alinha-inicio { align-items:flex-start !important; }
+.alinha-fim { align-items:flex-end !important; }
+.justifica-centro { justify-content:center !important; }
+.justifica-entre { justify-content:space-between !important; }
+.justifica-fim { justify-content:flex-end !important; }
+
+/* Gap (escala curta) */
+.gap-xxs { gap:.25rem !important; }
+.gap-xs { gap:.375rem !important; }
+.gap-sm { gap:.5rem !important; }
+.gap-md { gap:.75rem !important; }
+.gap-lg { gap:1rem !important; }
+.gap-xl { gap:1.5rem !important; }
+
+/* Espaçamentos verticais simplificados (apenas o necessário para migração atual) */
+.mb-0 { margin-bottom:0 !important; }
+.mb-sm { margin-bottom:.5rem !important; }
+.mb-xs { margin-bottom:.25rem !important; }
+.mb-md { margin-bottom:1rem !important; }
+.mb-lg { margin-bottom:1.5rem !important; }
+.mb-xl { margin-bottom:2rem !important; }
+.pb-sm { padding-bottom:.5rem !important; }
+.pb-md { padding-bottom:1rem !important; }
+.mt-sm { margin-top:.5rem !important; }
+.px-md { padding-left:1rem !important; padding-right:1rem !important; }
+.pt-md { padding-top:1rem !important; }
+.pb-md { padding-bottom:1rem !important; }
+.pt-sm { padding-top:.5rem !important; }
+.pt-md { padding-top:1rem !important; }
+.pt-lg { padding-top:1.5rem !important; }
+.pt-xl { padding-top:2rem !important; }
+.px-sm { padding-left:.5rem !important; padding-right:.5rem !important; }
+.px-md { padding-left:1rem !important; padding-right:1rem !important; }
+.px-lg { padding-left:1.5rem !important; padding-right:1.5rem !important; }
+.py-lg { padding-top:1.5rem !important; padding-bottom:1.5rem !important; }
+.py-xl { padding-top:2rem !important; padding-bottom:2rem !important; }
+
+/* Exibição condicional (substitui d-none d-md-block) */
+.esconde { display:none !important; }
+@media (min-width:768px){ .md-mostra { display:block !important; } }
+@media (min-width:768px){ .md-flexo { display:flex !important; } }
+
+/* Texto utilitário */
+.texto-centro { text-align:center !important; }
+@media (min-width:992px){ .texto-lg-fim { text-align:right !important; } }
+
+/* Altura mínima viewport */
+.min-altura-75 { min-height:75vh !important; }
+
+/* Controle de wrap */
+.sem-quebra { flex-wrap:nowrap !important; }
+
+/* Posições */
+.pos-relativa { position:relative !important; }
+
+/* Botão claro (equivalente outline-light) - somente quando fundo escuro */
+.botao--claro { background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.4); }
+.botao--claro:hover { background:rgba(255,255,255,.22); }
+
+/* Botão grande (equivalente .btn-lg) */
+.botao--grande { padding:.85rem 1.55rem; font-size:1rem; }
+
+/* Borda utilitária leve */
+.borda-inferior { border-bottom:1px solid var(--linha-suave,#e2e6e9) !important; }
+
+/* Helpers */
+.oculto { display:none !important; }
+.inline-flexo { display:inline-flex !important; }
+
+/* Texto utilitário adicional */
+.texto-fraco { color: var(--color-text-muted, #6b7175) !important; }
+.texto-miudo { font-size: .8rem !important; }
+
+/* Tipografia destacada (equivalente display-5 / lead / fw-bold) */
+.titulo-destaque { font-size:2.25rem; line-height:1.15; font-weight:600; }
+@media (min-width:992px){ .titulo-destaque { font-size:2.6rem; } }
+.texto-destaque { font-size:1.05rem; line-height:1.5; }
+.peso-forte { font-weight:600 !important; }
+
+/* Badge substituto rápido */
+.selo { display:inline-block; background:#eee; color:#333; padding:.25rem .6rem; border-radius:1rem; font-size:.65rem; letter-spacing:.05em; font-weight:500; }
+.selo--amarelo { background:#ffecb3; color:#775d00; }
+.selo--azul { background:#d0e8ff; color:#1a4d78; }
+.selo--verde { background:#ccebd8; color:#1d5e3c; }
+
+/* TODO: Expandir conforme outras páginas exigirem novas variantes */

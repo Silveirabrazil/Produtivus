@@ -1,0 +1,4 @@
+// Mixins mínimos e claros
+@mixin flex-center($gap:.5rem){display:flex;align-items:center;justify-content:center;gap:$gap;}
+@mixin text-truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+@mixin scroll-y{overflow-y:auto;-webkit-overflow-scrolling:touch;}

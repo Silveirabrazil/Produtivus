@@ -29,7 +29,7 @@ Produtivus-3.0.0.0/
 │   ├── mindmaps/               # Editor de mapas mentais
 │   └── sheets/                 # Editor de planilhas
 ├── 📁 css/                     # Estilos e recursos visuais
-│   ├── styles.css              # CSS compilado
+│   ├── app.css                 # CSS compilado (novo entrypoint)
 │   ├── fonts/                  # Fontes personalizadas
 │   ├── fullcalendar/          # Estilos do calendário
 │   └── scss/                   # Código fonte SCSS
@@ -49,6 +49,10 @@ Produtivus-3.0.0.0/
 │   ├── diagnostic.php          # Diagnóstico do sistema
 │   ├── verify-sheets.php       # Verificação de planilhas
 │   └── tests/                  # Testes automatizados
+├── 📁 scripts/                 # Scripts utilitários
+│   └── deploy/                 # Scripts de deploy
+│       ├── deploy-sheets.ps1   # Deploy das planilhas (Windows)
+│       └── deploy-sheets.sh    # Deploy das planilhas (Unix)
 ├── 📁 inc/                     # Includes e componentes
 ├── 📁 img/                     # Imagens e assets
 ├── 📁 logs/                    # Logs da aplicação
@@ -90,7 +94,9 @@ Produtivus-3.0.0.0/
    php server/start-server.php
    ```
 
-5. **Build das aplicações**
+5. **Scripts úteis**
+   - Deploy das planilhas: `scripts/deploy/deploy-sheets.ps1` (Windows) ou `scripts/deploy/deploy-sheets.sh` (Unix)
+   - Inicialização de dados (dev): `server/init-database.php`
    ```bash
    npm run build:css
    npm --prefix apps/mindmaps run build

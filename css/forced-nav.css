@@ -1,0 +1,29 @@
+/* forced-nav.css — (TRANSIÇÃO REDUZIDA)
+   Objetivo agora: manter apenas tokens e micro-fallbacks enquanto confirmamos que
+   components/_navbar.scss cobre 100% dos cenários. Assim diminuímos o risco de
+   ter "duas" fontes de verdade. Quando validado em todas as páginas, este
+   arquivo poderá ser removido por completo.
+*/
+:root {
+  /* Paleta base (ajuste aqui centralmente) */
+  --nav-bg: #ffffff;
+  --nav-border: #3A9FA9;
+  --nav-link-color: #2d2d2d;
+  --nav-link-active-bg: #3A9FA9;
+  --nav-link-active-color: #ffffff;
+  --nav-link-hover-bg: #e7f5f7;
+  --nav-link-hover-color: #2d2d2d;
+  --nav-height: 60px;
+}
+
+/* Regras principais migradas para components/_navbar.scss.
+   Manteremos apenas alguns guard rails de neutralização caso bundles externos ainda injetem algo inesperado. */
+
+/* Neutralização leve (evitar fundos/gradientes legados) */
+.navbar, .navbar * { background-image:none !important; }
+
+/* Caso algum bundle aplique border-radius ou background nos links, limpamos silenciosamente */
+.navbar .nav-link { border-radius:0 !important; background:transparent !important; }
+
+/* Modo escuro mínimo (usará mesma estrutura de underline) */
+body.dark .navbar { background:#1d1d1d !important; }

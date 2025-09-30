@@ -13,6 +13,7 @@ $protectedPages = [
     'calendario.html',
     'estudos.html',
     'cadernos.html',
+    'cadernos-novo.html',
     'planilhas.html',
     'mapas.html',
     'subjects.html'

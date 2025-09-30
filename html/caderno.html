@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cadernos • Produtivus</title>
+  <link rel="icon" href="../img/icone.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="../css/app.css?v=20250929-5" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+</head>
+
+<body class="page-animate">
+  <div id="header-container" class="container-fluid p-0"></div>
+  <main id="main-content" class="app-main">
+    <header class="page-header page-header--band cabecalho-page">
+      <h1 class="page-header__title">
+        Cadernos
+        <span class="page-header__icon" aria-hidden="true">
+          <span class="material-symbols-outlined">menu_book</span>
+        </span>
+      </h1>
+      <p class="page-header__subtitle m-0">Organize e edite anotações com um editor moderno.</p>
+    </header>
+  <section class="page-section page-section--flush">
+      <div id="app"></div>
+    </section>
+  </main>
+  <div id="footer-container" class="container-fluid mt-4"></div>
+
+  <script src="../js/config/api-endpoints.js"></script>
+  <script src="../js/modules/header.js?v=20250923" defer></script>
+  <script src="../js/modules/footer.js?v=20250923" defer></script>
+  <script src="../js/modules/login-modal.js" defer></script>
+  <script src="../js/modules/error-handler.js?v=202509151726" defer></script>
+  <script src="../js/modules/route-guard.js?v=202509151726" defer></script>
+  <script src="../js/protect.js?v=202509151726" defer></script>
+  <script src="../js/main.js?v=20250924" defer></script>
+  <script type="module" crossorigin src="../apps/Caderno/index-somFzWcP.js"></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){ document.body.classList.add('is-ready'); });</script>
+</body>
+
+</html>

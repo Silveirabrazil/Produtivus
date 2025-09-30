@@ -1,0 +1,90 @@
+/* COMPONENTE: Avisos (Toasts)
+	 Sistema de notificações empilhadas no canto superior direito.
+	 Sem dependência de Bootstrap. Classes semânticas PT-BR. */
+
+#pv-avisos, .avisos {
+	position: fixed;
+	top: 0;
+	right: 0;
+	display: flex;
+	flex-direction: column;
+	gap: .5rem;
+	padding: .75rem;
+	z-index: 1200;
+	pointer-events: none; /* container não captura cliques fora dos avisos */
+}
+
+#pv-avisos:empty { display:none; }
+
+#pv-avisos .aviso {
+	pointer-events: auto;
+	min-width: 240px;
+	max-width: 380px;
+	background: var(--aviso-bg, #222);
+	color: var(--aviso-fg, #fff);
+	padding: .65rem .9rem .65rem .9rem;
+	border-radius: 8px;
+	box-shadow: 0 4px 14px rgba(0,0,0,.35);
+	font-size: .85rem;
+	line-height: 1.35;
+	display: flex;
+	gap: .55rem;
+	align-items: flex-start;
+	position: relative;
+	overflow: hidden;
+	animation: aviso-enter .34s cubic-bezier(.34,.97,.36,1.02);
+}
+
+#pv-avisos .aviso:focus-within { outline: 2px solid var(--aviso-focus, #6fb3ff); outline-offset: 2px; }
+
+#pv-avisos .aviso__icone { font-size: 1.1rem; line-height: 1; margin-top: 2px; opacity:.9; }
+#pv-avisos .aviso__conteudo { flex:1 1 auto; }
+#pv-avisos .aviso__fechar {
+	background: transparent;
+	border: 0;
+	color: inherit;
+	cursor: pointer;
+	font-size: 1rem;
+	line-height: 1;
+	padding: 2px 4px;
+	border-radius: 4px;
+	transition: background .16s;
+}
+#pv-avisos .aviso__fechar:hover,
+#pv-avisos .aviso__fechar:focus { background: rgba(255,255,255,.12); }
+
+/* Variantes semânticas */
+#pv-avisos .aviso--sucesso { --aviso-bg:#155d34; --aviso-fg:#e8fff1; }
+#pv-avisos .aviso--erro { --aviso-bg:#7d1321; --aviso-fg:#ffecef; }
+#pv-avisos .aviso--alerta { --aviso-bg:#7a4a00; --aviso-fg:#fff7e6; }
+#pv-avisos .aviso--info { --aviso-bg:#0f385f; --aviso-fg:#e2f2ff; }
+
+/* Barra de vida opcional */
+#pv-avisos .aviso[data-timeout]::after {
+	content:'';
+	position:absolute;
+	left:0;
+	bottom:0;
+	height:3px;
+	width:100%;
+	background:rgba(255,255,255,.35);
+	animation: aviso-barra linear forwards;
+	animation-duration: attr(data-timeout ms); /* browsers que não suportam ignoram */
+}
+
+/* Motion reduce */
+@media (prefers-reduced-motion: reduce){
+	#pv-avisos .aviso { animation:none; }
+	#pv-avisos .aviso[data-timeout]::after { animation:none; }
+}
+
+@keyframes aviso-enter {
+	0% { transform: translateY(-14px) scale(.96); opacity:0; }
+	60% { transform: translateY(3px) scale(1.01); opacity:1; }
+	100% { transform: translateY(0) scale(1); opacity:1; }
+}
+
+@keyframes aviso-barra {
+	from { width:100%; }
+	to { width:0%; }
+}

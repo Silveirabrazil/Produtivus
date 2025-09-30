@@ -1,0 +1,11 @@
+@use './display' as display;
+@use './spacing' as spacing;
+@use './text' as text;
+@use './overrides' as overrides;
+@use './editor' as editor;
+
+@mixin render() {
+  // Utilities usually emit global classes directly; if these files only define classes,
+  // including them here has no effect. They can remain as simple files without mixins.
+  // Leaving this empty to preserve emission order via direct content in partials.
+}

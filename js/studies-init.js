@@ -20,34 +20,6 @@
       if (hubHost && window.pvStudiesHub?.mount) window.pvStudiesHub.mount(hubHost);
     } catch{}
 
-    // Normalização: aplicar Bootstrap nos botões dentro de Estudos
-    function normalizeStudyButtons(root){
-      const scope = root || document;
-      const sel = 'button, input[type="button"], input[type="submit"], a[role="button"]';
-      const items = (scope instanceof Element ? scope : document).querySelectorAll(sel);
-      items.forEach(el=>{
-        // pular tabs e controles que não devem ser estilizados como .btn
-          if (el.classList.contains('estudos-tab') || el.classList.contains('tab') || el.closest('.estudos-tab, .tabs')) return;
-          // pular controles de modal/Bootstrap que usam classes ou atributos próprios
-          if (el.classList.contains('btn-close') || el.hasAttribute('data-bs-dismiss') || el.hasAttribute('data-bs-toggle') || el.closest('.modal')) return;
-          // se o elemento já tem uma variante de btn (ex.: btn-outline-*, btn-danger) ou 'btn' presente, não sobrescrever
-          const hasBtnVariant = Array.from(el.classList).some(c => c === 'btn' || c === 'btn-sm' || c.startsWith('btn-'));
-          if (!hasBtnVariant) {
-            el.classList.add('btn','btn-sm','btn-primary');
-          }
-      });
-    }
-
-    // aplicar imediatamente e observar mudanças dinâmicas
-    try { normalizeStudyButtons(document.getElementById('main-content') || document); } catch {}
-    try {
-      const obsTarget = document.getElementById('main-content') || document.body;
-      const mo = new MutationObserver(muts=>{
-        for (const m of muts){
-          for (const n of m.addedNodes){ if (n.nodeType === 1) normalizeStudyButtons(n); }
-        }
-      });
-      mo.observe(obsTarget, { childList: true, subtree: true });
-    } catch {}
+    // (Removido) rotina de normalização de botões Bootstrap — design system próprio assume estilos
   });
 })();

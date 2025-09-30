@@ -8,19 +8,11 @@
   function pxToCm(px){ return Math.max(0, (parseFloat(px)||0) / PX_PER_CM); }
 
   function ensureHeaderFooter(root){
+    // Removemos o cabeçalho por solicitação: não criar, e se existir, remover.
     let header = root.querySelector('[data-editor-header]');
     let footer = root.querySelector('[data-editor-footer]');
     const area = root.querySelector('[data-editor-area]');
-    if (!header) {
-      header = document.createElement('div');
-      header.className = 'editor-header form-control';
-      header.setAttribute('contenteditable', 'true');
-      header.setAttribute('data-editor-header','');
-      header.setAttribute('role','textbox');
-      header.setAttribute('aria-label','Cabeçalho');
-      header.hidden = true; // inicia oculto
-      area.parentElement.insertBefore(header, area);
-    }
+    if (header) { try { header.remove(); } catch(e){} header = null; }
     if (!footer) {
       footer = document.createElement('div');
       footer.className = 'editor-footer form-control';
@@ -100,9 +92,9 @@
     const s = getSettings(root);
     area.style.paddingLeft = cmToPx(s.marginLeftCm)+'px';
     area.style.paddingRight = cmToPx(s.marginRightCm)+'px';
-    header.style.marginBottom = cmToPx(s.marginTopCm)+'px';
-    footer.style.marginTop = cmToPx(s.marginBottomCm)+'px';
-    header.hidden = !s.showHeader; footer.hidden = !s.showFooter;
+  // Sem cabeçalho: apenas aplica rodapé
+  footer.style.marginTop = cmToPx(s.marginBottomCm)+'px';
+  if (footer) footer.hidden = !s.showFooter;
     // first line: aplica em parágrafos do corpo via CSS inline no area
     area.style.textIndent = s.firstLineCm ? (cmToPx(s.firstLineCm)+'px') : '';
     positionHandles(root);
@@ -174,15 +166,15 @@
   }
 
   function getCompositeHtml(root){
-    const { area, header, footer } = ensureHeaderFooter(root);
+  const { area, header, footer } = ensureHeaderFooter(root);
     const s = getSettings(root);
-    const meta = `<!--pv:page-settings:${encodeURIComponent(JSON.stringify(s))}-->`;
-    return meta + `\n<section data-editor-header>${header.innerHTML||''}</section>\n<section data-editor-body>${area.innerHTML||''}</section>\n<section data-editor-footer>${footer.innerHTML||''}</section>`;
+  const meta = `<!--pv:page-settings:${encodeURIComponent(JSON.stringify(s))}-->`;
+  return meta + `\n<section data-editor-body>${area.innerHTML||''}</section>\n<section data-editor-footer>${footer.innerHTML||''}</section>`;
   }
 
   function setCompositeHtml(root, html){
-    const { area, header, footer } = ensureHeaderFooter(root);
-    if (!html) { area.innerHTML=''; header.innerHTML=''; footer.innerHTML=''; return; }
+  const { area, header, footer } = ensureHeaderFooter(root);
+  if (!html) { area.innerHTML=''; if (footer) footer.innerHTML=''; return; }
     try {
       const metaMatch = html.match(/<!--pv:page-settings:([^>]*)-->/);
       if (metaMatch) {
@@ -191,15 +183,14 @@
       }
     } catch(e){}
     const temp = document.createElement('div'); temp.innerHTML = html;
-    const h = temp.querySelector('[data-editor-header]');
     const b = temp.querySelector('[data-editor-body]');
     const f = temp.querySelector('[data-editor-footer]');
-    header.innerHTML = h ? h.innerHTML : '';
+    // Sem cabeçalho: ignora conteúdo de header
     area.innerHTML = b ? b.innerHTML : html; // fallback: inteiro vira corpo
     footer.innerHTML = f ? f.innerHTML : '';
   }
 
-  function toggleHeader(root){ const s = getSettings(root); setSettings(root, { showHeader: !s.showHeader }); }
+  function toggleHeader(root){ /* header desativado */ }
   function toggleFooter(root){ const s = getSettings(root); setSettings(root, { showFooter: !s.showFooter }); }
 
   function init(root){ ensureHeaderFooter(root); buildRuler(root); applySettings(root); window.addEventListener('resize', ()=> buildRuler(root)); }

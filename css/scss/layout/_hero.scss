@@ -1,0 +1,4 @@
+// Arquivo de HERO legado esvaziado. Conteúdo visual principal agora vive em
+// `components/_carousel.scss` (blocos .container-carrossel e .carrossel__*).
+// Mantido apenas para evitar quebra se @include hero.render() existir em algum branch.
+@mixin render() {}

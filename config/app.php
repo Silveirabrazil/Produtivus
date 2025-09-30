@@ -151,7 +151,8 @@ if (!defined('PRODUTIVUS_CONFIG_LOADED')) {
     class SecurityConfig {
         public static function get() {
             return [
-                'session_timeout' => (int) (getenv('SESSION_TIMEOUT') ?: 3600), // 1 hora
+                // Sessão padrão de 12 horas (pode ser alterada por env SESSION_TIMEOUT)
+                'session_timeout' => (int) (getenv('SESSION_TIMEOUT') ?: 43200),
                 'max_login_attempts' => (int) (getenv('MAX_LOGIN_ATTEMPTS') ?: 5),
                 'rate_limit_window' => (int) (getenv('RATE_LIMIT_WINDOW') ?: 300), // 5 minutos
                 'rate_limit_max' => (int) (getenv('RATE_LIMIT_MAX') ?: 100),

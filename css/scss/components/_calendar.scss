@@ -1,0 +1,100 @@
+/* CALENDÁRIO */
+
+  /* ========================= */
+  /* CALENDÁRIO                */
+  /* ========================= */
+
+  .calendar {
+    max-width: 1088px;
+    margin: 0 auto;
+    background: var(--panel, #fff);
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+    border: 1px solid rgba(0, 0, 0, .02);
+  }
+
+  .calendar .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    background: #365562;
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+
+  .calendar .cal-header .month-title {
+    font-weight: 800;
+    font-size: 28px;
+    color: #fff;
+    padding: 6px 0;
+    text-transform: capitalize;
+  }
+
+  .calendar .cal-header .cal-controls button {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border: 0;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .calendar .cal-header .cal-controls button:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  .calendar .cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .calendar .cal-weekdays div {
+    text-align: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: rgba(0, 0, 0, .6);
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--cal-border, #eee);
+  }
+
+  .calendar .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  .cal-cell {
+    background: #fff;
+    min-height: 104px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--cal-border, #eee);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    cursor: pointer;
+  }
+
+  .cal-cell.outside {
+    opacity: .4;
+    background: #fafafa;
+  }
+
+  .cal-cell:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .06);
+  }
+
+  .cal-cell .day-num {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text, #333);
+  }
+
+  .cal-cell.today { background: var(--cal-today-bg, #f5f9fb); border-color: rgba(54,85,98,.18); }

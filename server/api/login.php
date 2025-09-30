@@ -6,6 +6,11 @@ require_once __DIR__ . '/_session_bootstrap.php';
 include_once '../config/database.php';
 
 $data = json_decode(file_get_contents('php://input'));
+// Lê config de segurança e instala
+require_once __DIR__ . '/../../config/app.php';
+// Secret para assinar cookie de remember
+$installCfg = @json_decode(@file_get_contents(__DIR__ . '/../config/install.json'), true) ?: [];
+$rememberSecret = isset($installCfg['secret']) ? (string)$installCfg['secret'] : (getenv('REMEMBER_SECRET') ?: 'pv-remember-secret');
 
 if (empty($data->email) || empty($data->password)) {
     http_response_code(400);
@@ -25,7 +30,24 @@ if ($stmt->rowCount() > 0) {
     if (password_verify($data->password, $row['password'])) {
         $_SESSION['user_id'] = $row['id'];
         $_SESSION['user_name'] = $row['name'];
-        
+            $_SESSION['last_activity'] = time();
+
+            // Remember-me opcional
+            $remember = isset($data->remember) ? (bool)$data->remember : false;
+            if ($remember) {
+                $uid = (int)$row['id'];
+                $exp = time() + (86400 * 30); // 30 dias
+                $payload = $uid . ':' . $exp;
+                $sig = hash_hmac('sha256', $payload, $rememberSecret);
+                $token = $payload . ':' . $sig;
+                $secure = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off') || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])==='https');
+                $host = $_SERVER['HTTP_HOST'] ?? '';
+                $domain = '';
+                $main = '.cesarbrasilfotografia.com.br';
+                if ($host) { $h = strtolower($host); if (substr($h, -strlen($main)) === $main) { $domain = $main; } }
+                setcookie('PVREMEMBER', $token, [ 'expires'=>$exp, 'path'=>'/', 'domain'=>$domain ?: '', 'secure'=>$secure, 'httponly'=>true, 'samesite'=>'Lax' ]);
+            }
+
         echo json_encode([
             'success' => true,
             'message' => 'Login bem-sucedido.',

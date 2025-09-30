@@ -1,0 +1,8 @@
+@use './reset' as reset;
+@use './typography' as typography;
+
+// Expor um mixin agregador para renderizar toda a camada base de forma ordenada
+@mixin render() {
+  @include reset.render();
+  @include typography.render();
+}

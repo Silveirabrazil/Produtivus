@@ -2,10 +2,13 @@
 // Include this in protected endpoints to require a logged-in session
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/_session_bootstrap.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../../config/app.php';
 
-// Carrega configuração de segurança
+// Carrega configuração de segurança e dev
 require_once __DIR__ . '/../../config/app.php';
 $securityConfig = SecurityConfig::get();
+$devConfig = DevConfig::get();
 
 // Função para log de tentativas de acesso não autorizadas
 function logUnauthorizedAccess($reason, $endpoint = null) {
@@ -43,6 +46,49 @@ function checkSessionTimeout() {
 
     $_SESSION['last_activity'] = time();
     return true;
+}
+
+// Tenta reconstituir sessão a partir do cookie PVREMEMBER (remember-me)
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['PVREMEMBER'])) {
+  try {
+    $installCfg = @json_decode(@file_get_contents(__DIR__ . '/../config/install.json'), true) ?: [];
+    $rememberSecret = isset($installCfg['secret']) ? (string)$installCfg['secret'] : (getenv('REMEMBER_SECRET') ?: 'pv-remember-secret');
+    $token = (string)$_COOKIE['PVREMEMBER'];
+    $parts = explode(':', $token);
+    if (count($parts) === 3) {
+      list($uidStr, $expStr, $sig) = $parts;
+      $payload = $uidStr . ':' . $expStr;
+      $calc = hash_hmac('sha256', $payload, $rememberSecret);
+      if (hash_equals($calc, $sig) && ctype_digit($uidStr) && ctype_digit($expStr)) {
+        $uid = (int)$uidStr; $exp = (int)$expStr;
+        if ($exp > time() && $uid > 0) {
+          // Busca usuário
+          $st = $conn->prepare('SELECT id, name, email FROM users WHERE id=:id LIMIT 1');
+          $st->execute([':id'=>$uid]);
+          $u = $st->fetch(PDO::FETCH_ASSOC);
+          if ($u) {
+            $_SESSION['user_id'] = (int)$u['id'];
+            $_SESSION['user_name'] = (string)$u['name'];
+            $_SESSION['user_email'] = (string)$u['email'];
+            $_SESSION['last_activity'] = time();
+            $_SESSION['login_time'] = time();
+            // Renovar cookie por mais 30 dias
+            $newExp = time() + (86400 * 30);
+            $newPayload = $uid . ':' . $newExp;
+            $newSig = hash_hmac('sha256', $newPayload, $rememberSecret);
+            $secure = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off') || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])==='https');
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+            $domain = '';
+            $main = '.cesarbrasilfotografia.com.br';
+            if ($host) { $h = strtolower($host); if (substr($h, -strlen($main)) === $main) { $domain = $main; } }
+            setcookie('PVREMEMBER', $newPayload.':'.$newSig, [ 'expires'=>$newExp, 'path'=>'/', 'domain'=>$domain ?: '', 'secure'=>$secure, 'httponly'=>true, 'samesite'=>'Lax' ]);
+          }
+        }
+      }
+    }
+  } catch (Throwable $e) {
+    // Ignorar erros silenciosamente
+  }
 }
 
 // Dev auto-login via server/config/dev.json (apenas em desenvolvimento)
@@ -116,6 +162,7 @@ if (!isset($_SESSION['user_ip'])) {
 $_SESSION['last_activity'] = time();
 
 // Log de acesso autorizado (apenas em modo debug)
-if ($devConfig['debug_mode']) {
-    error_log("Acesso autorizado - User ID: {$_SESSION['user_id']}, IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+if (isset($devConfig['debug_mode']) && $devConfig['debug_mode']) {
+  $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+  error_log("Acesso autorizado - User ID: {$_SESSION['user_id']}, IP: $ip");
 }

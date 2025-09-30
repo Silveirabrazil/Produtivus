@@ -1,0 +1,53 @@
+// Core design tokens (camada base)
+@layer base {
+  :root {
+    /* Cores principais */
+    --pv-color-bg: #ffffff;
+    --pv-color-surface: #f7f8f9;
+    --pv-color-border: #d9dde1;
+    --pv-color-text: #2d2d2d;
+    --pv-color-text-muted: #6b7175;
+    --pv-color-brand: #3A9FA9;
+    --pv-color-brand-accent: #318a92;
+    --pv-color-danger: #dc3545;
+    --pv-color-warn: #e0b33a;
+    --pv-color-success: #198754;
+
+    /* Espaçamentos escala 0..8 */
+    --pv-space-0: 0;
+    --pv-space-1: .25rem;
+    --pv-space-2: .5rem;
+    --pv-space-3: .75rem;
+    --pv-space-4: 1rem;
+    --pv-space-5: 1.25rem;
+    --pv-space-6: 1.5rem;
+    --pv-space-7: 2rem;
+    --pv-space-8: 3rem;
+
+    /* Radius */
+  --pv-radius-xs: .25rem;
+  --pv-radius-sm: .375rem;
+  --pv-radius: .6rem;
+  --pv-radius-lg: .6rem;
+    --pv-radius-pill: 50rem;
+
+    /* Fonte */
+    --pv-font-base: 'Dosis', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+    --pv-font-size-sm: .825rem;
+    --pv-font-size-base: 1rem;
+    --pv-font-size-lg: 1.25rem;
+  }
+}
+
+// Mapas Sass (caso precisemos gerar utilidades dinamicamente depois)
+$pv-spaces: (
+  0: 0,
+  1: .25rem,
+  2: .5rem,
+  3: .75rem,
+  4: 1rem,
+  5: 1.25rem,
+  6: 1.5rem,
+  7: 2rem,
+  8: 3rem
+);

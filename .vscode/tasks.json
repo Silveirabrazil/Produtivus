@@ -516,6 +516,417 @@
 			],
 			"isBackground": false,
 			"group": "build"
+		},
+		{
+			"label": "Build CSS (on-demand) - manual",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (on-demand) - after header/footer classes",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Watch CSS (background)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"watch:css"
+			],
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "Watch CSS (poll, background)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"watch:css:poll"
+			],
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (on-demand) - header polish",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (on-demand) - inline-free",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (cards refinement)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (cards refinement 2)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (cards polish)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (cards font -20% + padding)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (cards refinement) - after header/footer classes",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (apply global container)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (normalize headers)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (normalize headers)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (normalize headers)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (normalize headers)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (normalize headers)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (normalize headers)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (fade-in)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint - stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (page transitions)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint - stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (apply editor toolbar)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (editor styles)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild CSS (editor spacing tweak)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild CSS (editor compact neutral)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild CSS (final)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild CSS (final fixes)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild CSS (editor spacing tweak)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild CSS (editor spacing tweak)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild CSS (final)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (on-demand) - include cadernos",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (on-demand) - notebooks fix",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (on-demand) - sidebar collapse fix",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (on-demand) - editor wrap fixes",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build CSS (apply smooth collapse + overlays)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build:css"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Start local server (http-server)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"start"
+			],
+			"isBackground": true,
+			"group": "build"
 		}
 	]
 }

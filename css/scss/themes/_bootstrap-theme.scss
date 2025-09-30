@@ -1,0 +1,30 @@
+@use "sass:color";
+
+// Sass tokens para configurar Bootstrap via @use ... with (...)
+$pv-brand-primary: #3A9FA9;
+$pv-brand-dark: #1D1D1D;
+$pv-text: #2d2d2d;
+
+// Mapas/variáveis do Bootstrap
+$primary: $pv-brand-primary;
+$secondary: #6c757d;
+$success: #198754;
+$info: #0dcaf0;
+$warning: #ffc107;
+$danger: #dc3545;
+$light: #f8f9fa;
+$dark: $pv-brand-dark;
+
+$body-color: $pv-text;
+
+// Raios e botões
+$border-radius: .6rem;
+$border-radius-sm: .6rem;
+$border-radius-lg: .6rem;
+$btn-border-radius: $border-radius;
+$btn-border-radius-lg: $border-radius-lg;
+$btn-border-radius-sm: $border-radius-sm;
+
+// Links
+$link-color: $primary;
+$link-hover-color: color.scale($link-color, $lightness: -10%);

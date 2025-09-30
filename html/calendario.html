@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Produtivus — Calendário</title>
+  <meta name="app-version" content="20250823T0000">
+  <meta name="description"
+    content="Veja todas as suas tarefas no calendário, visualize por mês e crie novas tarefas ao clicar no dia desejado.">
+  <link rel="stylesheet" href="../css/app.css?v=2">
+  <link rel="stylesheet" href="../css/fullcalendar/fullcalendar.min.css">
+  <link rel="icon" href="../img/icone.png" type="image/png">
+  <link rel="apple-touch-icon" href="../img/icone.png">
+</head>
+
+<body class="page-animate">
+  <div id="header-container" class="container-fluid p-0"></div>
+  <main id="main-content" class="app-main">
+    <header class="page-header page-header--band cabecalho-page">
+      <h1 class="page-header__title">
+        Calendário
+        <span class="page-header__icon" aria-hidden="true">
+          <span class="material-symbols-outlined">calendar_month</span>
+        </span>
+      </h1>
+      <p class="page-header__subtitle">Veja suas tarefas distribuídas no tempo.</p>
+    </header>
+    <!-- Conteúdo -->
+    <div id="fullcalendar" class="mt-3"></div>
+  </main>
+
+  <!-- Modal de Tarefa (estrutura .janela necessária para openTaskModal) -->
+  <div class="janela janela--media" id="taskModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="tm-title" data-modal="custom">
+    <div class="janela__caixa">
+      <div class="janela__cabecalho">
+        <h2 class="janela__titulo" id="tm-title">Nova Tarefa</h2>
+        <button type="button" id="close-task-modal" class="janela__fechar" aria-label="Fechar" data-fechar>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="janela__corpo">
+        <form id="task-form" class="formulario formulario--denso">
+          <div class="linha-campos">
+            <div class="campo campo--flex-2">
+              <label for="task-title" class="campo__rotulo">Título</label>
+              <div class="campo__controle">
+                <input type="text" id="task-title" name="title" class="campo__entrada" required>
+              </div>
+            </div>
+            <div class="campo campo--w-130">
+              <label for="task-color" class="campo__rotulo">Cor</label>
+              <div class="campo__controle">
+                <input type="color" id="task-color" name="color" value="#E0B33A" class="campo__entrada entrada--cor-pequena">
+              </div>
+            </div>
+          </div>
+          <div class="linha-campos">
+            <div class="campo">
+              <label for="task-start" class="campo__rotulo">Início</label>
+              <div class="campo__controle"><input type="datetime-local" id="task-start" name="start" class="campo__entrada"></div>
+            </div>
+            <div class="campo">
+              <label for="task-end" class="campo__rotulo">Término</label>
+              <div class="campo__controle"><input type="datetime-local" id="task-end" name="end" class="campo__entrada"></div>
+            </div>
+          </div>
+          <div class="campo">
+            <label for="task-desc" class="campo__rotulo">Descrição</label>
+            <div class="campo__controle">
+              <textarea id="task-desc" name="description" class="campo__entrada" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="campo">
+            <label class="campo__rotulo">Subtarefas</label>
+            <div id="subtasks-list" class="lista-subtarefas"></div>
+            <button type="button" id="btn-add-subtask" class="botao botao--secundario botao--pequeno botao--alinha-inicio">+ Adicionar subtarefa</button>
+          </div>
+          <div class="mensagem-erro" id="task-form-error"></div>
+        </form>
+      </div>
+      <div class="janela__acoes">
+        <button type="submit" class="botao botao--primario" form="task-form">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de detalhes do dia -->
+  <div class="janela janela--media" id="calendar-day-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="calendar-day-title" data-modal="custom">
+    <div class="janela__caixa">
+      <div class="janela__cabecalho">
+        <h2 class="janela__titulo" id="calendar-day-title">Agenda do dia</h2>
+        <button type="button" class="janela__fechar" aria-label="Fechar" data-cal-day-close data-fechar>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="janela__corpo">
+        <p class="calendar-day-modal__subtitle" data-day-summary></p>
+        <div class="calendar-day-modal__empty" data-day-empty>Não há tarefas cadastradas para esta data.</div>
+        <div class="calendar-day-modal__list" data-day-list></div>
+      </div>
+      <div class="janela__acoes">
+        <button type="button" class="botao botao--primario" data-day-add>+ Nova tarefa</button>
+      </div>
+    </div>
+  </div>
+  <div id="footer-container"></div>
+
+  <script src="../js/modules/extension-error-suppressor.js" defer></script>
+  <script src="../js/modules/error-handler.js?v=202509151726" defer></script>
+  <script src="../js/modules/route-guard.js?v=202509151726" defer></script>
+  <script src="../js/protect.js?v=202509151726" defer></script>
+  <script src="../js/modules/study.js" defer></script>
+  <script src="../js/fullcalendar/core.global.min.js" defer></script>
+  <script src="../js/fullcalendar/daygrid.global.min.js" defer></script>
+  <script src="../js/fullcalendar/timegrid.global.min.js" defer></script>
+  <script src="../js/fullcalendar/interaction.global.min.js" defer></script>
+  <script src="../js/fullcalendar/locales-all.global.min.js" defer></script>
+  <script src="../js/modules/tasks/tasks.js?v=202509280525" defer></script>
+  <script src="../js/pages/calendario.js?v=20250907" defer></script>
+  <script src="../js/main.js?v=20250823T0000" defer></script>
+  <script src="../js/config/api-endpoints.js"></script>
+  <script src="../js/modules/header.js?v=20250923" defer></script>
+  <script src="../js/modules/footer.js?v=20250923" defer></script>
+  <script src="../js/modules/login-modal.js" defer></script>
+  <!-- bootstrap-shim removido -->
+</body>
+
+</html>

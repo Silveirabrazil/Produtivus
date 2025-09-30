@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mapas Mentais • Produtivus</title>
+  <link rel="icon" href="../img/icone.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="../css/app.css?v=2" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+</head>
+
+<body class="page-animate">
+  <div id="header-container" class="container-fluid p-0"></div>
+  <main id="main-content" class="app-main">
+    <header class="page-header page-header--band cabecalho-page">
+      <h1 class="page-header__title">
+        Mapas Mentais
+        <span class="page-header__icon" aria-hidden="true">
+          <span class="material-symbols-outlined">account_tree</span>
+        </span>
+      </h1>
+      <p class="page-header__subtitle m-0">Crie, edite e visualize mapas visuais de estudo.</p>
+    </header>
+      <section class="page-section">
+        <div id="mm-vue-app" class="p-0"></div>
+      </section>
+  </main>
+
+  <div id="footer-container" class="container-fluid mt-4"></div>
+
+  <script src="../js/config/api-endpoints.js"></script>
+  <script src="../js/modules/header.js?v=20250923" defer></script>
+  <script src="../js/modules/footer.js?v=20250923" defer></script>
+  <script src="../js/modules/login-modal.js" defer></script>
+  <script src="../js/modules/error-handler.js?v=202509151726" defer></script>
+  <script src="../js/modules/route-guard.js?v=202509151726" defer></script>
+  <script src="../js/protect.js?v=202509151726" defer></script>
+  <script src="../js/main.js" defer></script>
+  <!-- bootstrap-shim removido -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      try{ var y=document.getElementById('copyright-year'); if(y) y.textContent=new Date().getFullYear(); }catch{}
+      const host = document.getElementById('mm-vue-app');
+      if (!host) return
+      const params = new URLSearchParams(location.search)
+      if (params.get('app') === 'vue') {
+        host.innerHTML = '<iframe src="http://localhost:5173/" allow="clipboard-read; clipboard-write"></iframe>'
+        return
+      }
+      const base = new URL('../apps/mindmaps/dist/', document.baseURI).href
+      const iframeUrl = base + 'index.html'
+      const bust = `?v=${Date.now()}`
+      const man1 = base + 'manifest.json'
+      const man2 = base + '.vite/manifest.json'
+      host.innerHTML = '<div class="text-center py-4">⏳ Carregando editor…</div>'
+      ;(async () => {
+        async function loadFromIndex(){
+          try {
+            const htmlRes = await fetch(iframeUrl, { cache: 'no-store' })
+            if (!htmlRes.ok) throw new Error('index.html não encontrado')
+            const htmlText = await htmlRes.text()
+            const parser = new DOMParser()
+            const doc = parser.parseFromString(htmlText, 'text/html')
+            const links = Array.from(doc.querySelectorAll('link[rel="stylesheet"]'))
+            const scripts = Array.from(doc.querySelectorAll('script[type="module"][src]'))
+            host.innerHTML = ''
+            const bustAssets = `?v=${Date.now()}`
+            links.forEach(l => {
+              const href = l.getAttribute('href') || ''
+              if (!href) return
+              const link = document.createElement('link')
+              link.rel = 'stylesheet'
+              link.href = (href.startsWith('http') ? href : (base + href.replace(/^\/?/, ''))) + bustAssets
+              document.head.appendChild(link)
+            })
+            scripts.forEach(s => {
+              const src = s.getAttribute('src') || ''
+              if (!src) return
+              const scr = document.createElement('script')
+              scr.type = 'module'
+              scr.src = (src.startsWith('http') ? src : (base + src.replace(/^\/?/, ''))) + bustAssets
+              scr.onerror = () => {
+                try { console.warn('[Mindmaps] script de index.html falhou, tentando assets/app.js') } catch {}
+                const fallback = document.createElement('script')
+                fallback.type = 'module'
+                fallback.src = base + 'assets/app.js' + bustAssets
+                document.body.appendChild(fallback)
+              }
+              document.body.appendChild(scr)
+            })
+            try { console.log('[Mindmaps] carregado via index.html (inline assets)') } catch {}
+            return true
+          } catch (e) { try { console.warn('[Mindmaps] falha ao carregar via index.html', e) } catch {}; return false }
+        }
+        try {
+          let man = null
+          let r = await fetch(man1, { cache: 'no-store' })
+          if (r.ok) man = await r.json(); else { r = await fetch(man2, { cache: 'no-store' }); if (r.ok) man = await r.json() }
+          if (man) {
+            const values = Object.values(man)
+            const entry = values.find(x => x && x.isEntry) || values[0]
+            if (!entry) throw new Error('Manifest inválido')
+            host.innerHTML = ''
+            try { console.log('[Mindmaps] carregando bundle:', entry.file, 'css:', entry.css) } catch {}
+            const bustAssets = `?v=${Date.now()}`
+            const cssHref = entry.css && entry.css[0] ? (base + entry.css[0] + bustAssets) : (base + 'assets/style.css' + bustAssets)
+            { const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = cssHref; document.head.appendChild(link) }
+            if (entry.file) {
+              const script = document.createElement('script');
+              script.type = 'module';
+              script.src = base + entry.file + bustAssets;
+              script.setAttribute('data-mm-bundle', entry.file);
+              script.onerror = async () => {
+                try { console.warn('[Mindmaps] falha ao carregar bundle, tentando via index.html') } catch {}
+                const ok = await loadFromIndex()
+                if (!ok) {
+                  try { console.warn('[Mindmaps] usando iframe como último recurso (pode ser bloqueado por XFO)') } catch {}
+                  try {
+                    const ifr = document.createElement('iframe')
+                    ifr.src = iframeUrl + `?v=${Date.now()}`
+                    ifr.allow = 'clipboard-read; clipboard-write'
+                    host.innerHTML = ''
+                    host.appendChild(ifr)
+                  } catch {}
+                }
+              }
+              document.body.appendChild(script)
+            } else {
+              const script = document.createElement('script');
+              script.type = 'module';
+              script.src = base + 'assets/app.js' + bustAssets;
+              document.body.appendChild(script)
+            }
+            try { console.log('[Mindmaps] script URL:', script.src) } catch {}
+            return
+          }
+        } catch (e) { }
+        const okInline = await loadFromIndex()
+        if (okInline) return
+        try {
+          const test = await fetch(iframeUrl, { method: 'HEAD', cache: 'no-store' })
+          if (test.ok) {
+            const xfo = (test.headers.get('x-frame-options') || '').toLowerCase()
+            const csp = (test.headers.get('content-security-policy') || '').toLowerCase()
+            const blocksFrame = xfo === 'deny' || /frame-ancestors\s+'none'/.test(csp)
+            if (!blocksFrame) {
+              const ifr = document.createElement('iframe')
+              ifr.src = iframeUrl + `?v=${Date.now()}`
+              ifr.allow = 'clipboard-read; clipboard-write'
+              ifr.onload = () => {
+                try {
+                  const doc = ifr.contentDocument || ifr.contentWindow && ifr.contentWindow.document
+                  if (!doc) return
+                  const applyDockClassesIF = (scope) => {
+                    scope.querySelectorAll('.tool-dock button').forEach(btn => {
+                      if (!(btn instanceof HTMLElement)) return
+                      if (!btn.classList.contains('btn')) btn.classList.add('btn')
+                      const variants = ['primary','secondary','success','danger','warning','info','light','dark','link']
+                      variants.forEach(v => { btn.classList.remove('btn-' + v); btn.classList.remove('btn-outline-' + v) })
+                      btn.classList.add('btn-outline-secondary')
+                    })
+                  }
+                  applyDockClassesIF(doc)
+                  const moIF = new MutationObserver(muts => {
+                    for (const m of muts) {
+                      m.addedNodes.forEach(n => { if (n.nodeType === 1) applyDockClassesIF(n) })
+                    }
+                  })
+                  moIF.observe(doc.body || doc, { childList: true, subtree: true })
+                } catch {}
+              }
+              host.innerHTML = ''
+              host.appendChild(ifr)
+              return
+            }
+          }
+        } catch { }
+        host.innerHTML = '<div class="alert alert-warning">Editor não encontrado. Publique a pasta <code>apps/mindmaps/dist</code> (incluindo <code>index.html</code> e <code>.vite/manifest.json</code>) no servidor.</div>'
+      })()
+      try {
+        const applyDockClasses = (scope) => {
+          scope.querySelectorAll('.tool-dock button').forEach(btn => {
+            if (!(btn instanceof HTMLElement)) return
+            if (!btn.classList.contains('btn')) btn.classList.add('btn')
+            const variants = ['primary','secondary','success','danger','warning','info','light','dark','link']
+            variants.forEach(v => { btn.classList.remove('btn-' + v); btn.classList.remove('btn-outline-' + v) })
+            btn.classList.add('btn-outline-secondary')
+          })
+        }
+        const host2 = document.getElementById('mm-vue-app') || document.body
+        applyDockClasses(host2)
+        let tries = 0; const maxTries = 20; const iv = setInterval(() => { try { applyDockClasses(host2) } catch {}; tries++; if (tries >= maxTries) clearInterval(iv) }, 200)
+        const mo2 = new MutationObserver(muts => {
+          for (const m of muts) {
+            m.addedNodes.forEach(n => { if (n.nodeType === 1) applyDockClasses(n) })
+          }
+        })
+        mo2.observe(host2, { childList: true, subtree: true })
+      } catch {}
+    })
+  </script>
+</body>
+
+</html>

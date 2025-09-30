@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Produtivus — Matérias</title>
+  <link rel="icon" href="../img/icone.png" type="image/png">
+  <link rel="apple-touch-icon" href="../img/icone.png">
+  <link rel="stylesheet" href="../css/app.css?v=2">
+</head>
+
+<body class="page-animate">
+  <div id="header-container"></div>
+  <main id="main-content" class="app-main">
+    <header class="page-header page-header--band cabecalho-page">
+      <h1 class="page-header__title">
+        Matérias
+        <span class="page-header__icon" aria-hidden="true">
+          <span class="material-symbols-outlined">category</span>
+        </span>
+      </h1>
+      <p class="page-header__subtitle m-0">Gerencie matérias e vincule a cursos.</p>
+    </header>
+      <section class="page-section">
+            <div class="quadro quadro--leve mb-3 p-3">
+              <form id="form-subject" class="flexo quebra gap-md alinha-centro">
+                <input type="text" id="sj-name" placeholder="Nome da matéria" required class="campo campo--texto flex-1" />
+                <select id="sj-course" title="Curso (opcional)" class="campo campo--seleciona">
+                  <option value="">— Curso (opcional) —</option>
+                </select>
+                <input type="color" id="sj-color" value="#365562" title="Cor" class="campo campo--cor campo--pequeno" />
+                <button type="button" id="btn-add-course" class="botao botao--suave botao--peq">Novo curso</button>
+                <button type="submit" class="botao botao--primario botao--peq">Adicionar</button>
+              </form>
+            </div>
+            <div class="quadro quadro--leve p-3">
+              <ul id="sj-list" class="lista-simples lista-materias">
+                <li class="texto-suave pequeno empty-text">Nenhuma matéria cadastrada.</li>
+              </ul>
+            </div>
+      </section>
+  </main>
+  <!-- cta-band removido para manter consistência visual -->
+  <div id="footer-container"></div>
+  <script src="../js/config/api-endpoints.js"></script>
+  <script src="../js/modules/header.js?v=20250923" defer></script>
+  <script src="../js/modules/footer.js?v=20250923" defer></script>
+  <script src="../js/modules/login-modal.js" defer></script>
+  <script src="../js/modules/ui.js" defer></script>
+  <script src="../js/modules/error-handler.js?v=202509151726" defer></script>
+  <script src="../js/modules/route-guard.js?v=202509151726" defer></script>
+  <script src="../js/protect.js?v=202509151726" defer></script>
+  <script src="../js/modules/study.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('form-subject');
+      const list = document.getElementById('sj-list');
+      const selCourse = document.getElementById('sj-course');
+      const btnAddCourse = document.getElementById('btn-add-course');
+
+      let courseMap = new Map();
+
+      async function loadCourses() {
+        const items = (window.study && window.study.loadCourses) ? await window.study.loadCourses() : [];
+        courseMap = new Map(items.map(c => [String(c.id), c]));
+        const cur = selCourse.value;
+        selCourse.innerHTML = '<option value="">— Curso (opcional) —</option>' + items.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        if (cur && courseMap.has(cur)) selCourse.value = cur;
+      }
+      async function refresh() {
+        const items = (window.study && window.study.loadSubjects) ? await window.study.loadSubjects() : [];
+        list.innerHTML = '';
+  if (!items.length) { list.innerHTML = '<li class="texto-suave pequeno empty-text">Nenhuma matéria cadastrada.</li>'; return; }
+        items.forEach(s => {
+          const li = document.createElement('li');
+          li.className = 'linha flexo justifica-entre alinha-centro gap-md';
+          const course = s.course_id ? courseMap.get(String(s.course_id)) : null;
+          const courseBadge = course ? `<span class="selo" style="--sj-badge-fg:${course.color || '#365562'};color:${course.color || '#365562'}">${course.name}</span>` : '';
+          const dot = `<span class="sj-dot" style="--sj-color:${s.color}"></span>`;
+          const left = `<div class="flexo alinha-centro gap-sm">${dot}<span class="titulo-item">${s.name}${courseBadge}</span></div>`;
+          const right = `<div class="flexo gap-sm"><button class="botao botao--primario botao--micro" data-action="link-course" data-id="${s.id}">Vincular curso</button><button class="botao botao--perigo botao--micro" data-action="remove" data-id="${s.id}">Remover</button></div>`;
+          li.innerHTML = left + right;
+          list.appendChild(li);
+        });
+      }
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('sj-name').value.trim();
+        const color = document.getElementById('sj-color').value;
+        const courseId = selCourse.value || null;
+        if (!name) return;
+        await window.study.addSubject(name, color, courseId);
+        form.reset();
+        document.getElementById('sj-color').value = '#365562';
+        selCourse.value = '';
+        refresh();
+      });
+      btnAddCourse.addEventListener('click', async () => {
+        const name = window.pvShowPrompt ? await window.pvShowPrompt('Nome do curso:', '') : prompt('Nome do curso:');
+        if (!name) return;
+        const color = window.pvShowPrompt ? (await window.pvShowPrompt('Cor do curso (hex):', '#365562')) || '#365562' : (prompt('Cor do curso (hex):', '#365562') || '#365562');
+        const id = await (window.study && window.study.addCourse ? window.study.addCourse(name.trim(), color) : null);
+        if (id) {
+          await loadCourses();
+          selCourse.value = id;
+        }
+      });
+      list.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-id]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-id');
+        const action = btn.getAttribute('data-action');
+        if (!id) return;
+        if (action === 'remove') {
+          const ok = window.pvShowConfirm ? await window.pvShowConfirm('Remover esta matéria?') : confirm('Remover esta matéria?');
+          if (!ok) return;
+          await window.study.removeSubject(id);
+          refresh();
+          return;
+        }
+        if (action === 'link-course') {
+          const items = Array.from(courseMap.values());
+          const names = ['Desvincular do curso', ...items.map(c => `${c.name}`)];
+          const pick = window.pvShowPrompt ? await window.pvShowPrompt(`Escolha o curso (0 para desvincular):\n` + names.map((n, i) => `${i}. ${n}`).join('\n'), '0') : prompt(`Escolha o curso (0 para desvincular):\n` + names.map((n, i) => `${i}. ${n}`).join('\n'), '0');
+          if (pick === null) return;
+          const idx = parseInt(pick, 10);
+          let courseId = null;
+          if (!isNaN(idx) && idx > 0 && idx < names.length) {
+            const c = items[idx - 1];
+            courseId = c ? c.id : null;
+          }
+          const ok = await window.study.updateSubject(id, { course_id: courseId });
+          if (ok && window.pvShowToast) pvShowToast('Matéria updated');
+          await refresh();
+          return;
+        }
+      });
+      loadCourses().then(refresh);
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      var y = document.getElementById('copyright-year');
+      if (y) y.textContent = new Date().getFullYear();
+    });
+  </script>
+  <script src="../js/main.js" defer></script>
+</body>
+
+</html>

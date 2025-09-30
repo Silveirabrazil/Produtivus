@@ -17,6 +17,7 @@ $files = [
     'index.html' => __DIR__ . '/index.html',
     'tarefas.html' => __DIR__ . '/tarefas.html',
     'cadernos.html' => __DIR__ . '/cadernos.html',
+    'cadernos-novo.html' => __DIR__ . '/cadernos-novo.html',
     'mapas.html' => __DIR__ . '/mapas.html',
     'css/styles.css' => __DIR__ . '/css/styles.css',
     // 'js/modules/load-components.js' => __DIR__ . '/js/modules/load-components.js', // deprecated

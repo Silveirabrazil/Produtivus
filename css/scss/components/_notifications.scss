@@ -1,0 +1,43 @@
+// Estilos do sistema de notificações (dropdown + toasts)
+
+.pv-notif-wrap{ position:relative; }
+.pv-notif-btn{ background:transparent; border:0; padding:.25rem; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; }
+.pv-notif-btn:focus{ outline:2px solid var(--focus, #36556233); outline-offset:2px; }
+.pv-notif-badge{ position:absolute; top:2px; right:2px; min-width: 18px; height:18px; padding:0 4px; border-radius:999px; background:#b91c1c; color:#fff; font-size:11px; line-height:18px; text-align:center; box-shadow:0 0 0 2px #fff; display:none; }
+.pv-notif-wrap.has-unread .pv-notif-badge{ display:block; }
+
+// Dropdown
+.pv-notif-panel{ min-width:360px; max-width:90vw; max-height:70vh; overflow:auto; background:#fff; border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,.18); border:1px solid rgba(0,0,0,.06); }
+.pv-notif-head{ border-bottom:1px solid rgba(0,0,0,.06); }
+.pv-notif-title{ font-size:1rem; }
+.pv-notif-actions{ display:flex; gap:.5rem; }
+
+.pv-notif-list{ display:block; }
+.pv-notif-item{ display:flex; gap:.5rem; padding:.6rem .75rem; border-bottom:1px solid rgba(0,0,0,.04); }
+.pv-notif-item:last-child{ border-bottom:0; }
+.pv-notif-item.unread{ background:#f5faff; }
+.pv-notif-ic{ width:28px; height:28px; border-radius:6px; color:#fff; display:flex; align-items:center; justify-content:center; flex:0 0 28px; background:#365562; }
+.pv-notif-item.type-success .pv-notif-ic{ background:#16a34a; }
+.pv-notif-item.type-warning .pv-notif-ic{ background:#d97706; }
+.pv-notif-item.type-error   .pv-notif-ic{ background:#b91c1c; }
+.pv-notif-item.type-info .pv-notif-ic{ background:#365562; }
+.pv-notif-ct{ min-width:0; }
+.pv-notif-ttl{ margin:0 0 2px; font-weight:600; color:#111; }
+.pv-notif-msg{ color:#444; font-size:.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pv-notif-meta{ color:#777; font-size:.8rem; margin-top:2px; }
+.pv-notif-link{ margin-left:.25rem; text-decoration:underline; color:#365562; }
+.pv-notif-foot{ background:#fafafa; }
+
+// Toasts
+.pv-toast{ position:fixed; top:20px; right:20px; z-index:9999; background:#fff; border-radius:8px; padding:16px; box-shadow:0 4px 12px rgba(0,0,0,.15); max-width:400px; transform:translateX(100%); transition:transform .3s ease; border-left:4px solid #365562; }
+.pv-toast.is-open{ transform:translateX(0); }
+.pv-toast .pv-toast-title{ font-weight:600; margin-bottom:4px; color:#111; }
+.pv-toast .pv-toast-msg{ color:#666; font-size:14px; margin-bottom:8px; }
+.pv-toast .pv-toast-actions{ display:flex; gap:8px; margin-top:12px; }
+.pv-toast .pv-toast-actions .pv-toast-btn{ background:transparent; color:#365562; border:1px solid #365562; padding:6px 12px; border-radius:4px; font-size:13px; cursor:pointer; transition:background .2s ease, color .2s ease; }
+.pv-toast .pv-toast-actions .pv-toast-btn--primary{ background:#365562; color:#fff; }
+.pv-toast .pv-toast-close{ position:absolute; top:8px; right:8px; background:none; border:0; font-size:18px; color:#999; cursor:pointer; padding:0; width:20px; height:20px; display:flex; align-items:center; justify-content:center; }
+.pv-toast-info{ border-left-color:#365562; }
+.pv-toast-success{ border-left-color:#16a34a; }
+.pv-toast-warning{ border-left-color:#d97706; }
+.pv-toast-error{ border-left-color:#b91c1c; }

@@ -1,0 +1,433 @@
+/* Header isolado sem Bootstrap, sem mixin, classes em português */
+
+.cabecalho {
+	--altura: 64px;
+	--cor-fundo: #1d1d1d;
+	--cor-texto: #D3D4D8;
+	--cor-primaria: #2A8BD8;
+	--cor-hover: rgba(255, 255, 255, .08);
+	position: sticky;
+	top: 0;
+	z-index: 1000;
+	background: var(--cor-fundo);
+	color: var(--cor-texto);
+	width: 100%;
+	border-bottom: #2A8BD8 solid 12px;
+}
+
+.cabecalho__conteudo {
+	max-width: 1280px;
+	margin: 0 auto;
+	height: var(--altura);
+	padding: 0 1rem;
+	display: flex;
+	align-items: center;
+	gap: .8rem;
+}
+
+.cabecalho__marca {
+	display: inline-flex;
+	align-items: center;
+	gap: .6rem;
+	text-decoration: none;
+	color: inherit;
+}
+
+.cabecalho__logo {
+	height: 40px;
+	width: auto;
+	display: block;
+}
+
+.cabecalho__titulo {
+	font-weight: 600;
+	font-size: 1rem;
+	letter-spacing: .5px;
+}
+
+.navegacao {
+	display: flex;
+	align-items: center;
+	flex: 1 1 auto;
+}
+
+.navegacao-colapsavel {
+	display: flex;
+	flex: 1 1 auto;
+	align-items: center;
+	gap: .5rem;
+}
+
+.menu {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	align-items: stretch;
+	gap: .4rem;
+	flex: 1 1 auto;
+	justify-content: center;
+	overflow-x: auto;
+	scrollbar-width: none;
+}
+
+.menu::-webkit-scrollbar {
+	display: none;
+}
+
+.menu__item {
+	flex: 0 0 auto;
+}
+
+.menu__link {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: .35rem;
+	height: var(--altura);
+	padding: 0 .8rem;
+	background: rgba(255, 255, 255, .05);
+	color: rgba(255, 255, 255, .9);
+	text-decoration: none;
+	transition: background .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.menu__link:hover {
+	background: var(--cor-primaria);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+	color: #fff;
+}
+
+.menu__link:focus-visible {
+	outline: 2px solid rgba(255, 255, 255, .35);
+	outline-offset: 2px;
+}
+
+.menu__link.ativo {
+	background: var(--cor-primaria);
+	color: #D7D8DC;
+	font-weight: 600;
+	box-shadow: 0 6px 16px rgba(58, 159, 169, .35);
+}
+
+.cabecalho__acoes {
+	display: inline-flex;
+	align-items: center;
+	gap: .5rem;
+}
+
+.cabecalho__acoes--visitante {
+	flex: 1 1 auto;
+	justify-content: center;
+	padding-inline: 1rem;
+}
+
+.cabecalho__acoes--visitante .botao {
+	min-width: 160px;
+	justify-content: center;
+}
+
+.botao-menu {
+	all: unset;
+	cursor: pointer;
+	display: none;
+	width: 42px;
+	height: 42px;
+	border-radius: .55rem;
+	position: relative;
+	background: rgba(255, 255, 255, .08);
+	transition: background .2s ease;
+}
+
+
+
+.botao-menu:hover {
+	background: rgba(255, 255, 255, .18);
+}
+
+.botao-menu:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 2px;
+}
+
+.botao-menu__barra {
+	position: absolute;
+	left: 22%;
+	right: 22%;
+	height: 3px;
+	background: #fff;
+	border-radius: 2px;
+	transition: transform .3s ease, opacity .3s ease;
+}
+
+.botao-menu__barra:nth-child(1) {
+	top: 12px;
+}
+
+.botao-menu__barra:nth-child(2) {
+	top: 20px;
+}
+
+.botao-menu__barra:nth-child(3) {
+	top: 28px;
+}
+
+.botao-menu.is-aberto .botao-menu__barra:nth-child(1) {
+	transform: translateY(8px) rotate(45deg);
+}
+
+.botao-menu.is-aberto .botao-menu__barra:nth-child(2) {
+	opacity: 0;
+}
+
+.botao-menu.is-aberto .botao-menu__barra:nth-child(3) {
+	transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Usuário */
+.usuario {
+	position: relative;
+}
+
+.usuario__botao {
+	display: inline-flex;
+	align-items: center;
+	gap: .5rem;
+	background: rgba(255, 255, 255, .07);
+	border: 0;
+	color: #fff;
+	border-radius: .6rem;
+	padding: .45rem .65rem;
+	cursor: pointer;
+	font-size: .8rem;
+	line-height: 1;
+	transition: background .18s ease;
+}
+
+.usuario__botao:hover {
+	background: rgba(255, 255, 255, .16);
+}
+
+.usuario__botao:focus-visible {
+	outline: 2px solid rgba(255, 255, 255, .4);
+	outline-offset: 2px;
+}
+
+.usuario__avatar {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: var(--cor-primaria);
+	color: #fff;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	font-size: .75rem;
+	letter-spacing: .5px;
+}
+
+/* Quando houver imagem de avatar, ela ocupa todo o espaço e mantém o formato redondo */
+.usuario__avatar img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 50%;
+}
+
+.usuario__menu {
+	position: absolute;
+	top: calc(100% + .6rem);
+	right: 0;
+	background: #1f2224;
+	border: 1px solid rgba(255, 255, 255, .08);
+	border-radius: .7rem;
+	min-width: 210px;
+	padding: .5rem;
+	display: none;
+	box-shadow: 0 10px 30px -4px rgba(0, 0, 0, .55);
+	z-index: 20;
+}
+
+.usuario__menu.aberto {
+	display: block;
+}
+
+.usuario__email {
+	font-size: .7rem;
+	text-transform: uppercase;
+	letter-spacing: .08em;
+	color: rgba(255, 255, 255, .65);
+	padding: .25rem .5rem .4rem;
+}
+
+.usuario__item {
+	display: flex;
+	width: 100%;
+	border: 0;
+	background: transparent;
+	color: rgba(255, 255, 255, .85);
+	text-align: left;
+	padding: .55rem .6rem;
+	border-radius: .55rem;
+	font-size: .8rem;
+	cursor: pointer;
+	gap: .5rem;
+	align-items: center;
+	transition: background .18s ease, color .18s ease;
+}
+
+.usuario__item:hover {
+	background: var(--cor-primaria);
+	color: #fff;
+}
+
+.usuario__item:focus-visible {
+	outline: 2px solid rgba(255, 255, 255, .35);
+	outline-offset: 2px;
+}
+
+/* Botão genérico */
+.botao {
+	display: inline-flex;
+	align-items: center;
+	gap: .5rem;
+	padding: .6rem .9rem;
+	background: #fff;
+	color: #222;
+	border: 0;
+	border-radius: .65rem;
+	font-size: .8rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background .18s ease, box-shadow .18s ease;
+}
+
+.botao:hover {
+	background: #f1f1f1;
+}
+
+.botao:focus-visible {
+	outline: 2px solid var(--cor-primaria);
+	outline-offset: 2px;
+}
+
+.botao--primario {
+	background: var(--cor-primaria);
+	color: #fff;
+}
+
+.botao--primario:hover {
+	filter: brightness(1.05);
+}
+
+/* Ações do cabeçalho: ícones e dropdowns */
+.cabecalho__acoes {
+	position: relative;
+}
+
+.nav-icon-btn {
+	all: unset;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	position: relative;
+	border-radius: .6rem;
+	background: rgba(255, 255, 255, .08);
+	cursor: pointer;
+	color: #fff;
+	transition: background .18s ease, transform .18s ease;
+}
+.nav-icon-btn svg { display:block; }
+
+.nav-icon-btn:hover { background: rgba(255,255,255,.16); transform: translateY(-1px); }
+.nav-icon-btn:focus-visible { outline: 2px solid rgba(255,255,255,.35); outline-offset: 2px; }
+
+/* Dropdown genérico (sem Bootstrap JS) */
+.dropdown { position: relative; }
+.dropdown-menu {
+	position: absolute;
+	top: calc(100% + .5rem);
+	right: 0;
+	background: #1f2224;
+	border: 1px solid rgba(255,255,255,.08);
+	border-radius: .7rem;
+	padding: .5rem;
+	display: none;
+	box-shadow: 0 10px 30px -4px rgba(0,0,0,.55);
+	z-index: 50;
+	/* Ajuda as animações JS (slideDown/Up) a ficarem mais suaves */
+	will-change: height, opacity, transform;
+	transform-origin: top right; /* fallback; JS ajusta conforme o botão */
+	backface-visibility: hidden;
+}
+.dropdown-menu.show { display: block; }
+
+/* Badge de notificações */
+.pv-notif-wrap { position: relative; }
+.pv-notif-badge {
+	position: absolute;
+	background: #b91c1c;
+	color: #fff;
+	min-width: 16px;
+	height: 16px;
+	line-height: 16px;
+	padding: 0 4px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 600;
+	text-align: center;
+	user-select: none;
+	/* top/right setados inline pelo JS para posicionamento fino */
+}
+
+/* Timer dropdown wrapper */
+.pv-htimer-wrap { position: relative; }
+
+/* Quando não houver itens de menu (visitante), esconde a barra de navegação para ganhar espaço */
+.menu:empty { display: none; }
+
+/* Responsivo */
+@media (max-width:900px) {
+	.botao-menu {
+		display: inline-flex;
+	}
+
+	.cabecalho__conteudo {
+		flex-wrap: wrap;
+		height: auto;
+		padding-top: .4rem;
+		padding-bottom: .4rem;
+	}
+
+	.navegacao-colapsavel {
+		display: none;
+		flex-direction: column;
+		gap: .8rem;
+		width: 100%;
+		padding: .75rem 0 0;
+	}
+
+	.navegacao-colapsavel.is-aberta {
+		display: flex;
+	}
+
+	.menu {
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		gap: .5rem;
+	}
+
+	.menu__link {
+		height: auto;
+		padding: .55rem .85rem;
+	}
+
+	.cabecalho__acoes {
+		order: 10;
+		margin-left: auto;
+	}
+}

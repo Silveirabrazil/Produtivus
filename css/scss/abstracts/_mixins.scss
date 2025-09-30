@@ -1,0 +1,46 @@
+// Common mixins
+// Compatível com chamadas existentes: @include center-flex(); @include center-flex(column);
+@mixin center-flex($direction: row) {
+  display: flex;
+  flex-direction: $direction;
+  align-items: center;
+  justify-content: center;
+}
+
+// Breakpoint simples para mobile
+@mixin mobile {
+  @media (max-width: 576px) {
+    @content;
+  }
+}
+
+// Breakpoint para tablet
+@mixin tablet {
+  @media (max-width: 992px) {
+    @content;
+  }
+}
+
+// Reset de lista
+@mixin list-reset {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+// Animação de fade-in utilitária
+@mixin fade-in($duration: .6s) {
+  animation: fadeIn $duration ease-in-out both;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+// Base de card
+@mixin card-base {
+  background: #fff;
+  border-radius: var(--pv-radius-lg, 0.6rem);
+  box-shadow: var(--pv-shadow, 0 2px 2px rgba(17, 24, 39, 0.08));
+}

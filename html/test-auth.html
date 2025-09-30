@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Autenticação</title>
+    <link rel="icon" href="../img/icone.png" type="image/png">
+    <link rel="apple-touch-icon" href="../img/icone.png">
+    <link rel="stylesheet" href="../css/app.css?v=2">
+</head>
+<body class="auth-test page-animate">
+    <main id="main-content" class="app-main">
+        <header class="page-header page-header--band cabecalho-page">
+                <h1 class="page-header__title h3 m-0">🔍 Teste de Estado de Autenticação</h1>
+                <p class="page-header__subtitle m-0">Monitora estado local e simula fluxos.</p>
+            </header>
+            <section class="page-section">
+        <div id="auth-status" class="box">
+        <h3>Status da Autenticação</h3>
+        <div id="auth-result">Verificando...</div>
+    </div>
+
+    <div class="box">
+        <h3>LocalStorage Data</h3>
+        <pre id="localStorage-data"></pre>
+    </div>
+
+    <div class="box">
+        <h3>Simulação de Sistema de Tarefas</h3>
+        <button onclick="testTasksAuth()">Testar Verificação de Tarefas</button>
+        <div id="tasks-result"></div>
+    </div>
+
+            </section>
+    </main>
+        <script>
+        function getAuthState() {
+            try {
+                const userData = localStorage.getItem('pv_user');
+                if (!userData) return { isLoggedIn: false, user: null };
+
+                const userObj = JSON.parse(userData);
+                return {
+                    isLoggedIn: !!(userObj && userObj.email),
+                    user: userObj
+                };
+            } catch {
+                return { isLoggedIn: false, user: null };
+            }
+        }
+
+        function waitForAuth(maxWait = 2000) {
+            return new Promise((resolve) => {
+                const start = Date.now();
+                const check = () => {
+                    const auth = getAuthState();
+                    if (auth.isLoggedIn || (Date.now() - start) > maxWait) {
+                        resolve(auth);
+                    } else {
+                        setTimeout(check, 50);
+                    }
+                };
+                check();
+            });
+        }
+
+        async function testTasksAuth() {
+            const result = document.getElementById('tasks-result');
+            result.innerHTML = '<em>Testando aguardo de autenticação...</em>';
+
+            const auth = await waitForAuth();
+            const message = auth.isLoggedIn ?
+                '✅ Carregando tarefas offline (problemas de conexão)' :
+                '⚠️ Exibindo tarefas salvas localmente (faça login para sincronizar)';
+
+            result.innerHTML = `<strong>Resultado:</strong> ${message}<br>
+                <small>Usuário: ${auth.user ? auth.user.email || 'N/A' : 'Não logado'}</small>`;
+        }
+
+        function updateStatus() {
+            const auth = getAuthState();
+            const statusEl = document.getElementById('auth-status');
+            const resultEl = document.getElementById('auth-result');
+
+            if (auth.isLoggedIn) {
+                statusEl.className = 'box auth-ok';
+                resultEl.innerHTML = `
+                    ✅ <strong>Usuário Autenticado</strong><br>
+                    Email: ${auth.user.email}<br>
+                    Nome: ${auth.user.name || 'N/A'}
+                `;
+            } else {
+                statusEl.className = 'box auth-fail';
+                resultEl.innerHTML = '❌ <strong>Usuário não autenticado</strong>';
+            }
+
+            const data = {
+                pv_user: localStorage.getItem('pv_user'),
+                pv_tasks_cache: localStorage.getItem('pv_tasks_cache'),
+                all_keys: Object.keys(localStorage).filter(k => k.startsWith('pv_'))
+            };
+
+            document.getElementById('localStorage-data').textContent = JSON.stringify(data, null, 2);
+        }
+
+        updateStatus();
+        setInterval(updateStatus, 1000);
+    </script>
+</body>
+</html>

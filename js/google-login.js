@@ -186,7 +186,8 @@ window.googleAuth = new GoogleAuth();
 // Função legacy para compatibilidade (One Tap)
 let __pvLoginInProgress = false;
 function handleCredentialResponse(response) {
-  if (__pvLoginInProgress) return; // evita múltiplas execuções reentrantes
+  // Evita reentrâncias e duplos disparos
+  if (__pvLoginInProgress) return;
   __pvLoginInProgress = true;
 
   // Token JWT do Google
@@ -197,7 +198,11 @@ function handleCredentialResponse(response) {
     const currentHost = window.location.hostname;
     const currentPort = window.location.port;
 
-    // Se estamos na porta 8081 (frontend), o backend é na 8080
+    // *** CONFIGURAÇÃO DE PRODUÇÃO ***
+    // Em produção, as APIs estão no mesmo domínio (URLs relativas)
+    if (currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+      return ''; // URL relativa - mesmo domínio
+    }    // Se estamos na porta 8081 (frontend), o backend é na 8080
     if (currentPort === '8081') {
       return `http://${currentHost}:8080`;
     }
@@ -205,16 +210,21 @@ function handleCredentialResponse(response) {
     return '';
   };
 
-  const backendUrl = getBackendUrl();
-  const loginUrl = backendUrl + '/api/google_login.php';
+  const loginUrl = window.ProdutivusAPI ? window.ProdutivusAPI.endpoints.googleLogin : '/server/api/google_login.php';
 
   // Envia para o backend validar e autenticar
   fetch(loginUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
     body: JSON.stringify({ id_token: idToken })
   })
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) {
+        throw new Error(`Login API returned ${r.status}: ${r.statusText}`);
+      }
+      return r.json();
+    })
     .then(async (data) => {
       if (data.success) {
         // Salva usuário no localStorage antes de redirecionar (com nome se disponível)
@@ -229,25 +239,15 @@ function handleCredentialResponse(response) {
           }));
         } catch {}
 
-        // Fecha a modal se estiver aberta
+        // Fecha a modal custom se estiver aberta
         try {
           const modal = document.getElementById('pv-login-modal');
-          if (modal) {
-            const bsModal = window.bootstrap?.Modal?.getInstance(modal);
-            if (bsModal) {
-              bsModal.hide();
-            } else {
-              modal.style.display = 'none';
-            }
-          }
+          if (modal) { modal.classList.remove('janela--aberta'); setTimeout(()=>{ modal.style.display='none'; }, 200); }
         } catch {}
 
         // Atualiza o header para mostrar usuário logado
-        try {
-          if (typeof renderHeader === 'function') {
-            renderHeader();
-          }
-        } catch {}
+        try { window.dispatchEvent(new CustomEvent('pv-auth-changed', { detail:{ action:'login', via:'google' } })); } catch {}
+        try { typeof renderHeader==='function' && renderHeader(true); } catch {}
 
         // Notificação de sucesso
         try {
@@ -258,27 +258,21 @@ function handleCredentialResponse(response) {
           });
         } catch {}
 
-        // Anexar automaticamente o Google Calendar, se ainda não anexado
-        const alreadyHasCalendar = !!localStorage.getItem('pv_google_calendar_token') || (user && user.calendar_access === true);
-        if (!alreadyHasCalendar) {
-          try {
-            const ok = await window.googleAuth.signInWithCalendar();
-            // se ok, signInWithCalendar já redirecionou
-            if (ok === true) return;
-          } catch (e) {
-            // Se falhar, continua sem calendário
-            console.warn('[GoogleAuth] Falha ao anexar Calendar automaticamente, seguindo sem calendário:', (e && (e.message || e)));
-          }
-        }
+        // Não anexar Google Calendar automaticamente para evitar segundo fluxo de login.
+        // O usuário poderá conectar depois nas configurações/calendário.
+        try { window.pvNotify?.({ title:'Login feito', message:'Você pode conectar o Google Calendar depois nas configurações.', type:'info', silent:true }); } catch {}
 
-        // Se estamos na página de login, redireciona para dashboard
-        if (window.location.pathname === '/login.html' || window.location.search.includes('login=1')) {
-          window.location.href = 'dashboard.html';
-        }
-        // Caso contrário, apenas recarrega a página para refletir o estado logado
-        else {
-          window.location.reload();
-        }
+        // Evita prompts residuais do One Tap e auto seleção após login
+        try {
+          if (window.google?.accounts?.id) {
+            try { window.google.accounts.id.cancel(); } catch {}
+            try { window.google.accounts.id.disableAutoSelect(); } catch {}
+          }
+        } catch {}
+
+        // Para garantir que a sessão do servidor seja reconhecida em todas as páginas,
+        // faça um redirecionamento único para a home.
+        window.location.href = 'index.html';
       } else {
         // Mostra erro se houver
         console.error('[GoogleAuth] Login falhou:', data.message || 'Erro desconhecido');
@@ -289,12 +283,31 @@ function handleCredentialResponse(response) {
             errEl.classList.remove('d-none');
           }
         } catch {}
-        __pvLoginInProgress = false;
+    __pvLoginInProgress = false;
       }
     })
     .catch(error => {
-          // Silencioso: não alertar usuário
-      console.error(error);
+      console.error('[GoogleAuth] Erro na requisição:', error);
+
+      // Mostra erro mais específico para o usuário
+      try {
+        const errEl = document.getElementById('pv-login-error');
+        if (errEl) {
+          let errorMessage = 'Erro de conexão com o servidor';
+
+          if (error.message.includes('404')) {
+            errorMessage = 'Serviço de login não configurado no servidor';
+          } else if (error.message.includes('500')) {
+            errorMessage = 'Erro interno do servidor';
+          } else if (error.message.includes('Failed to fetch')) {
+            errorMessage = 'Problema de conectividade';
+          }
+
+          errEl.textContent = errorMessage;
+          errEl.classList.remove('d-none');
+        }
+      } catch {}
+
       __pvLoginInProgress = false;
     });
 }

@@ -1,0 +1,120 @@
+// COMPONENTE: CARDS de tarefas
+// Obs.: Usamos .card-tarefa para evitar colisão com classes globais "card" legadas.
+
+.card-tarefa {
+  /* Variáveis com fallback elegantes */
+  --_radius: var(--radius, .5rem);
+  --_bg: #fff;
+  --_fg: var(--color-text, #2d2d2d);
+  --_muted: var(--color-text-muted, #6b7175);
+  --_shadow: 0 6px 24px rgba(0,0,0,.06);
+  --_border-strip: 8px; /* largura da faixa lateral */
+  --_content-gap-left: 12px; /* espaço adicional entre faixa e conteúdo */
+
+  position: relative;
+  display: block;
+  background: var(--_bg);
+  color: var(--_fg);
+  border-radius: var(--_radius);
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: var(--_shadow);
+  overflow: hidden;
+  isolation: isolate; /* garante pseudo elemento abaixo do conteúdo */
+  transform: translateY(0);
+  transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+
+  /* faixa de cor da esquerda usando a var setada via JS */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0; /* top:0; bottom:0; left:0 */
+    width: var(--_border-strip);
+    background: var(--card-border-color, var(--color-accent-warm, #c29d67));
+  }
+
+  &:hover { box-shadow: 0 10px 30px rgba(0,0,0,.10); transform: translateY(-1px); }
+  &:active { transform: translateY(0); box-shadow: var(--_shadow); }
+
+  /* conteúdo interno (compatível com markup atual .card-body) */
+  .card-body {
+    /* adiciona padding-left para afastar da faixa */
+    padding: clamp(12px, 1.6vw, 16px);
+    padding-left: calc(clamp(12px, 1.6vw, 16px) + var(--_border-strip) + var(--_content-gap-left));
+  }
+
+  .card-row { gap: .5rem; }
+
+  .card-title {
+    font-weight: 700;
+    font-size: calc(1.05rem * .8); /* -20% */
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .title-suffix { font-weight: 600; }
+
+  .card-progress { color: var(--_muted); font-size: calc(.9rem * .8); }
+
+  .card-desc { color: var(--_fg); font-size: calc(.95rem * .8); }
+
+  .card-details { color: var(--card-border-color, var(--color-accent-warm, #c29d67)); font-size: calc(.92rem * .8); }
+
+  .card-lesson-schedule { color: var(--_muted); font-size: calc(.9rem * .8); margin:.1rem 0 .35rem; }
+
+  .card-dates { color: var(--_muted); font-size: .8rem; }
+
+  .card-meta { margin:.25rem 0 .35rem; }
+  .card-meta .pill {
+    --_pill: var(--pill-color, #365562);
+    display: inline-flex; align-items: center; gap:.4rem;
+    background: color-mix(in oklab, var(--_pill), white 86%);
+    color: color-mix(in oklab, var(--_pill), black 20%);
+    border: 1px solid color-mix(in oklab, var(--_pill), black 85% / 8%);
+    padding: .15rem .55rem; border-radius: 999px; font-weight: 600; font-size: calc(.8rem * .8);
+  }
+
+  /* Ações — estiliza botões bootstrap-like apenas dentro do card */
+  .card-actions { margin-top: .25rem; }
+  .card-actions .btn {
+    --_btn-radius: calc(var(--_radius) - .125rem);
+    display: inline-flex; align-items: center; justify-content: center; gap:.35rem;
+    border-radius: var(--_btn-radius);
+    font-weight: 600; font-size: calc(.92rem * .8); line-height: 1;
+    padding: .45rem .7rem; border:1px solid transparent; cursor: pointer;
+    transition: background-color .16s ease, color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .08s ease;
+  }
+  .card-actions .btn:active { transform: translateY(1px); }
+  .card-actions .btn-primary { background: var(--color-brand, #3A9FA9); color:#fff; border-color: var(--color-brand, #3A9FA9); }
+  .card-actions .btn-primary:hover { background: var(--color-brand-accent, #318a92); border-color: var(--color-brand-accent, #318a92); }
+  .card-actions .btn-outline-secondary { background:#fff; color: var(--_fg); border-color: rgba(0,0,0,.15); }
+  .card-actions .btn-outline-secondary:hover { background: #f6f7f8; }
+  .card-actions .btn-outline-danger { background:#fff; color: var(--color-danger, #dc3545); border-color: color-mix(in oklab, var(--color-danger, #dc3545), white 70%); }
+  .card-actions .btn-outline-danger:hover { background: color-mix(in oklab, var(--color-danger, #dc3545), white 92%); }
+}
+
+/* Animação de entrada suave (usado com classe .enter definida no JS) */
+@keyframes card-rise-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-tarefa.enter { animation: card-rise-in .36s ease both; }
+
+/* Compatibilidade leve com legado que usava .card.card-border */
+.card.card-border {
+  border-left: 8px solid var(--card-border-color, var(--color-accent-warm, #c29d67));
+  border-radius: var(--radius, .5rem);
+  box-shadow: 0 6px 24px rgba(0,0,0,.06);
+}
+
+/* Polimento por contexto */
+.cards-feitas .card-tarefa {
+  opacity: .96;
+  filter: saturate(.94);
+}
+.cards-feitas .card-tarefa .card-title { color: var(--color-text-muted, #6b7175); }
+.cards-feitas .card-tarefa:hover { opacity: 1; filter: none; }
+
+/* Aula (card-lesson): destaque leve no cronograma */
+.card-lesson .card-lesson-schedule { font-weight: 600; }

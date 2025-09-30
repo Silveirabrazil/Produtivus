@@ -1,0 +1,270 @@
+// HEADER COMPLETO (logo, navegação, usuário, dropdown, ícones)
+// Fonte de verdade única – consolidado de vários arquivos antigos (_header.scss, _navbar.scss, forced-nav.css)
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background: #fff;
+    border-bottom: 4px solid var(--color-brand);
+    display: flex;
+    align-items: stretch;
+    min-height: 80px !important;
+    padding: 0 .75rem;
+}
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background: #fff;
+    border-bottom: 4px solid var(--color-brand);
+    display: flex;
+    align-items: stretch;
+    min-height: 80px;
+    padding: 0 .75rem;
+}
+.header__inner {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    gap: .75rem;
+}
+
+.header__brand {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-weight: 600;
+    color: var(--color-text);
+    text-decoration: none;
+    padding: .25rem .5rem;
+}
+
+.header__brand img {
+    height: 45px;
+    width: auto;
+
+}
+/* NAV */
+.nav {
+    display: flex;
+    align-items: stretch;
+    gap: .25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nav__item {
+    display: flex;
+}
+
+.nav__link {
+    --_pad-x: .9rem;
+    --_pad-y: .85rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    font-size: .95rem;
+    padding: var(--_pad-y) var(--_pad-x);
+    color: var(--color-text);
+    text-decoration: none;
+    background: transparent;
+    transition: color var(--transition-fast) ease;
+}
+
+.nav__link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: transparent;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .22s ease, background .22s ease;
+}
+
+.nav__link:hover,
+.nav__link:focus {
+    color: var(--color-brand-accent);
+}
+
+.nav__link:hover::after,
+.nav__link:focus::after {
+    background: var(--color-brand);
+    transform: scaleX(1);
+}
+
+.nav__link.is-active,
+.nav__link[aria-current="page"] {
+    color: var(--color-brand);
+}
+
+.nav__link.is-active::after,
+.nav__link[aria-current="page"]::after {
+    background: var(--color-brand);
+    transform: scaleX(1);
+}
+
+/* MENU CRESCE */
+.header__spacer {
+   display: flex
+
+}
+
+/* USER AREA */
+.user {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.user__avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: block;
+}
+
+.user__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.user__name {
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.user__role {
+    font-size: .7rem;
+    color: var(--color-text-muted);
+    margin-top: 2px;
+}
+
+/* USER MENU (dropdown básico controlado via JS adicionando .is-open) */
+.user-menu {
+    position: relative;
+}
+
+.user-menu__btn {
+    background: transparent;
+    border: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .6rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background var(--transition-fast) ease;
+}
+
+.user-menu__btn:hover {
+    background: rgba(0, 0, 0, .06);
+}
+
+.user-menu__panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + .5rem);
+    min-width: 200px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: .5rem;
+    box-shadow: 0 6px 28px -4px rgba(0, 0, 0, .25);
+    display: none;
+}
+
+.user-menu.is-open .user-menu__panel {
+    display: block;
+}
+
+.user-menu__item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .45rem .6rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--color-text);
+    font-size: .85rem;
+    transition: background var(--transition-fast) ease, color var(--transition-fast) ease;
+}
+
+.user-menu__item:hover {
+    background: var(--color-surface);
+    color: var(--color-brand);
+}
+
+/* ÍCONES BOTÕES NO HEADER */
+.icon-btn {
+    --_size: 38px;
+    width: var(--_size);
+    height: var(--_size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: background var(--transition-fast) ease;
+}
+
+.icon-btn:hover {
+    background: rgba(0, 0, 0, .06);
+}
+
+.icon-btn.is-active {
+    background: var(--color-brand);
+    color: #fff;
+}
+
+/* MOBILE */
+@media (max-width:900px) {
+    .header {
+        flex-wrap: wrap;
+    }
+
+    .nav {
+        flex-wrap: wrap;
+        padding: .25rem 0;
+    }
+
+    .nav__link {
+        padding: .65rem .85rem;
+    }
+
+    .user {
+        margin-left: auto;
+    }
+}
+
+/* DARK MODE (opcional futuro) */
+body.dark .header {
+    background: #1d1d1d;
+    border-bottom-color: var(--color-brand);
+}
+
+body.dark .nav__link {
+    color: #e2e2e2;
+}
+
+body.dark .nav__link.is-active {
+    color: var(--color-brand);
+}
+
+body.dark .user-menu__panel {
+    background: #2a2b2d;
+    color: #eee;
+    border-color: #3a3b3d;
+}

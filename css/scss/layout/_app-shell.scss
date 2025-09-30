@@ -1,0 +1,41 @@
+@use '../abstracts' as *;
+
+// Layout base da aplicação (sem mexer em header/footer)
+// - Body como coluna, main (#main-content) ocupa o espaço restante
+// - Containers dentro do main com largura confortável
+// - Evita overflow horizontal acidental
+@mixin render() {
+  :root {
+    --pv-page-max: 1280px;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  // Área principal preenche o espaço entre header e footer
+  #main-content {
+    flex: 1 0 auto;
+    min-width: 0; // evita que grids/linhas forcem overflow
+  }
+
+  // Containers dentro do main usam largura confortável sem exigir mudar HTML
+  #main-content > .container,
+  #main-content > .container-sm,
+  #main-content > .container-md,
+  #main-content > .container-lg,
+  #main-content > .container-xl,
+  #main-content > .container-xxl {
+    max-width: var(--pv-page-max);
+  }
+
+  // Seções comuns dentro do main: espaçamento vertical previsível
+  // Mantém utilitários do Bootstrap, só define um baseline leve
+  #main-content section {
+    margin-bottom: clamp(0.75rem, 1.2vw, 1.5rem);
+  }
+}

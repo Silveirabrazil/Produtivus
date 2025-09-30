@@ -16,6 +16,8 @@
         // permitir âncoras internas que mantêm hash
         const href = a.getAttribute('href');
         if(!href || href.startsWith('#')) return;
+        // Opt-out manual por atributo
+        if (a.hasAttribute('data-no-transition')) return;
         e.preventDefault();
         // marca saída, aguarda animação e navega
         document.body.classList.add('page-exit');
@@ -24,8 +26,8 @@
         }, 240);
     }
 
-    // Ao carregar: marca entrada e remove a classe para tocar a animação
-    document.addEventListener('DOMContentLoaded', ()=>{
+    function init(){
+        if (!document.body) return;
         document.body.classList.add('page-enter');
         // after a tick, allow CSS to transition
         requestAnimationFrame(()=>{
@@ -33,6 +35,17 @@
             // remove page-enter/ready after a while to keep DOM clean
             setTimeout(()=> document.body.classList.remove('page-enter','ready'), 900);
         });
-        document.body.addEventListener('click', onLinkClick);
-    });
+        // Evitar múltiplos binds
+        if (!document.body.__pvPTBound) {
+            document.body.addEventListener('click', onLinkClick);
+            document.body.__pvPTBound = true;
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        // já carregado, inicializa imediatamente
+        try { init(); } catch {}
+    }
 })();

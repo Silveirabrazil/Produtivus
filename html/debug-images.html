@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Direto das Imagens</title>
+    <link rel="icon" href="../img/icone.png" type="image/png">
+    <link rel="apple-touch-icon" href="../img/icone.png">
+    <link rel="stylesheet" href="../css/app.css?v=2">
+</head>
+<body class="debug-page page-animate">
+    <main id="main-content" class="app-main">
+        <header class="page-header page-header--band cabecalho-page">
+                <h1 class="page-header__title h3 m-0">🔍 Teste Direto das Imagens Hero</h1>
+                <p class="page-header__subtitle m-0">Diagnóstico de caminhos relativos e absolutos.</p>
+            </header>
+            <section class="page-section">
+
+    <div class="test-image">
+        <h3>Teste 1: Tag IMG direta</h3>
+        <img src="../img/hero-1.jpg" alt="Hero 1">
+        <p><strong>Path:</strong> <code>../img/hero-1.jpg</code></p>
+    </div>
+
+    <div class="test-image">
+        <h3>Teste 2: Background-image CSS</h3>
+        <div class="bg-test bg-test--rel"></div>
+        <p><strong>CSS:</strong> <code>background-image: url('../img/hero-1.jpg')</code></p>
+    </div>
+
+    <div class="test-image">
+        <h3>Teste 3: Caminho absoluto</h3>
+        <img src="/img/hero-1.jpg" alt="Hero 1 absoluto">
+        <p><strong>Path:</strong> <code>/img/hero-1.jpg</code></p>
+    </div>
+
+    <div class="test-image">
+        <h3>Teste 4: Background absoluto</h3>
+        <div class="bg-test bg-test--abs"></div>
+        <p><strong>CSS:</strong> <code>background-image: url('/img/hero-1.jpg')</code></p>
+    </div>
+
+    <div class="test-image">
+        <h3>Teste 5: Todas as 4 imagens em tags IMG</h3>
+        <img src="../img/hero-1.jpg" alt="Hero 1" class="img-demo">
+        <img src="../img/hero-2.jpg" alt="Hero 2" class="img-demo">
+        <img src="../img/hero-3.jpg" alt="Hero 3" class="img-demo">
+        <img src="../img/hero-4.jpg" alt="Hero 4" class="img-demo">
+    </div>
+
+            </section>
+    </main>
+        <script>
+        // Verifica quais imagens carregaram
+        const images = document.querySelectorAll('img');
+        images.forEach((img, i) => {
+            img.onload = () => console.log(`✅ Imagem ${i+1} carregou:`, img.src);
+            img.onerror = () => console.error(`❌ Erro imagem ${i+1}:`, img.src);
+        });
+
+        // Testa se as URLs são acessíveis
+        const testUrls = [
+            '../img/hero-1.jpg',
+            '../img/hero-2.jpg',
+            '../img/hero-3.jpg',
+            '../img/hero-4.jpg'
+        ];
+
+        testUrls.forEach(url => {
+            fetch(url)
+                .then(response => {
+                    if (response.ok) {
+                        console.log(`✅ URL acessível: ${url}`);
+                    } else {
+                        console.error(`❌ URL retornou ${response.status}: ${url}`);
+                    }
+                })
+                .catch(error => {
+                    console.error(`❌ Erro ao acessar URL ${url}:`, error);
+                });
+        });
+    </script>
+</body>
+</html>

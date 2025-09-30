@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>🧪 Teste Produtivus - Login e Aulas</title>
+    <link rel="stylesheet" href="css/app.css?v=2" />
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .log { margin: 5px 0; padding: 8px; background: #f8f9fa; border-radius: 4px; font-size: 14px; }
+        .error { background: #ffe6e6; color: #d00; }
+        .success { background: #e6ffe6; color: #0a0; }
+        .info { background: #e6f3ff; color: #06c; }
+        .warning { background: #fff3cd; color: #856404; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-danger { background: #dc3545; color: white; }
+        .lesson-form { display: none; background: #f8f9fa; padding: 20px; margin: 10px 0; border-radius: 8px; }
+        .form-group { margin: 10px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        input[type="checkbox"] { width: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste Produtivus - Sistema de Aulas</h1>
+
+        <div class="test-section">
+            <h2>🔐 1. Autenticação</h2>
+            <p>Primeiro, vamos simular o login do usuário:</p>
+            <button class="btn-primary" onclick="simulateLogin()">🚀 Simular Login</button>
+            <button class="btn-warning" onclick="clearAuth()">🗑️ Limpar Autenticação</button>
+            <button class="btn-danger" onclick="testProdAuth()">🔍 Testar Auth Produção</button>
+            <div id="auth-status" class="log info">Status: Não autenticado</div>
+        </div>
+
+        <div class="test-section">
+            <h2>📚 2. Teste de Criação de Aula</h2>
+            <button class="btn-success" onclick="showLessonForm()">➕ Mostrar Formulário</button>
+            <button class="btn-primary" onclick="testLessonCreation()">🎯 Teste Rápido</button>
+
+            <div id="lesson-form" class="lesson-form">
+                <h3>Criar Nova Aula</h3>
+                <div class="form-group">
+                    <label>Título da Aula:</label>
+                    <input type="text" id="lesson-title" value="Matemática - Álgebra Linear" />
+                </div>
+                <div class="form-group">
+                    <label>Cor:</label>
+                    <input type="color" id="lesson-color" value="#E0B33A" />
+                </div>
+                <div class="form-group">
+                    <label>Curso:</label>
+                    <select id="lesson-course">
+                        <option value="1">Curso de Matemática</option>
+                        <option value="2">Curso de Física</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Matéria:</label>
+                    <select id="lesson-subject">
+                        <option value="1">Matemática</option>
+                        <option value="2">Física</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Duração (minutos):</label>
+                    <input type="number" id="lesson-duration" value="90" />
+                </div>
+                <div class="form-group">
+                    <label>Data de Início:</label>
+                    <input type="date" id="lesson-start-date" value="2025-09-30" />
+                </div>
+                <div class="form-group">
+                    <label>Data de Término:</label>
+                    <input type="date" id="lesson-end-date" value="2025-12-15" />
+                </div>
+                <div class="form-group">
+                    <label>Hora de Início:</label>
+                    <input type="time" id="lesson-time" value="14:00" />
+                </div>
+                <div class="form-group">
+                    <label>Hora de Término:</label>
+                    <input type="time" id="lesson-end-time" value="15:30" />
+                </div>
+                <div class="form-group">
+                    <label>Dias da Semana:</label>
+                    <label><input type="checkbox" data-dow="1" checked> Segunda</label>
+                    <label><input type="checkbox" data-dow="3" checked> Quarta</label>
+                    <label><input type="checkbox" data-dow="5" checked> Sexta</label>
+                </div>
+                <button class="btn-success" onclick="submitLessonForm()">💾 Criar Aula</button>
+                <button class="btn-warning" onclick="hideLessonForm()">❌ Cancelar</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 3. Logs de Debug</h2>
+            <button class="btn-warning" onclick="clearLogs()">🗑️ Limpar Logs</button>
+            <div id="logs"></div>
+        </div>
+    </div>
+
+    <script src="js/modules/tasks/tasks-test.js?v=202509280530"></script>
+    <script>
+        let logCount = 0;
+
+        function addLog(message, type = 'log') {
+            logCount++;
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `<strong>#${logCount}</strong> [${new Date().toLocaleTimeString()}] ${message}`;
+            document.getElementById('logs').appendChild(div);
+            document.getElementById('logs').scrollTop = document.getElementById('logs').scrollHeight;
+            console.log(`[TEST] ${message}`);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+            logCount = 0;
+        }
+
+        function simulateLogin() {
+            addLog('🔐 Simulando login do usuário...', 'info');
+
+            const userData = {
+                id: 1,
+                email: 'usuario@teste.com',
+                name: 'Usuário Teste',
+                authenticated: true,
+                login_time: new Date().toISOString()
+            };
+
+            localStorage.setItem('pv_user', JSON.stringify(userData));
+            addLog('✅ Login simulado com sucesso! Usuário: ' + userData.email, 'success');
+            updateAuthStatus();
+        }
+
+        function clearAuth() {
+            localStorage.removeItem('pv_user');
+            addLog('🗑️ Autenticação removida', 'warning');
+            updateAuthStatus();
+        }
+
+        function updateAuthStatus() {
+            const user = localStorage.getItem('pv_user');
+            const statusEl = document.getElementById('auth-status');
+
+            if (user) {
+                const userData = JSON.parse(user);
+                statusEl.innerHTML = `Status: ✅ Logado como ${userData.email}`;
+                statusEl.className = 'log success';
+            } else {
+                statusEl.innerHTML = 'Status: ❌ Não autenticado';
+                statusEl.className = 'log error';
+            }
+        }
+
+        async function testProdAuth() {
+            addLog('🔍 Testando autenticação na produção...', 'info');
+
+            try {
+                const response = await fetch('https://cesarbrasilfotografia.com.br/server/api/account.php', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                addLog(`Resposta da produção: Status ${response.status}`, response.ok ? 'success' : 'error');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addLog(`Dados: ${JSON.stringify(data)}`, 'info');
+                } else {
+                    addLog(`Erro: ${response.statusText}`, 'error');
+                }
+
+            } catch (error) {
+                addLog(`Exceção: ${error.message}`, 'error');
+            }
+        }
+
+        function showLessonForm() {
+            document.getElementById('lesson-form').style.display = 'block';
+            addLog('📝 Formulário de aula exibido', 'info');
+        }
+
+        function hideLessonForm() {
+            document.getElementById('lesson-form').style.display = 'none';
+            addLog('❌ Formulário de aula ocultado', 'info');
+        }
+
+        async function submitLessonForm() {
+            const form = document.getElementById('lesson-form');
+            addLog('📝 Submetendo formulário de aula...', 'info');
+
+            if (typeof window.onLessonFormSubmit === 'function') {
+                const result = await window.onLessonFormSubmit(form);
+                if (result) {
+                    addLog('🎉 Aula criada com sucesso!', 'success');
+                    hideLessonForm();
+                } else {
+                    addLog('❌ Erro ao criar aula', 'error');
+                }
+            } else {
+                addLog('❌ Função onLessonFormSubmit não encontrada', 'error');
+            }
+        }
+
+        async function testLessonCreation() {
+            addLog('🎯 Iniciando teste rápido de criação de aula...', 'info');
+
+            // Verificar autenticação primeiro
+            const user = localStorage.getItem('pv_user');
+            if (!user) {
+                addLog('⚠️ Usuário não autenticado. Simulando login...', 'warning');
+                simulateLogin();
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            // Criar form temporário
+            const form = document.createElement('form');
+            form.innerHTML = `
+                <input id="lesson-title" value="Teste - Aula Rápida">
+                <input id="lesson-color" value="#E0B33A">
+                <select id="lesson-course"><option value="1" selected>Curso Teste</option></select>
+                <select id="lesson-subject"><option value="1" selected>Matéria Teste</option></select>
+                <input id="lesson-duration" value="60">
+                <input id="lesson-start-date" value="2025-09-30">
+                <input id="lesson-end-date" value="2025-10-30">
+                <input id="lesson-time" value="10:00">
+                <input id="lesson-end-time" value="11:00">
+                <input type="checkbox" data-dow="2" checked>
+                <input type="checkbox" data-dow="4" checked>
+            `;
+
+            document.body.appendChild(form);
+
+            try {
+                if (typeof window.onLessonFormSubmit === 'function') {
+                    const result = await window.onLessonFormSubmit(form);
+                    if (result) {
+                        addLog('✅ Teste rápido: Aula criada com sucesso!', 'success');
+                    } else {
+                        addLog('❌ Teste rápido: Falha na criação', 'error');
+                    }
+                } else {
+                    addLog('❌ Função onLessonFormSubmit não disponível', 'error');
+                }
+            } finally {
+                document.body.removeChild(form);
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            addLog('🚀 Sistema de teste carregado', 'info');
+            updateAuthStatus();
+
+            // Verificar se scripts carregaram
+            setTimeout(() => {
+                const functions = ['onLessonFormSubmit', 'addOrEditTask', 'getTasks'];
+                functions.forEach(funcName => {
+                    if (typeof window[funcName] === 'function') {
+                        addLog(`✅ ${funcName} disponível`, 'success');
+                    } else {
+                        addLog(`❌ ${funcName} não encontrada`, 'error');
+                    }
+                });
+            }, 1000);
+        });
+
+        // Interceptar logs específicos
+        const originalLog = console.log;
+        console.log = function(...args) {
+            const message = args.join(' ');
+            if (message.includes('[AULA]') || message.includes('[API]') || message.includes('[DEBUG]') || message.includes('[TEST]')) {
+                if (message.includes('❌') || message.includes('ERRO')) {
+                    addLog(message, 'error');
+                } else if (message.includes('✅') || message.includes('SUCESSO')) {
+                    addLog(message, 'success');
+                } else if (message.includes('⚠️') || message.includes('WARNING')) {
+                    addLog(message, 'warning');
+                } else {
+                    addLog(message, 'info');
+                }
+            }
+            originalLog.apply(console, args);
+        };
+
+        const originalError = console.error;
+        console.error = function(...args) {
+            const message = args.join(' ');
+            if (message.includes('[AULA]') || message.includes('[API]') || message.includes('[DEBUG]')) {
+                addLog(message, 'error');
+            }
+            originalError.apply(console, args);
+        };
+    </script>
+</body>
+</html>

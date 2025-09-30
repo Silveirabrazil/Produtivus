@@ -1,0 +1,15 @@
+@use './header' as header;
+@use './hero' as hero;
+@use './menu' as menu;
+@use './sections' as sections;
+@use './app-shell' as appShell;
+@use './pages-shell' as pagesShell;
+
+@mixin render() {
+  @include appShell.render();
+  @include pagesShell.render();
+  @include header.render();
+  @include hero.render();
+  @include menu.render();
+  @include sections.render();
+}

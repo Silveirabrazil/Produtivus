@@ -1,0 +1,54 @@
+@use '../abstracts/mixins' as *;
+// Página: Calendário — estilos consolidados (extraídos do <style> inline)
+
+// Calendário mais compacto: layout otimizado
+.calendar-section {
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+
+	.central-calendar {
+		// Reduzido ~10% de 1300px para 1170px
+		max-width: 1170px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+}
+
+@media (min-width: 1600px) {
+	.calendar-section .central-calendar {
+		// Reduzido ~10% de 1450px para 1305px
+		max-width: 1305px;
+	}
+}
+
+// Altura reduzida e otimizada para compactação
+#fullcalendar {
+	min-height: 580px; // de 720px para 580px
+	max-height: 650px;
+}
+
+// Texto otimizado para o esquema de cores moderno
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number,
+.fc .fc-toolbar-title {
+	color: #2c3e50 !important; // Azul escuro consistente
+}
+
+.fc .fc-event,
+.fc .fc-daygrid-event {
+	color: #fff !important;
+	font-weight: 500;
+}
+
+.fc .fc-daygrid-more-link {
+	color: #3498db !important;
+	font-weight: 500;
+}
+
+@include mobile() {
+	#fullcalendar { min-height: 450px; }
+	.calendar-section .central-calendar { max-width: 100%; }
+}
+
+	// Variante para páginas que precisam desabilitar o max-width (substitui style="max-width:none;")
+	.central-calendar.is-fullwidth { max-width: none !important; }

@@ -1,129 +1,273 @@
 // js/modules/ui.js
-// Provedor de UI usando Bootstrap 5: toasts e modais confirm/prompt/select
+// Versão sem Bootstrap: provê pvShowToast / pvShowConfirm / pvShowPrompt / pvShowSelect
+// Usa o sistema de componentes custom (.janela) e acessibilidade básica.
 (function(){
   if (window.pvShowToast && window.pvShowConfirm && window.pvShowPrompt && window.pvShowSelect) return;
 
-  function ensureToastContainer(){
-    let c = document.getElementById('pv-toast-container');
-    if (!c) {
+  // ---------------- Toasts -----------------
+  function ensureAvisos(){
+    let c = document.getElementById('pv-avisos');
+    if(!c){
       c = document.createElement('div');
-      c.id = 'pv-toast-container';
-      c.className = 'toast-container position-fixed top-0 end-0 p-3';
-      c.style.zIndex = '1080'; // acima do conteúdo, abaixo do modal (z-index 1055-1050)
+      c.id = 'pv-avisos';
+      c.setAttribute('role','region');
+      c.setAttribute('aria-label','Notificações');
+      c.style.position='fixed';
+      c.style.top='0';
+      c.style.right='0';
+      c.style.display='flex';
+      c.style.flexDirection='column';
+      c.style.gap='0.5rem';
+      c.style.padding='0.75rem';
+      c.style.zIndex='1200';
       document.body.appendChild(c);
     }
     return c;
   }
 
   function pvShowToast(msg, opts){
-    try { ensureToastContainer(); } catch{}
-    const c = ensureToastContainer();
-    const delay = (opts && typeof opts.timeout === 'number') ? Math.max(0, opts.timeout) : 3000;
-  const el = document.createElement('div');
-  el.className = 'toast fade align-items-center border-0 shadow';
+    const c = ensureAvisos();
+    const el = document.createElement('div');
+    const tipo = (opts && opts.type) || '';
+    const variantClass = tipo ? ' aviso--'+tipo : '';
+    el.className = 'aviso'+variantClass; // classes variantes: --sucesso --erro --alerta --info
     el.setAttribute('role','alert');
-    el.setAttribute('aria-live','assertive');
-    el.setAttribute('aria-atomic','true');
-    el.innerHTML = '<div class="d-flex">\n  <div class="toast-body"></div>\n  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>\n</div>';
-    el.querySelector('.toast-body').textContent = String(msg || '');
-    // aplicar tema leve/escuro baseado em opções simples
-    if (opts && opts.variant) {
-      const map = { success: 'text-bg-success', danger:'text-bg-danger', warning:'text-bg-warning', info:'text-bg-info', primary:'text-bg-primary', secondary:'text-bg-secondary', light:'text-bg-light', dark:'text-bg-dark' };
-      const cls = map[opts.variant];
-      if (cls) el.classList.add(cls);
-    } else {
-      el.classList.add('text-bg-dark');
-    }
-    if (opts && opts.background) el.style.background = opts.background;
-    if (opts && opts.color) el.style.color = opts.color;
+    if(opts && opts.background){ el.style.setProperty('--aviso-bg', opts.background); }
+    if(opts && opts.color){ el.style.setProperty('--aviso-fg', opts.color); }
+    const btn = document.createElement('button');
+    btn.type='button'; btn.textContent='×'; btn.className='aviso__fechar'; btn.setAttribute('aria-label','Fechar');
+    btn.addEventListener('click', ()=> el.remove());
+    const span = document.createElement('span'); span.className='aviso__conteudo'; span.textContent = String(msg||'');
+    el.appendChild(span);
+    el.appendChild(btn);
     c.appendChild(el);
-    try {
-      const toast = window.bootstrap ? new window.bootstrap.Toast(el, { autohide: delay !== 0, delay }) : null;
-      if (toast) toast.show(); else setTimeout(()=> el.remove(), delay || 0);
-      el.addEventListener('hidden.bs.toast', ()=> el.remove());
-    } catch {
-      if (delay) setTimeout(()=> el.remove(), delay);
+    const timeout = (opts && typeof opts.timeout==='number') ? opts.timeout : 3000;
+    if(timeout>0){
+      el.dataset.timeout = String(timeout);
+      setTimeout(()=>{ try{ el.remove(); }catch{} }, timeout);
     }
   }
 
-  function buildModalShell(titleHtml, bodyHtml, footerHtml){
-    const wrapper = document.createElement('div');
-    const id = 'pv-modal-' + Math.random().toString(36).slice(2);
-  wrapper.innerHTML = `
-<div class="modal fade" id="${id}" tabindex="-1" aria-hidden="true">\n  <div class="modal-dialog modal-dialog-centered">\n    <div class="modal-content">\n      <div class="modal-header">\n        <h5 class="modal-title">${titleHtml || ''}</h5>\n        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>\n      </div>\n      <div class="modal-body">${bodyHtml || ''}</div>\n      <div class="modal-footer">${footerHtml || ''}</div>\n    </div>\n  </div>\n</div>`;
-    const el = wrapper.firstElementChild;
-    document.body.appendChild(el);
-    return el;
+  // ------------- Helpers Modais (.janela) -------------
+  function criarJanela(tituloHTML, corpoHTML, botoes){
+    const overlay = document.createElement('div');
+    overlay.className = 'janela janela--pequena';
+    overlay.setAttribute('role','dialog');
+    overlay.setAttribute('aria-modal','true');
+    overlay.setAttribute('aria-hidden','true');
+    overlay.dataset.pvTempModal = '1';
+
+  const previousActive = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+  const caixa = document.createElement('div');
+    caixa.className = 'janela__caixa';
+    caixa.setAttribute('tabindex','-1');
+
+    const cabecalho = document.createElement('div');
+    cabecalho.className = 'janela__cabecalho';
+    const titulo = document.createElement('h2');
+    titulo.className = 'janela__titulo';
+    titulo.innerHTML = tituloHTML || '';
+    cabecalho.appendChild(titulo);
+
+    const corpo = document.createElement('div');
+    corpo.className = 'janela__corpo';
+    if (typeof corpoHTML === 'string') {
+      corpo.innerHTML = corpoHTML;
+    } else if (corpoHTML instanceof Node) {
+      corpo.appendChild(corpoHTML);
+    } else if (Array.isArray(corpoHTML)) {
+      corpoHTML.forEach(n => { if (n instanceof Node) corpo.appendChild(n); });
+    }
+
+    const rodape = document.createElement('div');
+    rodape.className = 'janela__acoes';
+    (botoes || []).forEach(btn => { if (btn) rodape.appendChild(btn); });
+
+    caixa.appendChild(cabecalho);
+    caixa.appendChild(corpo);
+    caixa.appendChild(rodape);
+    overlay.appendChild(caixa);
+    document.body.appendChild(overlay);
+
+    const cleanupCallbacks = [];
+    function onClose(fn){ if (typeof fn === 'function') cleanupCallbacks.push(fn); }
+    function runCleanup(){
+      while(cleanupCallbacks.length){ const fn = cleanupCallbacks.shift(); try { fn(); } catch {} }
+      if (previousActive && typeof previousActive.focus === 'function') {
+        setTimeout(() => {
+          try {
+            if (previousActive.isConnected) previousActive.focus();
+          } catch {}
+        }, 0);
+      }
+    }
+
+    function fechar(){
+      if (overlay.dataset.closing === '1') return;
+      overlay.dataset.closing = '1';
+      overlay.classList.remove('janela--aberta');
+      overlay.classList.add('janela--fechando');
+      overlay.setAttribute('aria-hidden','true');
+      setTimeout(() => {
+        try { overlay.remove(); } catch {}
+        runCleanup();
+      }, 240);
+    }
+
+    setTimeout(() => {
+      overlay.classList.add('janela--aberta');
+      overlay.setAttribute('aria-hidden','false');
+      try { caixa.focus(); } catch {}
+    }, 15);
+
+    return { overlay, caixa, corpo, rodape, fechar, onClose };
+  }
+
+  function focusTrap(container){
+    const sel = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const getFocusables = () => Array.from(container.querySelectorAll(sel)).filter(el => el instanceof HTMLElement && !el.hasAttribute('disabled'));
+    function focusFirst(){
+      const focaveis = getFocusables();
+      if (focaveis.length) focaveis[0].focus();
+    }
+    focusFirst();
+    function handle(e){
+      if (e.key === 'Tab'){
+        const focaveis = getFocusables();
+        if (!focaveis.length) return;
+        const idx = focaveis.indexOf(document.activeElement);
+        if (e.shiftKey){
+          if (idx <= 0){ focaveis[focaveis.length - 1].focus(); e.preventDefault(); }
+        } else {
+          if (idx === focaveis.length - 1){ focaveis[0].focus(); e.preventDefault(); }
+        }
+      } else if (e.key === 'Escape'){
+        const closeBtn = container.querySelector('[data-action="cancel"], [data-fechar]');
+        if (closeBtn) closeBtn.click();
+      }
+    }
+    container.addEventListener('keydown', handle);
+    return () => container.removeEventListener('keydown', handle);
   }
 
   function pvShowConfirm(message){
-    if (!window.bootstrap || !window.bootstrap.Modal) {
-      return Promise.resolve(window.confirm(String(message||'')));
-    }
-    return new Promise(res => {
-      const m = buildModalShell('Confirmação', `<p class="mb-0">${message || ''}</p>`, `
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-action="cancel">Cancelar</button>
-        <button type="button" class="btn btn-primary" data-action="ok">OK</button>`);
-      const inst = new window.bootstrap.Modal(m, { backdrop: 'static' });
-      const ok = m.querySelector('[data-action="ok"]');
-      const cancel = m.querySelector('[data-action="cancel"]');
-      const done = (v)=>{ try{ inst.hide(); }catch{} res(v); };
-      ok.addEventListener('click', ()=> done(true));
-      cancel.addEventListener('click', ()=> done(false));
-      m.addEventListener('hidden.bs.modal', ()=> m.remove());
-      inst.show();
+    return new Promise(res=>{
+      const btnCancelar = document.createElement('button');
+      btnCancelar.className='botao botao--suave';
+      btnCancelar.textContent='Cancelar';
+      btnCancelar.setAttribute('data-action','cancel');
+      const btnOk = document.createElement('button');
+      btnOk.className='botao botao--primario';
+      btnOk.textContent='OK';
+      btnOk.setAttribute('data-action','ok');
+      const ctrl = criarJanela('Confirmação', '', [btnCancelar, btnOk]);
+      ctrl.overlay.classList.add('janela--compacta');
+      ctrl.corpo.innerHTML = '';
+      const texto = document.createElement('p');
+      texto.className = 'm-0';
+      texto.textContent = message || '';
+      ctrl.corpo.appendChild(texto);
+      let decidido = false;
+      const releaseTrap = focusTrap(ctrl.caixa);
+      ctrl.onClose(() => releaseTrap());
+      function finalizar(v){
+        if (decidido) return;
+        decidido = true;
+        ctrl.fechar();
+        res(v);
+      }
+      btnCancelar.addEventListener('click', ()=> finalizar(false));
+      btnOk.addEventListener('click', ()=> finalizar(true));
+      ctrl.overlay.addEventListener('click', e=>{ if (e.target === ctrl.overlay) finalizar(false); });
     });
   }
 
   function pvShowPrompt(message, def){
-    if (!window.bootstrap || !window.bootstrap.Modal) {
-      const v = window.prompt(String(message||''), def || '');
-      return Promise.resolve(v == null ? null : String(v));
-    }
-    return new Promise(res => {
-      const inputId = 'pv-prompt-input-' + Math.random().toString(36).slice(2);
-      const body = `<div class="mb-2">${message || ''}</div><input class="form-control" id="${inputId}" />`;
-      const m = buildModalShell('Informação', body, `
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-action="cancel">Cancelar</button>
-        <button type="button" class="btn btn-primary" data-action="ok">OK</button>`);
-      const inst = new window.bootstrap.Modal(m, { backdrop: 'static' });
-      const ok = m.querySelector('[data-action="ok"]');
-      const cancel = m.querySelector('[data-action="cancel"]');
-      const input = m.querySelector('#'+inputId);
-      const done = (v)=>{ try{ inst.hide(); }catch{} res(v); };
-      ok.addEventListener('click', ()=> done(String(input.value)));
-      cancel.addEventListener('click', ()=> done(null));
-      m.addEventListener('shown.bs.modal', ()=>{ try{ input.value = def || ''; input.focus(); input.select(); }catch{} });
-      m.addEventListener('hidden.bs.modal', ()=> m.remove());
-      input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ done(String(input.value)); } if(e.key==='Escape'){ done(null); } });
-      inst.show();
+    return new Promise(res=>{
+      const input = document.createElement('input');
+      input.className='campo';
+      input.value = def || '';
+      input.style.width='100%';
+      const btnCancelar = document.createElement('button');
+      btnCancelar.className='botao botao--suave';
+      btnCancelar.textContent='Cancelar';
+      btnCancelar.setAttribute('data-action','cancel');
+      const btnOk = document.createElement('button');
+      btnOk.className='botao botao--primario';
+      btnOk.textContent='OK';
+      btnOk.setAttribute('data-action','ok');
+      const ctrl = criarJanela('Informação', '', [btnCancelar, btnOk]);
+      ctrl.overlay.classList.add('janela--compacta');
+      const bloco = document.createElement('div');
+      bloco.className = 'mb-sm';
+      bloco.textContent = message || '';
+      ctrl.corpo.appendChild(bloco);
+      ctrl.corpo.appendChild(input);
+      let encerrado = false;
+      const releaseTrap = focusTrap(ctrl.caixa);
+      ctrl.onClose(() => releaseTrap());
+      function finalizar(v){
+        if (encerrado) return;
+        encerrado = true;
+        ctrl.fechar();
+        res(v);
+      }
+      btnCancelar.addEventListener('click', ()=> finalizar(null));
+      btnOk.addEventListener('click', ()=> finalizar(String(input.value)));
+      ctrl.overlay.addEventListener('click', e=>{ if (e.target === ctrl.overlay) finalizar(null); });
+      input.addEventListener('keydown', e=>{
+        if (e.key==='Enter'){ finalizar(String(input.value)); }
+        if (e.key==='Escape'){ finalizar(null); }
+      });
+      setTimeout(()=>{ try{ input.focus(); input.select(); }catch{} }, 40);
     });
   }
 
   function pvShowSelect(message, options, allowEmpty){
-    if (!window.bootstrap || !window.bootstrap.Modal) {
-      const fallback = window.prompt(String(message||''));
-      return Promise.resolve(fallback == null ? (allowEmpty ? '' : null) : String(fallback));
-    }
-    return new Promise(res => {
-      const ops = Array.isArray(options) ? options : [];
-      const selectId = 'pv-select-input-' + Math.random().toString(36).slice(2);
-      const optsHtml = ops.map(o => `<option value="${String(o.value)}">${String(o.label)}</option>`).join('');
-      const body = `<div class="mb-2">${message || ''}</div><select class="form-select" id="${selectId}">${optsHtml}</select>`;
-      const m = buildModalShell('Selecione', body, `
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-action="cancel">${allowEmpty ? 'Pular' : 'Cancelar'}</button>
-        <button type="button" class="btn btn-primary" data-action="ok">OK</button>`);
-      const inst = new window.bootstrap.Modal(m, { backdrop: 'static' });
-      const ok = m.querySelector('[data-action="ok"]');
-      const cancel = m.querySelector('[data-action="cancel"]');
-      const select = m.querySelector('#'+selectId);
-      const done = (v)=>{ try{ inst.hide(); }catch{} res(v); };
-      ok.addEventListener('click', ()=> done(select.value));
-      cancel.addEventListener('click', ()=> done(allowEmpty ? '' : null));
-      m.addEventListener('shown.bs.modal', ()=>{ try{ select.focus(); }catch{} });
-      m.addEventListener('hidden.bs.modal', ()=> m.remove());
-      select.addEventListener('keydown',(e)=>{ if (e.key==='Enter'){ done(select.value); } if (e.key==='Escape'){ done(allowEmpty ? '' : null); } });
-      inst.show();
+    return new Promise(res=>{
+      const ops = Array.isArray(options)? options : [];
+      const select = document.createElement('select');
+      select.className='campo';
+      select.style.width='100%';
+      ops.forEach(o=>{
+        const opt = document.createElement('option');
+        opt.value = String(o.value);
+        opt.textContent = String(o.label);
+        select.appendChild(opt);
+      });
+      const btnCancelar = document.createElement('button');
+      btnCancelar.className='botao botao--suave';
+      btnCancelar.textContent= allowEmpty ? 'Pular' : 'Cancelar';
+      btnCancelar.setAttribute('data-action','cancel');
+      const btnOk = document.createElement('button');
+      btnOk.className='botao botao--primario';
+      btnOk.textContent='OK';
+      btnOk.setAttribute('data-action','ok');
+      const ctrl = criarJanela('Selecione', '', [btnCancelar, btnOk]);
+      ctrl.overlay.classList.add('janela--compacta');
+      const bloco = document.createElement('div');
+      bloco.className = 'mb-sm';
+      bloco.textContent = message || '';
+      ctrl.corpo.appendChild(bloco);
+      ctrl.corpo.appendChild(select);
+      let done = false;
+      const releaseTrap = focusTrap(ctrl.caixa);
+      ctrl.onClose(() => releaseTrap());
+      function finalizar(v){
+        if (done) return;
+        done = true;
+        ctrl.fechar();
+        res(v);
+      }
+      btnCancelar.addEventListener('click', ()=> finalizar(allowEmpty ? '' : null));
+      btnOk.addEventListener('click', ()=> finalizar(select.value));
+      ctrl.overlay.addEventListener('click', e=>{ if (e.target === ctrl.overlay) finalizar(allowEmpty ? '' : null); });
+      select.addEventListener('keydown', e=>{
+        if (e.key==='Enter'){ finalizar(select.value); }
+        if (e.key==='Escape'){ finalizar(allowEmpty ? '' : null); }
+      });
+      setTimeout(()=>{ try{ select.focus(); }catch{} }, 40);
     });
   }
 

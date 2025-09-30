@@ -1,0 +1,143 @@
+/* Formulários padronizados (sem Bootstrap) - PT-BR
+   Estrutura básica:
+   .formulario (opcional wrapper)
+     .campo
+       .campo__rotulo
+       .campo__controle (wrap opcional para ícones/botões inline)
+         input|select|textarea.campo__entrada
+         .campo__acao (botão/ícone secundário)
+       .campo__ajuda (texto pequeno informativo)
+       .campo__erro (mensagem de erro)
+*/
+
+.formulario { margin:0; padding:0; }
+
+.campo { display:flex; flex-direction:column; gap:.35rem; margin:0 0 .9rem; }
+.campo:last-child { margin-bottom:0; }
+
+.campo__rotulo { font:500 .72rem/1.2 var(--fonte-base, system-ui, Arial, sans-serif); letter-spacing:.05em; text-transform:uppercase; color:#2d3740; }
+
+.campo__controle { position:relative; display:flex; align-items:stretch; width:100%; }
+
+.campo__entrada {
+  flex:1; width:100%; box-sizing:border-box;
+  font:.8rem/1.25 var(--fonte-base, system-ui, Arial, sans-serif);
+  padding:.55rem .65rem; border:1px solid #cfd6dc; border-radius:.55rem; background:#fff; color:#1f2529;
+  transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.campo__entrada:focus { outline:none; border-color:var(--cor-primaria,#246f9e); box-shadow:0 0 0 2px rgba(36,111,158,.15); }
+.campo__entrada[disabled] { background:#f3f5f7; color:#6b767f; cursor:not-allowed; }
+input.campo__entrada::-ms-reveal { filter: invert(50%); }
+
+.campo__acao { display:inline-flex; align-items:center; justify-content:center; background:#f1f3f5; border:1px solid #cfd6dc; border-left:0; padding:.45rem .65rem; border-radius:0 .55rem .55rem 0; cursor:pointer; color:#4a5660; transition:background .18s ease,color .18s ease; }
+.campo__acao:hover { background:#e6ebee; color:#1f2529; }
+.campo__acao:active { transform:translateY(1px); }
+.campo__acao:focus-visible { outline:2px solid var(--cor-primaria,#246f9e); outline-offset:2px; }
+
+/* Ajusta bordas quando há ação ligada ao campo */
+.campo__controle:has(.campo__acao) .campo__entrada { border-top-right-radius:0; border-bottom-right-radius:0; }
+
+.campo__ajuda { font:.65rem/1.2 var(--fonte-base, system-ui, Arial, sans-serif); color:#5a646d; margin-top:.15rem; }
+.campo__erro { font:.65rem/1.25 var(--fonte-base, system-ui, Arial, sans-serif); color:#b3261e; margin-top:.25rem; background:#fdecec; border:1px solid #f5b5b2; padding:.4rem .55rem; border-radius:.5rem; display:none; }
+.campo__erro.is-visivel { display:block; }
+
+/* Agrupamento horizontal opcional */
+.linha-campos { display:flex; gap:1rem; }
+.linha-campos .campo { flex:1 1 0; }
+
+/* Estado denso (para modais compactas) */
+.formulario--denso .campo { margin:0 0 .65rem; }
+.formulario--denso .campo__entrada { padding:.5rem .6rem; font-size:.78rem; }
+.formulario--denso .campo__rotulo { font-size:.62rem; }
+
+/* Container para alternador de vistas (login / criar conta) */
+.alternador-vistas { display:flex; gap:.35rem; margin:0 0 .75rem; }
+.alternador-vistas__botao { flex:1; background:#f3f5f7; border:1px solid #d4dadd; padding:.45rem .75rem; font:.65rem/1.1 var(--fonte-base, system-ui, Arial, sans-serif); letter-spacing:.05em; text-transform:uppercase; border-radius:.55rem; cursor:pointer; color:#44505a; font-weight:600; transition:background .18s ease,color .18s ease, border-color .18s ease; }
+.alternador-vistas__botao.is-ativo { background:var(--cor-primaria,#246f9e); color:#fff; border-color:var(--cor-primaria,#246f9e); }
+.alternador-vistas__botao:hover { filter:brightness(1.05); }
+.alternador-vistas__botao:focus-visible { outline:2px solid var(--cor-primaria,#246f9e); outline-offset:2px; }
+
+/* Mensagem genérica (reaproveita para login) */
+.mensagem-erro { font:.7rem/1.3 var(--fonte-base, system-ui, Arial, sans-serif); background:#fdecec; color:#821d18; padding:.55rem .65rem; border:1px solid #f5b5b2; border-radius:.6rem; margin:0 0 .8rem; display:none; }
+.mensagem-erro.is-visivel { display:block; }
+/* Mensagem informativa (azul) */
+.mensagem-info { font:.7rem/1.3 var(--fonte-base, system-ui, Arial, sans-serif); background:#eef5ff; color:#20496b; padding:.55rem .65rem; border:1px solid #b5d2f5; border-radius:.6rem; margin:0 0 .8rem; display:none; }
+.mensagem-info.is-visivel { display:block; }
+/* Texto de alerta/perigo leve (substitui inline vermelho nos modais) */
+.texto-perigo { color:#b91c1c; margin-bottom:.5rem; font:.85rem/1.4 var(--fonte-base, system-ui, Arial, sans-serif); }
+
+/* Área do login Google */
+#pv-google-login-btn { display:flex; justify-content:center; }
+#pv-google-fallback { margin-top:.6rem; }
+
+/* Logo do login */
+.login-logo { text-align:center; margin:0 0 1rem; }
+.login-logo__img { height:46px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.2)); }
+
+/* Separador OU */
+.separador-ou { text-align:center; margin:.3rem 0 .65rem; font-size:.65rem; letter-spacing:.05em; color:#5a646d; }
+
+/* Nota de indisponibilidade para proprietário */
+.nota-proprietario { text-align:center; margin:.4rem 0; color:#5a646d; font-size:.6rem; letter-spacing:.05em; }
+
+/* Pequenos utilitários locais (limitados ao contexto de formulários/modais) */
+.u-hidden { display:none !important; }
+/* espaçamentos utilitários */
+.u-mt-s { margin-top:.25rem !important; }
+.u-mb-s { margin-bottom:.5rem !important; }
+
+/* ===== Substituições para estilos inline usados nos modais de conta ===== */
+/* Grid do topo (avatar + campos básicos) */
+.grid-avatar { display:grid; grid-template-columns:96px 1fr; gap:12px; align-items:start; }
+
+/* Avatar editor (container redondo com borda e posição relativa) */
+.avatar-edit { width:96px; height:96px; border-radius:50%; overflow:hidden; background:#f3f4f6; display:flex; align-items:center; justify-content:center; border:1px solid #e5e7eb; position:relative; }
+.avatar-img { width:100%; height:100%; object-fit:cover; }
+.avatar-initials { font-weight:600; color:#6b7280; }
+.avatar-input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.avatar-hint { text-align:center; font-size:.75rem; color:#6b7280; margin-top:6px; }
+
+/* Grids dos blocos de formulário */
+.grid-2c { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+.grid-addr-1 { display:grid; grid-template-columns:1fr 120px; gap:12px; }
+.grid-addr-2 { display:grid; grid-template-columns:1fr 1fr 120px; gap:12px; margin-top:8px; }
+.grid-addr-3 { display:grid; grid-template-columns:2fr 1fr; gap:12px; margin-top:8px; }
+.grid-contact { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+
+/* Fieldset padrão usado nas seções (Endereço/Contato) */
+.fieldset-bloco { margin-top:12px; padding:8px; border:1px solid #e5e7eb; border-radius:8px; }
+.fieldset-bloco > legend { padding:0 6px; color:#6b7280; font-size:.85rem; }
+
+/* Utilitário simples para ocultar elementos sem remover do fluxo */
+.oculto { display:none !important; }
+
+@media (max-width:600px){
+  .linha-campos { flex-direction:column; }
+}
+
+/* ===== Utilitários gerais (fora de formulários, mas leves) ===== */
+.overlay-basico { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:99999; display:flex; align-items:center; justify-content:center; }
+.caixa-basica { background:#fff; border-radius:12px; max-width:520px; width:92%; padding:16px 18px; box-shadow:0 12px 36px rgba(0,0,0,.25); font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif; }
+.caixa-basica__titulo { margin:0 0 6px 0; font-size:1.1rem; }
+.caixa-basica__texto { margin:.25rem 0 .75rem 0; color:#555; font-size:.95rem; }
+.grupo-acoes { display:flex; gap:.5rem; justify-content:flex-end; }
+.botao-link { display:inline-block; text-decoration:none; background:#0d6efd; color:#fff; padding:.45rem .8rem; border-radius:8px; }
+.botao-outline { appearance:none; border:1px solid #6c757d; background:#fff; color:#333; padding:.45rem .8rem; border-radius:8px; cursor:pointer; }
+
+/* Accordion fallback */
+.acc-colapse { display:none; }
+.acc-colapse.show { display:block; }
+
+/* Janela cabeçalho/corpo utilitários (quando precisar inline-free) */
+.janela__cabecalho--linha { display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
+.janela__titulo--compacto { margin:0; font-size:1.15rem; }
+.janela__corpo--mt { margin-top:.75rem; }
+
+/* Assistente: área de log com rolagem controlada */
+.pv-assist-log { overflow:auto; max-height:48vh; }
+
+/* Página de debug de imagens */
+.bg-test { width: 240px; height: 120px; background-size: cover; background-position: center; border-radius: 6px; }
+.bg-test--rel { background-image: url('../img/hero-1.jpg'); }
+.bg-test--abs { background-image: url('/img/hero-1.jpg'); }
+.img-demo { width:150px; height:100px; margin-right:10px; object-fit:cover; border-radius:4px; }

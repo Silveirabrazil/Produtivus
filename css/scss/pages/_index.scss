@@ -1,0 +1,155 @@
+/* Variáveis para facilitar a manutenção */
+:root {
+  --cor-principal: #298AD6; /* Exemplo de azul, ajuste conforme sua paleta */
+  --cor-texto-primario: #343a40;
+  --cor-texto-secundario: #5a646d; /* Cor usada no parágrafo do cabeçalho */
+  --cor-fundo-claro: #f8f9fa; /* Fundo leve para a seção */
+  --cor-borda-card: #e9ecef;
+  --espacamento-sm: 0.5rem;
+  --espacamento-md: 1rem;
+  --espacamento-lg: 2rem;
+  --espacamento-xl: 4rem;
+  --tamanho-gap: 24px; /* Correspondente a 'gap-lg' */
+  --sombra-card: 0 2px 2px rgba(17, 24, 39, 0.08);
+  --sombra-card-hover: 0 2px 2px rgba(17, 24, 39, 0.08);
+}
+
+/* Estilos Globais e da Seção */
+
+/* HERO: backgrounds específicos da landing */
+.hero-bg {
+  background-size: cover;
+  background-position: center;
+}
+/* app.css é servido em /css → imagens ficam em ../img */
+.hero-bg--1 { background-image: url('../img/hero-1.jpg'); }
+.hero-bg--2 { background-image: url('../img/hero-2.jpg'); }
+.hero-bg--3 { background-image: url('../img/hero-3.jpg'); }
+.hero-bg--4 { background-image: url('../img/hero-4.jpg'); }
+
+/* Seção principal de recursos */
+#recursos.pt-xl.pb-xl {
+  padding-top: var(--espacamento-xl);
+  padding-bottom: var(--espacamento-xl);
+
+}
+
+/* Wrapper de Conteúdo (Page Shell) */
+.page-shell {
+  max-width: 1200px; /* Largura máxima para o conteúdo centralizado */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--espacamento-md);
+  padding-right: var(--espacamento-md);
+}
+
+/* Área de Texto Central (Cabeçalho) */
+.texto-centro {
+  text-align: center;
+}
+.cta-section.pt-xl.pb-xl {
+  background: var(--pv-page-header-bg);
+  border: 1px solid var(--pv-page-header-border);
+  padding: 2rem 2rem 1.5rem 2rem;
+  box-shadow: 0 2px 2px rgba(17, 24, 39, 0.08);
+}
+.mb-md {
+  margin-bottom: var(--espacamento-md);
+}
+
+/* Estilos de Tipografia */
+h2.peso-forte {
+  font-weight: 700; /* Forte */
+  font-size: 1.9rem; /* Mantido do inline */
+  color: var(--cor-texto-primario);
+}
+
+.mb-sm {
+  margin-bottom: var(--espacamento-sm);
+}
+
+.texto-centro p {
+  color: var(--cor-texto-secundario);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Grid dos Cards (usar grid em vez de flex para layout estável) */
+.recursos-grid {
+  display: grid !important; /* garante prioridade sobre .flexo */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--tamanho-gap);
+  justify-content: center
+}
+
+/* Estilos do Card Individual */
+
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Garante que todos os cards tenham a mesma altura */
+  border: 1px solid var(--cor-borda-card);
+  border-radius: 0.6rem;
+  padding: 0; /* Remove padding padrão se houver */
+  background-color: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: var(--sombra-card);
+
+}
+
+.feature-card:hover {
+  transform: translateY(-5px); /* Efeito de elevação sutil */
+  box-shadow: var(--sombra-card-hover);
+}
+
+.text-decoration-none {
+  text-decoration: none; /* Remove sublinhado dos links */
+}
+
+.card-body {
+  padding: var(--espacamento-lg); /* Padding interno do card */
+  flex-grow: 1; /* Permite que o body se expanda */
+}
+
+.feature-icon {
+  margin-bottom: 1rem; /* Equivalente a 'mb-3' (se 1rem for 16px/1rem) */
+}
+
+.feature-icon .material-symbols-outlined {
+  font-size: 2.5rem; /* Tamanho do ícone */
+  color: var(--cor-principal);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background-color: var(--cor-principal); /* Fundo do ícone */
+  color: #fff; /* Cor do ícone */
+  border-radius: 50%;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--cor-texto-primario);
+  margin-bottom: var(--espacamento-sm);
+}
+
+.card-text.text-muted {
+  font-size: 0.9rem;
+  color: var(--cor-texto-secundario) !important; /* !important se 'text-muted' estiver sobrescrevendo */
+  line-height: 1.4;
+}
+
+/* Responsividade (grid) */
+@media (max-width: 1200px) {
+  .recursos-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 992px) {
+  .recursos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #recursos.pt-xl.pb-xl { padding-top: var(--espacamento-lg); padding-bottom: var(--espacamento-lg); }
+  h2.peso-forte { font-size: 1.6rem; }
+}
+@media (max-width: 576px) {
+  .recursos-grid { grid-template-columns: 1fr; }
+}

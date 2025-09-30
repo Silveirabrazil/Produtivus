@@ -1,0 +1,157 @@
+/* Modais refinados (sem Bootstrap) - classes PT-BR
+   Estrutura:
+   .janela (overlay)
+     .janela__caixa
+       .janela__cabecalho
+         .janela__titulo
+         .janela__fechar (botão)
+       .janela__corpo
+       .janela__acoes
+
+   Modificadores: .janela--aberta, .janela--pequena, .janela--media, .janela--grande
+*/
+
+// ==========================================
+// COLLAPSE/SANFONA - ANIMAÇÃO SUAVE
+// ==========================================
+.collapse {
+  &:not(.show) {
+    display: none;
+  }
+
+  &.show {
+    display: block;
+  }
+}
+
+.collapsing {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.35s ease;
+}
+
+// Botões de collapse
+[data-toggle="collapse"] {
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &.collapsed {
+    // Estilo para estado colapsado
+    opacity: 0.7;
+  }
+
+  &[aria-expanded="true"] {
+    // Estilo para estado expandido
+    opacity: 1;
+  }
+}
+
+.janela {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: flex-start; /* animamos até centro; fallback mobile top */
+  justify-content: center;
+  padding: 5vh 1rem 2rem;
+  background: rgba(17,22,29,.52);
+  backdrop-filter: blur(4px) saturate(1.2);
+  -webkit-backdrop-filter: blur(4px) saturate(1.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+
+.janela--aberta { opacity: 1; pointer-events: auto; }
+
+/* Caixa */
+.janela__caixa {
+  --janela-radius: 1.05rem;
+  --janela-borda: #dde2e6;
+  --janela-bg: #fff;
+  width: 100%;
+  max-width: 520px;
+  background: var(--janela-bg);
+  border: 1px solid var(--janela-borda);
+  border-radius: var(--janela-radius);
+  box-shadow: 0 12px 40px -8px rgba(0,0,0,.35), 0 2px 8px -2px rgba(0,0,0,.15);
+  display: flex;
+  flex-direction: column;
+  transform: translateY(18px) scale(.985);
+  opacity: 0;
+  transition: transform .35s cubic-bezier(.16,.84,.33,1), opacity .3s ease;
+  overflow: hidden;
+  position: relative;
+}
+.janela--aberta .janela__caixa { transform: translateY(0) scale(1); opacity: 1; }
+
+/* Tamanhos */
+.janela--pequena .janela__caixa { max-width: 400px; }
+.janela--media .janela__caixa { max-width: 640px; }
+.janela--grande .janela__caixa { max-width: 880px; }
+
+/* Cabeçalho */
+.janela__cabecalho {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  padding: .95rem 1.15rem .85rem;
+  border-bottom: 1px solid #e6ebf0;
+  background:
+    radial-gradient(1200px 160px at 10% 0%, color-mix(in oklab, var(--cor-primaria,#246f9e), white 94%), transparent 60%),
+    linear-gradient(#ffffff,#fbfcfd);
+}
+.janela__titulo { font: 600 1rem/1.2 var(--fonte-base, system-ui, Arial, sans-serif); margin: 0; flex: 1; letter-spacing:.3px; }
+
+/* Botão fechar */
+.janela__fechar { background: transparent; border:0; cursor:pointer; width:2rem; height:2rem; border-radius:.65rem; display:inline-flex; align-items:center; justify-content:center; color:#5b636b; transition: background .18s ease, color .18s ease; }
+.janela__fechar:hover { background:#f1f3f5; color:#1f2429; }
+.janela__fechar:active { transform: translateY(1px); }
+.janela__fechar:focus-visible { outline:2px solid var(--cor-primaria,#246f9e); outline-offset:2px; }
+.janela__fechar svg { width:18px; height:18px; }
+
+/* Corpo */
+.janela__corpo { padding: 1.05rem 1.15rem 1.25rem; font-size:.85rem; line-height:1.35; color:#222; overflow-y:auto; max-height:calc(70vh - 2rem); }
+.janela--grande .janela__corpo { max-height:calc(78vh - 2rem); }
+
+/* Ações */
+.janela__acoes {
+  padding:.85rem 1.15rem 1.05rem; display:flex; gap:.6rem; justify-content:flex-end;
+  border-top:1px solid #e6ebf0; background: linear-gradient(#fafcfe,#f7fafc);
+}
+.janela__acoes .botao + .botao { margin-left:.15rem; }
+
+/* Conteúdo dividido (opcional) */
+.janela__linha { display:flex; gap:1rem; }
+.janela__coluna { flex:1; min-width:0; }
+
+/* Scrollbar sutil dentro do corpo */
+.janela__corpo { scrollbar-width: thin; scrollbar-color: #c4ccd2 transparent; }
+.janela__corpo::-webkit-scrollbar { width:8px; }
+.janela__corpo::-webkit-scrollbar-track { background:transparent; }
+.janela__corpo::-webkit-scrollbar-thumb { background:#c4ccd2; border-radius:4px; }
+.janela__corpo::-webkit-scrollbar-thumb:hover { background:#aab3ba; }
+
+/* Estado arrastável (caso adicionado futuramente) */
+.janela--arrastando { cursor:move; }
+
+/* Pequena variação para formulários densos */
+.janela--compacta .janela__corpo { padding: .75rem .9rem 1rem; }
+.janela--compacta .janela__cabecalho { padding:.75rem .9rem .65rem; }
+.janela--compacta .janela__acoes { padding:.65rem .9rem .8rem; }
+
+/* Animação de saída (classe transitória) */
+.janela--fechando { opacity:0 !important; }
+.janela--fechando .janela__caixa { transform: translateY(14px) scale(.985); opacity:0; }
+
+@media (max-width: 640px) {
+  .janela { padding: 0 0 env(safe-area-inset-bottom); align-items: flex-end; }
+  .janela__caixa { max-width: 100%; border-bottom-left-radius:0; border-bottom-right-radius:0; transform: translateY(40px) scale(1); }
+  .janela--aberta .janela__caixa { transform: translateY(0) scale(1); }
+  .janela__corpo { max-height:calc(76vh - 2rem); }
+}

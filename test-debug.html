@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>Teste Debug Aulas</title>
+    <script src="js/modules/tasks/tasks-test.js?v=202509280525" defer></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .log { margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 4px; }
+        .error { background: #ffe6e6; color: #d00; }
+        .success { background: #e6ffe6; color: #0a0; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste Debug Aulas</h1>
+    <p>Abra o Console do Desenvolvedor (F12) para ver os logs detalhados.</p>
+
+    <button onclick="testLessonCreation()">🎯 Testar Criação de Aula</button>
+    <button onclick="testTaskCreation()">📝 Testar Criação de Tarefa</button>
+    <button onclick="clearLogs()">🗑️ Limpar Logs</button>
+
+    <div id="logs"></div>
+
+    <script>
+        let logCount = 0;
+
+        function addLog(message, type = 'log') {
+            logCount++;
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `<strong>#${logCount}</strong> ${message}`;
+            document.getElementById('logs').appendChild(div);
+            console.log(`[TEST] ${message}`);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+            logCount = 0;
+        }
+
+        function testLessonCreation() {
+            addLog('🎯 Iniciando teste de criação de aula...');
+
+            // Criar form mock para simular criação de aula
+            const form = document.createElement('form');
+            form.innerHTML = `
+                <input id="lesson-title" value="Matemática - Álgebra Linear">
+                <input id="lesson-color" value="#E0B33A">
+                <select id="lesson-course"><option value="1" selected>Curso de Matemática</option></select>
+                <select id="lesson-subject"><option value="2" selected>Matemática</option></select>
+                <input id="lesson-duration" value="90">
+                <input id="lesson-start-date" value="2025-09-30">
+                <input id="lesson-end-date" value="2025-12-15">
+                <input id="lesson-time" value="14:00">
+                <input id="lesson-end-time" value="15:30">
+                <input type="checkbox" data-dow="1" checked>
+                <input type="checkbox" data-dow="3" checked>
+                <input type="checkbox" data-dow="5" checked>
+            `;
+
+            document.body.appendChild(form);
+
+            addLog('📝 Form criado com dados de aula');
+
+            // Verificar se função existe
+            if (typeof window.onLessonFormSubmit === 'function') {
+                addLog('✅ Função onLessonFormSubmit encontrada');
+
+                // Testar chamada
+                window.onLessonFormSubmit(form).then(result => {
+                    if (result) {
+                        addLog('🎉 SUCESSO: Aula criada com sucesso!', 'success');
+                    } else {
+                        addLog('❌ ERRO: Falha na criação da aula', 'error');
+                    }
+                }).catch(error => {
+                    addLog(`💥 EXCEÇÃO: ${error.message}`, 'error');
+                });
+            } else {
+                addLog('❌ ERRO: Função onLessonFormSubmit não encontrada', 'error');
+            }
+
+            // Limpar form
+            setTimeout(() => {
+                document.body.removeChild(form);
+            }, 1000);
+        }
+
+        function testTaskCreation() {
+            addLog('📝 Iniciando teste de criação de tarefa...');
+
+            const taskData = {
+                title: 'Tarefa de Teste',
+                description: 'Descrição da tarefa',
+                color: '#6A9BD1',
+                start: '2025-09-30T10:00',
+                end: '2025-09-30T11:00',
+                subject_id: 1,
+                is_private: false,
+                reminder_minutes: 30,
+                location: null,
+                subtasks: []
+            };
+
+            if (typeof window.addOrEditTask === 'function') {
+                addLog('✅ Função addOrEditTask encontrada');
+
+                window.addOrEditTask(taskData).then(result => {
+                    if (result) {
+                        addLog('🎉 SUCESSO: Tarefa criada com sucesso!', 'success');
+                    } else {
+                        addLog('❌ ERRO: Falha na criação da tarefa', 'error');
+                    }
+                }).catch(error => {
+                    addLog(`💥 EXCEÇÃO: ${error.message}`, 'error');
+                });
+            } else {
+                addLog('❌ ERRO: Função addOrEditTask não encontrada', 'error');
+            }
+        }
+
+        // Log inicial
+        document.addEventListener('DOMContentLoaded', () => {
+            addLog('🚀 Página carregada - iniciando testes...');
+
+            setTimeout(() => {
+                // Verificar se funções existem
+                const functions = ['onLessonFormSubmit', 'addOrEditTask', 'getTasks'];
+                functions.forEach(funcName => {
+                    if (typeof window[funcName] === 'function') {
+                        addLog(`✅ ${funcName} disponível`);
+                    } else {
+                        addLog(`❌ ${funcName} não encontrada`, 'error');
+                    }
+                });
+            }, 1000);
+        });
+
+        // Interceptar logs do console
+        const originalLog = console.log;
+        console.log = function(...args) {
+            if (args[0] && args[0].includes && (args[0].includes('[AULA]') || args[0].includes('[API]') || args[0].includes('[DEBUG]'))) {
+                addLog(args.join(' '));
+            }
+            originalLog.apply(console, args);
+        };
+
+        const originalError = console.error;
+        console.error = function(...args) {
+            if (args[0] && args[0].includes && (args[0].includes('[AULA]') || args[0].includes('[API]') || args[0].includes('[DEBUG]'))) {
+                addLog(args.join(' '), 'error');
+            }
+            originalError.apply(console, args);
+        };
+    </script>
+</body>
+</html>

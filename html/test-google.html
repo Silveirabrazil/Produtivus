@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Teste Google Login</title>
+    <link rel="stylesheet" href="../css/app.css?v=2">
+</head>
+<body class="page-animate">
+    <main id="main-content" class="app-main">
+        <header class="page-header page-header--band cabecalho-page">
+                <h1 class="page-header__title h3 m-0">Teste Google Login</h1>
+                <p class="page-header__subtitle m-0">Exibe configuração pública do OAuth.</p>
+            </header>
+            <section class="page-section">
+                <div id="result"></div>
+            </section>
+    </main>
+
+    <script>
+        fetch('/server/api/public_config.php')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('result').innerHTML =
+                    '<h2>Configuração:</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            })
+            .catch(err => {
+                document.getElementById('result').innerHTML =
+                    '<h2 style="color: red;">Erro:</h2><p>' + err.message + '</p>';
+            });
+    </script>
+</body>
+</html>

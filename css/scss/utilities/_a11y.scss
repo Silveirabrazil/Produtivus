@@ -1,0 +1,36 @@
+// Acessibilidade global: foco visível consistente e redução de movimento
+@use '../settings/variables';
+
+// Foco visível (evita remover outline e padroniza)
+:where(a, button, [role="button"], .btn, .nav-link, .dropdown-item, .nav-icon-btn, .card-btn):focus-visible {
+  outline: 2px solid rgba(255,255,255,.45);
+  outline-offset: 2px;
+}
+
+// Variante em superfícies claras (ajuste automático via mix-blend se quiser no futuro)
+.focus-dark:where(:focus-visible) {
+  outline: 2px solid var(--color-brand, #3A9FA9);
+}
+
+// Redução de movimento: remove animações decorativas
+@media (prefers-reduced-motion: reduce) {
+  .carrossel *,
+  .hero-balloons *,
+  .page-animate .page-section,
+  .anim-fade-up,
+  [data-anim] {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+// Helper classe para esconder apenas visualmente (screen-reader)
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

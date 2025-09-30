@@ -1,0 +1,43 @@
+// Utilidades OCSS iniciais (camada utilities)
+@layer utilities {
+  /* Flex */
+  .u-flex { display: flex; }
+  .u-inline-flex { display: inline-flex; }
+  .u-flex-col { flex-direction: column; }
+  .u-flex-wrap { flex-wrap: wrap; }
+  .u-center { justify-content: center; align-items: center; }
+  .u-justify-between { justify-content: space-between; }
+  .u-align-center { align-items: center; }
+  .u-gap-1 { gap: var(--pv-space-1); }
+  .u-gap-2 { gap: var(--pv-space-2); }
+  .u-gap-3 { gap: var(--pv-space-3); }
+  .u-gap-4 { gap: var(--pv-space-4); }
+
+  /* Espaçamento margin/padding (subset inicial) */
+  .u-m-0 { margin: 0 !important; }
+  .u-mt-2 { margin-top: var(--pv-space-2) !important; }
+  .u-mb-2 { margin-bottom: var(--pv-space-2) !important; }
+  .u-p-0 { padding: 0 !important; }
+  .u-px-3 { padding-left: var(--pv-space-3) !important; padding-right: var(--pv-space-3) !important; }
+  .u-py-2 { padding-top: var(--pv-space-2) !important; padding-bottom: var(--pv-space-2) !important; }
+
+  /* Texto */
+  .u-text-muted { color: var(--pv-color-text-muted) !important; }
+  .u-text-center { text-align: center !important; }
+
+  /* Dimensão */
+  .u-w-100 { width: 100% !important; }
+  .u-h-100 { height: 100% !important; }
+
+  /* Borda & Radius */
+  .u-rounded { border-radius: var(--pv-radius) !important; }
+  .u-rounded-pill { border-radius: var(--pv-radius-pill) !important; }
+
+  /* Botões mínimos (para futura substituição gradual) */
+  .btn-pv { --_bg: var(--pv-color-brand); --_fg:#fff; display:inline-flex; align-items:center; justify-content:center; gap:.4rem; font-weight:600; font-size:.95rem; border:1px solid var(--_bg); background:var(--_bg); color:var(--_fg); padding:.55rem 1rem; border-radius:var(--pv-radius); text-decoration:none; cursor:pointer; transition:.18s background,color,border-color; }
+  .btn-pv:hover { background: var(--pv-color-brand-accent); border-color: var(--pv-color-brand-accent); }
+  .btn-pv--outline { --_bg: transparent; --_fg: var(--pv-color-brand); background:transparent; color:var(--pv-color-brand); }
+  .btn-pv--outline:hover { background: var(--pv-color-brand); color:#fff; }
+  .btn-pv--danger { --_bg: var(--pv-color-danger); border-color: var(--pv-color-danger); }
+  .btn-pv--danger:hover { filter: brightness(.92); }
+}

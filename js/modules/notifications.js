@@ -33,10 +33,10 @@
       unread: true,
       iconBg: (n.type==='success'?'#16a34a':n.type==='warning'?'#d97706':n.type==='error'?'#b91c1c':'#365562')
     };
-    list.unshift(item);
+  // Permite chamar pvNotify({ ..., store:false }) para não poluir a lista
+  if (n.store !== false) list.unshift(item);
     // mantém no máximo 200
-    if (list.length>200) list.length=200;
-    saveAll(list);
+  if (n.store !== false){ if (list.length>200) list.length=200; saveAll(list); }
     try { maybeSystemNotify(item); } catch {}
     return item.id;
   }
@@ -53,18 +53,18 @@
     if (!('Notification' in window)) return;
     if (Notification.permission!=='granted') return;
     try{
-      const n = new Notification(item.title || 'Notificação', { body: item.message || '', icon: '/img/image.png', tag: item.id });
+      const n = new Notification(item.title || 'Notificação', { body: item.message || '', icon: '/img/icone.png', tag: item.id });
       if (item.link) n.onclick = ()=> { window.focus(); window.location.href=item.link; };
     }catch{}
   }
 
   function renderList(container){
     const list = loadAll();
-    const ul = document.createElement('div'); ul.className='pv-notif-list list-group';
+  const ul = document.createElement('div'); ul.className='pv-notif-list list-group';
     if (!list.length){ const e=document.createElement('div'); e.className='pv-notif-empty list-group-item text-muted'; e.textContent='Sem notificações.'; ul.appendChild(e); }
     list.forEach(n=>{
-      const li = document.createElement('div'); li.className='pv-notif-item list-group-item d-flex justify-content-between' + (n.unread?' unread':''); li.dataset.id = n.id;
-      const ic = document.createElement('div'); ic.className='pv-notif-ic me-2'; ic.style.background = n.iconBg; ic.innerHTML = svgForType(n.type);
+  const li = document.createElement('div'); li.className='pv-notif-item list-group-item d-flex justify-content-between type-' + (n.type||'info') + (n.unread?' unread':''); li.dataset.id = n.id;
+  const ic = document.createElement('div'); ic.className='pv-notif-ic me-2'; ic.innerHTML = svgForType(n.type);
       const ct = document.createElement('div'); ct.className='pv-notif-ct flex-grow-1';
       const ttl = document.createElement('div'); ttl.className='pv-notif-ttl fw-semibold'; ttl.textContent = n.title || 'Notificação';
       const msg = document.createElement('div'); msg.className='pv-notif-msg small text-truncate'; msg.textContent = n.message || '';
@@ -122,8 +122,8 @@
     // update badge
     const c = countUnread();
     const badge = root.querySelector('.pv-notif-badge');
-    if (badge) badge.textContent = c>99? '99+': String(c);
-    if (badge) badge.style.display = c>0 ? 'block' : 'none';
+  if (badge) badge.textContent = c>99? '99+': String(c);
+  try { const wrap = badge.closest('.pv-notif-wrap'); if (wrap) wrap.classList.toggle('has-unread', c>0); } catch {}
     // re-render dropdown content if open
     const menu = root._pvNotifMenu;
     if (menu && (menu.classList.contains('show') || document.activeElement === menu)){
@@ -137,42 +137,42 @@
   const btn = document.createElement('button'); btn.type='button';
   // botão estilo navbar (sem borda)
   btn.className='nav-icon-btn pv-notif-btn position-relative dropdown-toggle';
-    btn.setAttribute('aria-label','Notificações');
-    btn.setAttribute('data-bs-toggle','dropdown');
-    btn.setAttribute('data-bs-auto-close','outside');
+  btn.setAttribute('aria-label','Notificações');
     btn.innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>';
-    const badge = document.createElement('span'); badge.className='pv-notif-badge badge bg-danger rounded-pill position-absolute translate-middle'; badge.style.top='6px'; badge.style.right='6px'; badge.style.display='none'; badge.textContent='0'; btn.appendChild(badge);
+  const badge = document.createElement('span');
+  badge.className = 'pv-notif-badge';
+  badge.textContent = '0';
+  btn.appendChild(badge);
     root.appendChild(btn);
 
     // Dropdown menu
     const menu = document.createElement('div');
-    menu.className = 'dropdown-menu dropdown-menu-end p-0 shadow';
-    menu.style.minWidth = '360px';
-    menu.style.maxWidth = '90vw';
-    menu.style.maxHeight = '70vh';
-    menu.style.overflow = 'auto';
+  menu.className = 'dropdown-menu dropdown-menu-end p-0 shadow';
     root.appendChild(menu);
     root._pvNotifMenu = menu;
 
-    // Inicializa conteúdo e integra com Bootstrap se presente
+    // Inicializa conteúdo (removido Bootstrap Dropdown)
     renderDropdownContent(root, menu);
-    if (window.bootstrap?.Dropdown){
-      const dd = window.bootstrap.Dropdown.getOrCreateInstance(btn, { autoClose: 'outside' });
-      btn.addEventListener('shown.bs.dropdown', ()=> renderDropdownContent(root, menu));
-    } else {
-      // Fallback simples sem Bootstrap JS
-      btn.addEventListener('click', (e)=>{
-        e.stopPropagation();
-        menu.classList.toggle('show');
-        root.classList.toggle('show');
-      });
-      document.addEventListener('click', (e)=>{
-        if (!root.contains(e.target)){
-          menu.classList.remove('show');
-          root.classList.remove('show');
-        }
-      });
+    function show(){
+      if(menu.classList.contains('show')) return;
+      try { window.pvCloseHeaderDropdowns && window.pvCloseHeaderDropdowns(root); } catch {}
+      menu.dataset.pvManualAnim='1';
+      menu.classList.add('show');
+      root.classList.add('show');
+      renderDropdownContent(root, menu);
+      try{ window.pvSlideDown ? window.pvSlideDown(menu, { fromEl: btn }) : (menu.style.display='block'); }catch{}
+      setTimeout(()=>{ try{ menu.style.display=''; menu.focus(); }catch{} }, 20);
+      setTimeout(()=>{ delete menu.dataset.pvManualAnim; }, 400);
     }
+    function hide(){
+      if(!menu.classList.contains('show')) return;
+      menu.dataset.pvManualAnim='1';
+      try{ window.pvSlideUp ? window.pvSlideUp(menu, { fromEl: btn }).finally(()=>{ menu.classList.remove('show'); root.classList.remove('show'); }) : (menu.classList.remove('show'), root.classList.remove('show')); }catch{ menu.classList.remove('show'); root.classList.remove('show'); }
+      setTimeout(()=>{ delete menu.dataset.pvManualAnim; }, 400);
+    }
+    btn.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); const willShow=!menu.classList.contains('show'); if(willShow) show(); else hide(); });
+    document.addEventListener('click', (e)=>{ if (!root.contains(e.target)) hide(); });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') hide(); });
 
     (anchor || document.body).appendChild(root);
     refresh(root);
@@ -188,50 +188,18 @@
     try {
       const toast = document.createElement('div');
       toast.className = `pv-toast pv-toast-${n.type || 'info'}`;
-      toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        background: white;
-        border-radius: 8px;
-        padding: 16px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        border-left: 4px solid ${n.type === 'success' ? '#16a34a' : n.type === 'warning' ? '#d97706' : n.type === 'error' ? '#b91c1c' : '#365562'};
-        max-width: 400px;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-      `;
-
-      const title = document.createElement('div');
-      title.style.cssText = 'font-weight: 600; margin-bottom: 4px; color: #111;';
-      title.textContent = n.title || 'Notificação';
-
-      const message = document.createElement('div');
-      message.style.cssText = 'color: #666; font-size: 14px; margin-bottom: 8px;';
-      message.textContent = n.message || '';
-
-      toast.appendChild(title);
-      toast.appendChild(message);
+      const title = document.createElement('div'); title.className='pv-toast-title'; title.textContent = n.title || 'Notificação';
+      const message = document.createElement('div'); message.className='pv-toast-msg'; message.textContent = n.message || '';
+      toast.appendChild(title); toast.appendChild(message);
 
       // Adicionar ações se existirem
       if (n.actions && Array.isArray(n.actions) && n.actions.length > 0) {
-        const actionsDiv = document.createElement('div');
-        actionsDiv.style.cssText = 'display: flex; gap: 8px; margin-top: 12px;';
+  const actionsDiv = document.createElement('div'); actionsDiv.className='pv-toast-actions';
 
         n.actions.forEach(action => {
           const btn = document.createElement('button');
           btn.textContent = action.text || 'OK';
-          btn.style.cssText = `
-            background: ${action.primary ? '#365562' : 'transparent'};
-            color: ${action.primary ? 'white' : '#365562'};
-            border: 1px solid #365562;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: background 0.2s;
-          `;
+          btn.className = 'pv-toast-btn' + (action.primary ? ' pv-toast-btn--primary' : '');
 
           btn.addEventListener('click', () => {
             try {
@@ -253,38 +221,19 @@
       // Botão de fechar
       const closeBtn = document.createElement('button');
       closeBtn.innerHTML = '×';
-      closeBtn.style.cssText = `
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        background: none;
-        border: none;
-        font-size: 18px;
-        color: #999;
-        cursor: pointer;
-        padding: 0;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      `;
+      closeBtn.className = 'pv-toast-close';
       closeBtn.addEventListener('click', removeToast);
       toast.appendChild(closeBtn);
 
       function removeToast() {
-        toast.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-          try { document.body.removeChild(toast); } catch {}
-        }, 300);
+        toast.classList.remove('is-open');
+        setTimeout(() => { try { document.body.removeChild(toast); } catch {} }, 300);
       }
 
       document.body.appendChild(toast);
 
       // Animar entrada
-      setTimeout(() => {
-        toast.style.transform = 'translateX(0)';
-      }, 10);
+      setTimeout(() => { toast.classList.add('is-open'); }, 10);
 
       // Auto-remover se não tiver ações
       if (!n.actions || n.actions.length === 0) {

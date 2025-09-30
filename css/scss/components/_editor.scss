@@ -1,0 +1,99 @@
+@mixin render() {
+  /* Toolbar do editor (Google Docs-like) */
+  .pv-editor {
+    --pv-toolbar-bg: #fff;
+    --pv-toolbar-border: var(--color-border, #e5e7eb);
+    --pv-toolbar-hover: #f4f6f8;
+    --pv-toolbar-active: #e9eef6;
+    --pv-toolbar-text: #374151;
+
+    background: var(--pv-page-header-bg);
+    padding: 1rem;
+    border-radius: .65rem;
+    border: 1px solid var(--pv-page-header-border);
+    box-shadow: var(--pv-shadow, 0 2px 2px rgba(17, 24, 39, 0.08));
+
+    .btn-toolbar[data-editor-toolbar] {
+      display: flex;
+      flex-wrap: wrap; /* permite quebrar linha dentro do container */
+      gap: .25rem .5rem; /* linhas x colunas */
+      padding: .5rem;
+      max-width: 100%;
+      box-sizing: border-box;
+      align-content: flex-start;
+      background: var(--pv-toolbar-bg);
+      border: 1px solid var(--pv-toolbar-border);
+      border-radius: .5rem;
+    }
+
+    .btn-toolbar[data-editor-toolbar] .btn-group {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      padding: .125rem;
+      background: #fff;
+      border: 1px solid var(--pv-toolbar-border);
+      border-radius: .375rem;
+    }
+
+    /* Espaçamento consistente entre grupos (sem separador vertical para não atrapalhar a quebra de linha) */
+    .btn-toolbar[data-editor-toolbar] { column-gap: .5rem; row-gap: .4rem; }
+
+    /* Botões compactos e consistentes */
+    /* Botões neutros (força override contra .btn global) */
+    .btn-toolbar[data-editor-toolbar] .btn,
+    .btn-toolbar[data-editor-toolbar] .dropdown-toggle {
+      padding: .25rem .5rem !important;
+      font-size: .875rem !important;
+      line-height: 1.2 !important;
+      font-weight: 500 !important;
+      background: #fff !important;
+      color: var(--pv-toolbar-text) !important;
+      border: 1px solid var(--pv-toolbar-border) !important;
+      border-radius: .375rem !important;
+      box-shadow: none !important;
+    }
+    .btn-toolbar[data-editor-toolbar] .btn:hover,
+    .btn-toolbar[data-editor-toolbar] .dropdown-toggle:hover { background: var(--pv-toolbar-hover) !important; }
+    .btn-toolbar[data-editor-toolbar] .btn:active,
+    .btn-toolbar[data-editor-toolbar] .btn.active { background: var(--pv-toolbar-active) !important; }
+
+    .btn-toolbar[data-editor-toolbar] .dropdown-menu {
+      padding: .25rem .25rem;
+      border: 1px solid var(--pv-toolbar-border);
+      box-shadow: 0 6px 18px rgba(0,0,0,.08);
+    }
+    .btn-toolbar[data-editor-toolbar] .dropdown-item { font-size: .875rem; padding: .25rem .5rem; }
+
+    /* Inputs da toolbar */
+    .btn-toolbar[data-editor-toolbar] .size-input { width: 4.25rem; } /* ~68px: cabe 3 dígitos e sufixo */
+    .btn-toolbar[data-editor-toolbar] .form-control,
+    .btn-toolbar[data-editor-toolbar] .form-select { height: 2rem; padding: .25rem .5rem; font-size: .875rem; }
+
+    /* Menus de cor padronizados do editor-toolbar.js */
+    .pv-color-menu { min-width: 220px; }
+    .pv-color-grid { display: grid; grid-template-columns: repeat(7, 20px); gap: 6px; padding: 4px; }
+    .pv-color-row { display: grid; grid-template-columns: repeat(7, 20px); gap: 6px; padding: 4px; }
+    .pv-color-subtitle { font-size: .75rem; color: #6b7280; padding: 4px 6px; }
+    .pv-color-custom { display:flex; align-items:center; padding: 4px 6px; }
+    .pv-swatch { width: 20px; height: 20px; border: 1px solid rgba(0,0,0,.1); border-radius: 4px; }
+
+    /* Área do editor e cabeçalho/rodapé já existentes */
+  .editor-area { font-size: 16px; line-height: 1.6; background:#fff; }
+  .editor-area ul { list-style: none; padding-left: 1.1em; }
+    .editor-header, .editor-footer { min-height: 24px; }
+
+    /* Status (palavras/caracteres) */
+    .editor-status { border: 1px solid var(--pv-toolbar-border); border-radius: .5rem; padding: .375rem .5rem; background: #f9fafb; }
+
+    /* Régua do editor */
+    .editor-ruler { position: relative; height: 28px; background: #e8eef6; border:1px solid var(--pv-toolbar-border); border-radius:.5rem; margin: .5rem 0; }
+    .editor-ruler .ticks { position:absolute; inset:0; }
+    .editor-ruler .t { position:absolute; bottom:0; width:1px; height:7px; background:#7f8ea3; }
+    .editor-ruler .t.major { height:12px; background:#5f6f86; }
+    .editor-ruler b { position:absolute; bottom:12px; transform:translateX(-50%); font-size:10px; color:#44546a; }
+    .editor-ruler .handles { position:absolute; inset:0; pointer-events:none; }
+    .editor-ruler .handles span { position:absolute; top:0; bottom:0; width:2px; background:#0d6efd; pointer-events:auto; cursor:ew-resize; }
+    .editor-ruler .handles .h-first { background:#22a06b; }
+  }
+}

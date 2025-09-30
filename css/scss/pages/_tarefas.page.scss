@@ -1,0 +1,44 @@
+@use '../settings/variables';
+
+/* Página: Tarefas */
+.pagina-tarefas {
+  /* Cabeçalho */
+  .cabecalho-page {
+    margin-bottom: 1rem;
+  }
+
+  /* Linhas de campos nas janelas (modais) */
+  .linha-campos { display:flex; gap:.75rem; flex-wrap:wrap; }
+  .campo--flex-2 { flex: 2 1 0; }
+  .campo--w-130 { max-width:130px; }
+  .campo--w-140 { max-width:140px; }
+  .entrada--cor-pequena { padding:.25rem; height:2.35rem; }
+  .lista-subtarefas { margin-bottom:.4rem; }
+  .botao--alinha-inicio { align-self:flex-start; }
+
+  /* Ajuda e espaçamentos pequenos */
+  .ajuda--topo-sm { margin-top:.45rem; }
+  .linha--mt-xs { margin-top:.35rem; }
+
+  /* Pills de dias da semana */
+  .pills-semana { display:flex; flex-wrap:wrap; gap:.5rem; }
+  .pilula-semana {
+    display:inline-flex; align-items:center; gap:.5rem;
+    background:#fff; border:1px solid var(--color-border,#d9dde1);
+    border-radius:50rem; padding:.2rem .55rem; line-height:1; font-weight:600;
+  }
+
+  /* Aviso de erro da API (sem Bootstrap) */
+  .tasks-api-error {
+    display:flex; align-items:center; gap:.5rem;
+    background:#fff7e6; color:#6b4e16; border:1px solid #f3d19c;
+  padding:.6rem .8rem; border-radius:0.6rem; margin:.75rem 0;
+  }
+  .tasks-api-error .ico { font-size:1.1rem; line-height:1; display:inline-block; }
+
+  /* Botões contorno usados nos cards */
+  .botao--contorno-secundario { background:#fff; color:#1f2529; border:1px solid rgba(0,0,0,.15); }
+  .botao--contorno-secundario:hover { background:#f6f7f8; }
+  .botao--contorno-perigo { background:#fff; color: var(--color-danger, #dc3545); border:1px solid color-mix(in oklab, var(--color-danger, #dc3545), white 70%); }
+  .botao--contorno-perigo:hover { background: color-mix(in oklab, var(--color-danger, #dc3545), white 92%); }
+}

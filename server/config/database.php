@@ -55,6 +55,31 @@ if (!$hasMysql && !$hasSqlite) {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )");
 
+      // Perfil estendido (SQLite)
+      $conn->exec("CREATE TABLE IF NOT EXISTS user_profiles (
+        user_id INTEGER PRIMARY KEY,
+        avatar TEXT NULL,
+        birth TEXT NULL,
+        gender TEXT NULL,
+        marital TEXT NULL,
+        nationality TEXT NULL,
+        birthplace TEXT NULL,
+        cpf TEXT NULL,
+        street TEXT NULL,
+        number TEXT NULL,
+        complement TEXT NULL,
+        neighborhood TEXT NULL,
+        zip TEXT NULL,
+        city TEXT NULL,
+        state TEXT NULL,
+        phone TEXT NULL,
+        mobile TEXT NULL,
+        emergency TEXT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )");
+
       $conn->exec("CREATE TABLE IF NOT EXISTS tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>🔧 Diagnóstico Layout Produtivus</title>
+    <link rel="stylesheet" href="css/app.css?v=2" />
+    <style>
+        .diagnostic {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            z-index: 10000;
+            max-width: 400px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .diagnostic h3 {
+            margin: 0 0 10px;
+            color: #4CAF50;
+        }
+        .diagnostic .issue {
+            background: #d32f2f;
+            color: white;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .diagnostic .warning {
+            background: #ff9800;
+            color: white;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .diagnostic .ok {
+            background: #4CAF50;
+            color: white;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .diagnostic .info {
+            background: #2196F3;
+            color: white;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .close-diagnostic {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="header-container" class="barra-topo"></div>
+
+    <main id="main-content">
+        <div class="container" style="padding: 20px;">
+            <h1>🔧 Diagnóstico de Layout</h1>
+            <p>Esta página está executando verificações para identificar problemas no layout.</p>
+            <button onclick="runFullDiagnostic()" style="padding: 10px 20px; margin: 10px;">🏃 Executar Diagnóstico</button>
+            <button onclick="checkCSSLoad()" style="padding: 10px 20px; margin: 10px;">📄 Verificar CSS</button>
+            <button onclick="checkJSErrors()" style="padding: 10px 20px; margin: 10px;">⚡ Verificar JS</button>
+            <button onclick="testResponsive()" style="padding: 10px 20px; margin: 10px;">📱 Testar Responsivo</button>
+        </div>
+    </main>
+
+    <div id="diagnostic-panel" class="diagnostic" style="display: none;">
+        <button class="close-diagnostic" onclick="closeDiagnostic()">×</button>
+        <h3>🔍 Resultado do Diagnóstico</h3>
+        <div id="diagnostic-results"></div>
+    </div>
+
+    <script src="js/modules/header.js?v=20250923"></script>
+    <script src="js/modules/footer.js?v=20250923"></script>
+    <script>
+        function showDiagnostic() {
+            document.getElementById('diagnostic-panel').style.display = 'block';
+        }
+
+        function closeDiagnostic() {
+            document.getElementById('diagnostic-panel').style.display = 'none';
+        }
+
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('diagnostic-results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('diagnostic-results').innerHTML = '';
+        }
+
+        function runFullDiagnostic() {
+            clearResults();
+            showDiagnostic();
+
+            addResult('🚀 Iniciando diagnóstico completo...', 'info');
+
+            // Verificar CSS
+            checkCSSLoad(false);
+
+            // Verificar JavaScript
+            checkJSErrors(false);
+
+            // Verificar elementos do DOM
+            checkDOMElements();
+
+            // Verificar responsividade
+            testResponsive(false);
+
+            // Verificar fontes
+            checkFonts();
+
+            addResult('✅ Diagnóstico completo finalizado!', 'ok');
+        }
+
+        function checkCSSLoad(showPanel = true) {
+            if (showPanel) {
+                clearResults();
+                showDiagnostic();
+                addResult('📄 Verificando carregamento do CSS...', 'info');
+            }
+
+            const links = document.querySelectorAll('link[rel="stylesheet"]');
+            addResult(`📊 Encontrados ${links.length} arquivos CSS`, 'info');
+
+            links.forEach((link, index) => {
+                if (link.sheet) {
+                    addResult(`✅ CSS ${index + 1}: ${link.href.split('/').pop()} - OK`, 'ok');
+                } else {
+                    addResult(`❌ CSS ${index + 1}: ${link.href.split('/').pop()} - ERRO`, 'issue');
+                }
+            });
+
+            // Verificar variáveis CSS
+            const root = document.documentElement;
+            const brandColor = getComputedStyle(root).getPropertyValue('--color-brand');
+            if (brandColor) {
+                addResult(`✅ Variáveis CSS: --color-brand = ${brandColor}`, 'ok');
+            } else {
+                addResult('❌ Variáveis CSS não carregaram', 'issue');
+            }
+        }
+
+        function checkJSErrors(showPanel = true) {
+            if (showPanel) {
+                clearResults();
+                showDiagnostic();
+                addResult('⚡ Verificando JavaScript...', 'info');
+            }
+
+            // Verificar scripts carregados
+            const scripts = document.querySelectorAll('script[src]');
+            addResult(`📊 Encontrados ${scripts.length} arquivos JavaScript`, 'info');
+
+            // Verificar funções globais importantes
+            const functions = ['window.loadHeader', 'window.loadFooter', 'console.log'];
+            functions.forEach(func => {
+                const exists = eval(`typeof ${func}`) !== 'undefined';
+                if (exists) {
+                    addResult(`✅ Função ${func}: OK`, 'ok');
+                } else {
+                    addResult(`⚠️ Função ${func}: Não encontrada`, 'warning');
+                }
+            });
+
+            // Verificar erros no console
+            const originalError = console.error;
+            let errorCount = 0;
+            console.error = function(...args) {
+                errorCount++;
+                addResult(`❌ Erro JS: ${args.join(' ')}`, 'issue');
+                originalError.apply(console, args);
+            };
+
+            addResult(`📊 Errors detectados: ${errorCount}`, errorCount > 0 ? 'warning' : 'ok');
+        }
+
+        function checkDOMElements() {
+            addResult('🔍 Verificando elementos do DOM...', 'info');
+
+            const elements = [
+                { selector: '#header-container', name: 'Container do Header' },
+                { selector: '#main-content', name: 'Conteúdo Principal' },
+                { selector: '.cabecalho', name: 'Header Carregado' },
+                { selector: '.hero', name: 'Seção Hero' },
+                { selector: '.container', name: 'Container' }
+            ];
+
+            elements.forEach(el => {
+                const found = document.querySelector(el.selector);
+                if (found) {
+                    const styles = getComputedStyle(found);
+                    const display = styles.display;
+                    const visibility = styles.visibility;
+                    addResult(`✅ ${el.name}: Encontrado (display: ${display}, visibility: ${visibility})`, 'ok');
+                } else {
+                    addResult(`❌ ${el.name}: Não encontrado`, 'issue');
+                }
+            });
+        }
+
+        function testResponsive(showPanel = true) {
+            if (showPanel) {
+                clearResults();
+                showDiagnostic();
+                addResult('📱 Testando responsividade...', 'info');
+            }
+
+            const viewport = {
+                width: window.innerWidth,
+                height: window.innerHeight
+            };
+
+            addResult(`📊 Viewport: ${viewport.width}x${viewport.height}`, 'info');
+
+            // Verificar breakpoints
+            const breakpoints = [
+                { name: 'Mobile', max: 768 },
+                { name: 'Tablet', max: 1024 },
+                { name: 'Desktop', max: Infinity }
+            ];
+
+            const current = breakpoints.find(bp => viewport.width <= bp.max);
+            addResult(`📱 Dispositivo detectado: ${current.name}`, 'info');
+
+            // Verificar se há overflow horizontal
+            const hasHorizontalScroll = document.body.scrollWidth > document.body.clientWidth;
+            if (hasHorizontalScroll) {
+                addResult('⚠️ Overflow horizontal detectado', 'warning');
+            } else {
+                addResult('✅ Sem overflow horizontal', 'ok');
+            }
+        }
+
+        function checkFonts() {
+            addResult('🔤 Verificando fontes...', 'info');
+
+            const testElement = document.createElement('div');
+            testElement.style.fontFamily = 'Dosis, system-ui, -apple-system';
+            testElement.style.position = 'absolute';
+            testElement.style.left = '-9999px';
+            testElement.textContent = 'Test';
+            document.body.appendChild(testElement);
+
+            const computedFont = getComputedStyle(testElement).fontFamily;
+            addResult(`🔤 Fonte computada: ${computedFont}`, 'info');
+
+            if (computedFont.includes('Dosis')) {
+                addResult('✅ Fonte Dosis carregada', 'ok');
+            } else {
+                addResult('⚠️ Fonte Dosis não carregada, usando fallback', 'warning');
+            }
+
+            document.body.removeChild(testElement);
+        }
+
+        // Executar diagnóstico básico automaticamente
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                console.log('🔧 Diagnóstico automático do layout...');
+                // Não mostrar painel automaticamente, apenas log no console
+            }, 1000);
+        });
+
+        // Detectar problemas de layout em tempo real
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                if (entry.contentRect.width < 320) {
+                    console.warn('⚠️ Largura muito pequena detectada:', entry.contentRect.width);
+                }
+            }
+        });
+
+        resizeObserver.observe(document.body);
+    </script>
+</body>
+</html>

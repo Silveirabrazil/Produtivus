@@ -236,6 +236,45 @@
     });
 
     // Quiz: iniciar/finalizar
+    // Utilitário simples para criar modal custom (config ou builder)
+    function createDialog({ title, bodyHTML, actions }){
+      const fundo = document.createElement('div');
+      fundo.className='janela-fundo';
+      fundo.style.position='fixed'; fundo.style.inset='0'; fundo.style.background='rgba(0,0,0,.55)';
+      fundo.style.display='flex'; fundo.style.alignItems='center'; fundo.style.justifyContent='center'; fundo.style.zIndex='1400';
+      const caixa = document.createElement('div');
+      caixa.className='janela janela--dialogo';
+      caixa.style.background='#fff'; caixa.style.color='#222'; caixa.style.minWidth='min(340px, 90vw)'; caixa.style.maxWidth='min(900px,92vw)';
+      caixa.style.maxHeight='88vh'; caixa.style.overflow='auto'; caixa.style.borderRadius='12px'; caixa.style.boxShadow='0 18px 48px rgba(0,0,0,.35)';
+      caixa.innerHTML = `<div class="janela__cabecalho" style="padding:0.85rem 1rem; border-bottom:1px solid rgba(0,0,0,.08); display:flex; align-items:center; justify-content:space-between; gap:.75rem;"><h2 style="font-size:1.05rem; margin:0;">${title||''}</h2><button type="button" class="botao botao--suave" data-fechar style="padding:.25rem .6rem;">✕</button></div><div class="janela__corpo" style="padding:1rem;">${bodyHTML||''}</div><div class="janela__acoes" style="display:flex; gap:.5rem; justify-content:flex-end; padding:.75rem 1rem; border-top:1px solid rgba(0,0,0,.06);"></div>`;
+      const acoes = caixa.querySelector('.janela__acoes');
+      (actions||[]).forEach(btn=> acoes.appendChild(btn));
+      fundo.appendChild(caixa); document.body.appendChild(fundo);
+      function close(){ try{ fundo.remove(); }catch{} }
+      fundo.addEventListener('click', e=>{ if(e.target===fundo) close(); });
+      caixa.querySelector('[data-fechar]')?.addEventListener('click', close);
+      // focus trap básico
+      setTimeout(()=>{ try { caixa.querySelector('input,textarea,select,button')?.focus(); }catch{} },30);
+      return { close, fundo, caixa };
+    }
+
+    async function promptQuizConfig(){
+      return new Promise(resolve=>{
+        const body = `<div class="campo-grupo" style="display:flex; flex-direction:column; gap:.5rem;">
+          <label style="display:flex; flex-direction:column; gap:.25rem;">
+            <span style="font-size:.8rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:#334;">Tempo (minutos opcional)</span>
+            <input id="pvq-min" type="number" min="0" value="10" class="campo" style="width:120px;">
+            <small style="color:#555;">0 = sem tempo</small>
+          </label>
+        </div>`;
+        const btnCancel = document.createElement('button'); btnCancel.type='button'; btnCancel.className='botao botao--suave'; btnCancel.textContent='Cancelar';
+        const btnOk = document.createElement('button'); btnOk.type='button'; btnOk.className='botao botao--primario'; btnOk.textContent='Iniciar';
+        const dlg = createDialog({ title:'Configurar prova', bodyHTML: body, actions:[btnCancel, btnOk] });
+        btnCancel.addEventListener('click', ()=>{ dlg.close(); resolve(null); });
+        btnOk.addEventListener('click', ()=>{ const mins = Math.max(0, Number(dlg.caixa.querySelector('#pvq-min')?.value)||0); dlg.close(); resolve(mins); });
+      });
+    }
+
     el.querySelector('#fc-quiz').addEventListener('click', async ()=>{
       if (!curDeck || curDeck.cards.length===0) return;
       if (!quizMode) {
@@ -246,42 +285,11 @@
         for (let i=indices.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [indices[i],indices[j]]=[indices[j],indices[i]]; }
         quizOrder = indices.map(x=>x.i);
         quizPos = 0; quizStats = { right:0, wrong:0, skipped:0 }; quizMode = true; showAnswer = false;
-        // Modal simples para configurar tempo (minutos)
-        // usar modal Bootstrap
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = `
-<div class="modal fade" id="pvq-config-modal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Configurar prova</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
-      <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Tempo (minutos opcional)</label><input id="pvq-min" type="number" min="0" class="form-control" placeholder="0 = sem tempo" value="10" /></div>
-      </div>
-      <div class="modal-footer"><button id="pvq-cancel" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button id="pvq-start" class="btn btn-primary">Iniciar</button></div>
-    </div>
-  </div>
-</div>`;
-        const modalEl = wrapper.firstElementChild;
-        document.body.appendChild(modalEl);
-        const overlay = document.getElementById('pvq-config-modal');
-        // mostrar via bootstrap se disponível
-        let inst = null;
-        try { if (window.bootstrap && window.bootstrap.Modal) { inst = new window.bootstrap.Modal(overlay, { backdrop: 'static' }); inst.show(); } } catch(e){}
-        const done = (start, mins)=>{
-          try{ if (inst) inst.hide(); }catch{}
-          try{ overlay.remove(); }catch{}
-          if (!start){ quizMode=false; return; }
-          el.querySelector('#fc-quiz').textContent = 'Finalizar prova';
-          if (mins>0) startQuizTimer(mins, ()=>{ finalizeQuiz(); renderDecks(); renderStats(); renderCard(); });
-          renderDecks(); renderStats(); renderCard();
-        };
-        // listeners
-        overlay.addEventListener('hidden.bs.modal', ()=> { try{ overlay.remove(); }catch{} });
-        const btnCancel = overlay.querySelector('#pvq-cancel');
-        const btnStart = overlay.querySelector('#pvq-start');
-        const inputMin = overlay.querySelector('#pvq-min');
-        if (btnCancel) btnCancel.addEventListener('click', ()=> done(false));
-        if (btnStart) btnStart.addEventListener('click', ()=> { const mins = Math.max(0, Number(inputMin?.value)||0); done(true, mins); });
+        const mins = await promptQuizConfig();
+        if (mins===null){ quizMode=false; return; }
+        el.querySelector('#fc-quiz').textContent = 'Finalizar prova';
+        if (mins>0) startQuizTimer(mins, ()=>{ finalizeQuiz(); renderDecks(); renderStats(); renderCard(); });
+        renderDecks(); renderStats(); renderCard();
       } else {
         finalizeQuiz();
         renderDecks(); renderStats(); renderCard();
@@ -290,132 +298,92 @@
 
     // -------- Modal de criação de Prova/Mini Prova (tudo em uma tela) --------
     function openProvaModal({ mini=false }={}){
-      // construir modal Bootstrap para criar prova
-      const wrapper = document.createElement('div');
-      wrapper.innerHTML = `
-<div class="modal fade" id="pv-prova-modal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">${mini ? 'Nova mini prova' : 'Nova prova'}</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
-      <div class="modal-body">
-        <div class="small mb-2">Monte suas questões e opções em uma única tela. Marque a(s) correta(s).</div>
-        <div class="pv-prova-builder d-flex flex-column gap-3" style="max-height:70vh; overflow:auto;">
-          <div class="pv-prova-meta d-flex flex-wrap gap-2 align-items-center">
-            <label class="flex-grow-1">
-              <span class="small d-block">Nome da prova</span>
-              <input type="text" id="pvpb-name" class="form-control" placeholder="Ex.: Prova Banco de Dados – Lista 1" />
-            </label>
-            <label style="width:160px;">
-              <span class="small d-block">Qtd. de questões</span>
-              <input type="number" id="pvpb-qtd" class="form-control" min="1" value="${mini?5:10}" />
-            </label>
-          </div>
-          <div id="pvpb-qs" class="d-flex flex-column gap-2"></div>
-          <div><button id="pvpb-add-q" class="btn btn-outline-secondary btn-sm">+ Adicionar questão</button></div>
+      const body = document.createElement('div');
+      body.className='pv-prova-builder';
+      body.style.display='flex'; body.style.flexDirection='column'; body.style.gap='1rem'; body.style.maxHeight='70vh'; body.style.overflow='auto';
+      body.innerHTML = `
+        <div class="pv-prova-meta" style="display:flex; flex-wrap:wrap; gap:.75rem; align-items:flex-end;">
+          <label style="display:flex; flex-direction:column; gap:.3rem; flex:1 1 260px;">
+            <span style="font-size:.7rem; font-weight:600; letter-spacing:.5px; text-transform:uppercase;">Nome da prova</span>
+            <input type="text" id="pvpb-name" class="campo" placeholder="Ex.: Prova Banco de Dados – Lista 1" />
+          </label>
+          <label style="display:flex; flex-direction:column; gap:.3rem; width:160px;">
+            <span style="font-size:.7rem; font-weight:600; letter-spacing:.5px; text-transform:uppercase;">Qtd. questões</span>
+            <input type="number" id="pvpb-qtd" class="campo" min="1" value="${mini?5:10}" />
+          </label>
         </div>
-      </div>
-      <div class="modal-footer"><button id="pvpb-cancel" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button id="pvpb-save" class="btn btn-primary">Salvar prova</button></div>
-    </div>
-  </div>
-</div>`;
-      document.body.appendChild(wrapper.firstElementChild);
-      const overlay = document.getElementById('pv-prova-modal');
-      let inst = null; try{ if (window.bootstrap && window.bootstrap.Modal) { inst = new window.bootstrap.Modal(overlay, { backdrop:'static' }); inst.show(); } }catch{}
-
-      const qsWrap = overlay.querySelector('#pvpb-qs');
-      const addQBtn = overlay.querySelector('#pvpb-add-q');
-      const qtdInput = overlay.querySelector('#pvpb-qtd');
-      const nameInput = overlay.querySelector('#pvpb-name');
-
+        <div id="pvpb-qs" style="display:flex; flex-direction:column; gap:.75rem;"></div>
+        <div><button id="pvpb-add-q" type="button" class="botao botao--suave">+ Adicionar questão</button></div>
+      `;
+      const btnCancel = document.createElement('button'); btnCancel.type='button'; btnCancel.className='botao botao--suave'; btnCancel.textContent='Cancelar';
+      const btnSave = document.createElement('button'); btnSave.type='button'; btnSave.className='botao botao--primario'; btnSave.textContent='Salvar prova';
+      const dlg = createDialog({ title: mini? 'Nova mini prova':'Nova prova', bodyHTML: body.outerHTML, actions:[btnCancel, btnSave] });
+      const caixa = dlg.caixa; // atualizado DOM real
+      const qsWrap = caixa.querySelector('#pvpb-qs');
+      const addQBtn = caixa.querySelector('#pvpb-add-q');
+      const qtdInput = caixa.querySelector('#pvpb-qtd');
+      const nameInput = caixa.querySelector('#pvpb-name');
       function makeQ(index){
         const box = document.createElement('div');
-        box.className = 'pvpb-q';
-        box.style.border = '1px solid #e5e7eb'; box.style.borderRadius='10px'; box.style.padding='0.75rem';
+        box.className='pvpb-q';
+        box.style.border='1px solid #e5e7eb'; box.style.borderRadius='10px'; box.style.padding='0.75rem'; box.style.background='#fafbfc';
         box.innerHTML = `
           <div class="small" style="font-weight:600; margin-bottom:.5rem">Questão ${index+1}</div>
-          <div style="display:grid; gap:.5rem; grid-template-columns: 1fr;">
-            <label style="display:flex; flex-direction:column; gap:.25rem;">
-              <span class="small">Pergunta</span>
-              <textarea class="pvpb-q-text" rows="3" placeholder="Digite a pergunta..."></textarea>
+          <div style="display:grid; gap:.6rem; grid-template-columns:1fr;">
+            <label style="display:flex; flex-direction:column; gap:.35rem;">
+              <span class="small" style="font-weight:600;">Pergunta</span>
+              <textarea class="pvpb-q-text campo" rows="3" placeholder="Digite a pergunta..."></textarea>
             </label>
-            <label style="display:flex; flex-direction:column; gap:.25rem;">
-              <span class="small">Resposta (gabarito comentado)</span>
-              <textarea class="pvpb-q-ans" rows="3" placeholder="Explique a resposta correta..."></textarea>
+            <label style="display:flex; flex-direction:column; gap:.35rem;">
+              <span class="small" style="font-weight:600;">Resposta (gabarito comentado)</span>
+              <textarea class="pvpb-q-ans campo" rows="3" placeholder="Explique a resposta correta..."></textarea>
             </label>
-            <div class="small" style="margin-top:.25rem">Opções (clique no círculo para marcar como correta)</div>
-            <div class="pvpb-opts" style="display:flex; flex-direction:column; gap:.35rem;"></div>
-            <div style="display:flex; gap:.4rem;">
-              <button class="pvpb-add-opt btn">+ Opção</button>
-              <button class="pvpb-del-q btn btn-danger" title="Remover questão">Remover</button>
+            <div class="small" style="margin-top:.25rem; font-weight:600;">Opções (clique para marcar correta)</div>
+            <div class="pvpb-opts" style="display:flex; flex-direction:column; gap:.4rem;"></div>
+            <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+              <button type="button" class="pvpb-add-opt botao botao--suave botao--pequeno">+ Opção</button>
+              <button type="button" class="pvpb-del-q botao botao--perigo botao--pequeno" title="Remover questão">Remover</button>
             </div>
-          </div>
-        `;
-          box.innerHTML = `
-            <div class="small" style="font-weight:600; margin-bottom:.5rem">Questão ${index+1}</div>
-            <div style="display:grid; gap:.5rem; grid-template-columns: 1fr;">
-              <label style="display:flex; flex-direction:column; gap:.25rem;">
-                <span class="small">Pergunta</span>
-                <textarea class="form-control pvpb-q-text" rows="3" placeholder="Digite a pergunta..."></textarea>
-              </label>
-              <label style="display:flex; flex-direction:column; gap:.25rem;">
-                <span class="small">Resposta (gabarito comentado)</span>
-                <textarea class="form-control pvpb-q-ans" rows="3" placeholder="Explique a resposta correta..."></textarea>
-              </label>
-              <div class="small" style="margin-top:.25rem">Opções (clique no círculo para marcar como correta)</div>
-              <div class="pvpb-opts" style="display:flex; flex-direction:column; gap:.35rem;"></div>
-              <div style="display:flex; gap:.4rem;">
-                <button class="pvpb-add-opt btn btn-sm btn-outline-secondary">+ Opção</button>
-                <button class="pvpb-del-q btn btn-sm btn-danger" title="Remover questão">Remover</button>
-              </div>
-            </div>
-          `;
+          </div>`;
         const optsWrap = box.querySelector('.pvpb-opts');
         function addOpt(text=''){
           const row = document.createElement('div');
-          row.style.display='grid'; row.style.gridTemplateColumns='24px 1fr 28px'; row.style.gap='.4rem'; row.style.alignItems='center';
-          row.innerHTML = `
-            <input type="checkbox" class="pvpb-opt-ok" title="Correta" />
-            <input type="text" class="pvpb-opt-text" placeholder="Texto da opção" value="${String(text).replaceAll('"','&quot;')}" />
-            <button class="pvpb-opt-del" title="Apagar">✕</button>
-          `;
-          row.querySelector('.pvpb-opt-del').addEventListener('click', ()=>{ row.remove(); });
+            row.style.display='grid'; row.style.gridTemplateColumns='28px 1fr 30px'; row.style.gap='.5rem'; row.style.alignItems='center';
+            row.innerHTML = `
+              <input type="checkbox" class="pvpb-opt-ok" title="Correta" />
+              <input type="text" class="pvpb-opt-text campo" placeholder="Texto da opção" value="${String(text).replace(/"/g,'&quot;')}" />
+              <button type="button" class="pvpb-opt-del botao botao--suave" title="Apagar" style="padding:.25rem .5rem;">✕</button>`;
+          row.querySelector('.pvpb-opt-del').addEventListener('click', ()=> row.remove());
           optsWrap.appendChild(row);
         }
-        // comece com 4 opções vazias
         for (let i=0;i<4;i++) addOpt('');
         box.querySelector('.pvpb-add-opt').addEventListener('click', ()=> addOpt(''));
         box.querySelector('.pvpb-del-q').addEventListener('click', ()=>{ box.remove(); renumber(); });
         return box;
       }
-      function renumber(){ Array.from(qsWrap.children).forEach((node, i)=>{ const t=node.querySelector('.small'); if (t) t.textContent = `Questão ${i+1}`; }); }
-
+      function renumber(){ Array.from(qsWrap.children).forEach((node,i)=>{ const t=node.querySelector('.small'); if(t) t.textContent=`Questão ${i+1}`; }); }
       function addQuestion(){ qsWrap.appendChild(makeQ(qsWrap.children.length)); renumber(); }
-      // pré-criar conforme quantidade
       const initial = Math.max(1, Number(qtdInput.value)|| (mini?5:10));
       for (let i=0;i<initial;i++) addQuestion();
       addQBtn.addEventListener('click', addQuestion);
-      modal.querySelector('.close-modal').addEventListener('click', ()=> overlay.remove());
-      modal.querySelector('#pvpb-cancel').addEventListener('click', ()=> overlay.remove());
-
-      modal.querySelector('#pvpb-save').addEventListener('click', ()=>{
-        const deckName = String(nameInput.value||'Prova').trim(); if (!deckName) return;
+      btnCancel.addEventListener('click', ()=> dlg.close());
+      btnSave.addEventListener('click', ()=>{
+        const deckName = String(nameInput.value||'Prova').trim(); if(!deckName) return;
         const cards = [];
-        Array.from(qsWrap.children).forEach(q => {
-          const qText = q.querySelector('.pvpb-q-text')?.value?.trim() || '';
-          const qAns  = q.querySelector('.pvpb-q-ans')?.value?.trim() || '';
-          const opts  = Array.from(q.querySelectorAll('.pvpb-opts .pvpb-opt-text')).map((inp,idx)=>({
-            text: String(inp.value||'').trim(),
-            correct: !!q.querySelectorAll('.pvpb-opts .pvpb-opt-ok')[idx]?.checked
-          })).filter(o=>o.text);
-          if (!qText) return; // ignora vazia
-          const card = { q: qText, a: qAns, score:0 };
-          if (opts.length >= 2 && opts.some(o=>o.correct)) card.options = opts;
+        Array.from(qsWrap.children).forEach(q=>{
+          const qText = q.querySelector('.pvpb-q-text')?.value?.trim()||'';
+          const qAns  = q.querySelector('.pvpb-q-ans')?.value?.trim()||'';
+          const optsEl = Array.from(q.querySelectorAll('.pvpb-opt-text'));
+          const opts = optsEl.map((inp,idx)=>({ text:String(inp.value||'').trim(), correct: !!q.querySelectorAll('.pvpb-opt-ok')[idx]?.checked })).filter(o=>o.text);
+          if(!qText) return;
+          const card = { q:qText, a:qAns, score:0 };
+          if (opts.length>=2 && opts.some(o=>o.correct)) card.options=opts;
           cards.push(card);
         });
-        if (!cards.length) return;
+        if(!cards.length) return;
         state.decks.push({ name: deckName, cards }); save(state);
         curDeck = state.decks[state.decks.length-1]; curIndex=0; showAnswer=false;
-        overlay.remove();
+        dlg.close();
         renderDecks(); renderStats(); renderCard();
       });
     }

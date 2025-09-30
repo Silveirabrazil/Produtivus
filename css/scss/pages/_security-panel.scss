@@ -1,0 +1,7 @@
+@use '../abstracts/mixins' as *;
+// Security panel page styles
+.status-card { border-left: 4px solid #28a745; }
+.status-card.warning { border-left-color: #ffc107; }
+.status-card.danger { border-left-color: #dc3545; }
+.log-entry { font-family: 'Courier New', monospace; font-size: 0.9em; }
+.metric-value { font-size: 2em; font-weight: bold; }

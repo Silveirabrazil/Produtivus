@@ -1,0 +1,16 @@
+@use '../abstracts' as *;
+
+// Seções genéricas de página que querem um fundo neutro
+// Mantém utilitários do Bootstrap (padding, grid, borders) porém fixa o visual pelo nosso tema.
+@mixin render() {
+  .section-muted {
+    background: var(--pv-surface-2, #f8f9fa);
+    color: var(--pv-on-surface, #111);
+  }
+
+  // Cabeçalho de página comum (título + ações), opcional
+  .page-header {
+    background: var(--pv-surface-2, #f8f9fa);
+    border-bottom: 1px solid rgba(0,0,0,.06);
+  }
+}

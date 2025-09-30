@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Produtivus — Estudos</title>
+  <link rel="stylesheet" href="../css/app.css?v=2" />
+  <link rel="apple-touch-icon" href="../img/icone.png">
+  <meta name="app-version" content="20250902T0000" />
+  <link rel="icon" href="../img/icone.png" type="image/png" />
+  <link rel="apple-touch-icon" href="../img/icone.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <style>
+    /* Fallback rápido enquanto modal não migrada para .janela */
+    .modal.aberta { display:block; }
+    .modal.aberta .modal-dialog { transform:none; }
+  </style>
+
+</head>
+
+<body class="page-animate">
+  <div id="header-container" class="container-fluid p-0"></div>
+  <main id="main-content" class="app-main">
+    <header class="page-header page-header--band cabecalho-page">
+      <h1 class="page-header__title">
+        Estudos
+        <span class="page-header__icon" aria-hidden="true">
+          <span class="material-symbols-outlined">school</span>
+        </span>
+      </h1>
+      <p class="page-header__subtitle m-0">Gerencie cursos, matérias e sessões de estudo.</p>
+    </header>
+      <section class="page-section">
+        <div id="studies-tools" class="studies-tools w-100 mb-3"></div>
+      </section>
+
+            <div class="card mt-4">
+              <div class="card-body">
+                <h5 class="card-title">Estudos</h5>
+                <div class="mb-3">
+                  <button id="btn-manage-courses" type="button" class="btn btn-sm btn-outline-primary">Gerenciar Cursos e Matérias</button>
+                </div>
+                <div class="card p-3 d-flex gap-3 flex-wrap align-items-end">
+                  <div id="page-courses-accordion-host" class="w-100"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal migrada para sistema .janela -->
+            <div id="modal-manage-courses" class="janela janela--grande" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-manage-courses-titulo">
+              <div class="janela__caixa" role="document">
+                <header class="janela__cabecalho">
+                  <h2 id="modal-manage-courses-titulo" class="janela__titulo">Gerenciar Cursos e Matérias</h2>
+                  <button type="button" class="janela__fechar" data-fechar-janela aria-label="Fechar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  </button>
+                </header>
+                <div class="janela__corpo">
+                  <div class="mb-3">
+                    <div class="grupo-campos linha-campos">
+                      <input id="modal-course-name" class="campo campo--texto campo--pequeno" placeholder="Nome do curso" />
+                      <input id="modal-course-color" type="color" class="campo campo--cor campo--pequeno input-color-sm" value="#365562" />
+                      <button id="modal-course-add" class="botao botao--primario botao--peq">Adicionar Curso</button>
+                    </div>
+                  </div>
+                  <div id="modal-courses-accordion" class="acordeao"></div>
+                </div>
+                <footer class="janela__acoes">
+                  <button type="button" class="botao botao--suave botao--peq" data-fechar-janela>Fechar</button>
+                </footer>
+              </div>
+            </div>
+        </div>
+      </div>
+  </main>
+  <div id="footer-container" class="container-fluid mt-4"></div>
+
+  <script src="../js/modules/header.js?v=20250923" defer></script>
+  <script src="../js/modules/footer.js?v=20250923" defer></script>
+  <script src="../js/modules/ui.js" defer></script>
+  <script src="../js/modules/collapse.js?v=20250924" defer></script>
+  <script src="../js/modules/error-handler.js?v=202509151726" defer></script>
+  <script src="../js/modules/route-guard.js?v=202509151726" defer></script>
+  <script src="../js/protect.js?v=202509151726" defer></script>
+  <script src="../js/modules/study.js" defer></script>
+  <script src="../js/modules/flashcards.js" defer></script>
+  <script src="../js/modules/study-timer.js" defer></script>
+  <script src="../js/main.js?v=20250924" defer></script>
+  <script src="../js/estudos.js?v=20250924" defer></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){ document.body.classList.add('is-ready'); });</script>
+</body>
+
+</html>

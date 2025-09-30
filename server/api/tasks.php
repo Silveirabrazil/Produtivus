@@ -23,17 +23,43 @@ function read_json_body() {
   return is_array($data) ? $data : [];
 }
 
+function pv_decode_string($value) {
+  if (!is_string($value)) {
+    return $value;
+  }
+  return html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}
+
+function pv_prepare_meta_payload($value) {
+  if ($value === null) {
+    return null;
+  }
+  if (is_array($value)) {
+    return json_encode($value);
+  }
+  if (is_string($value)) {
+    $decoded = json_decode(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'), true);
+    if (is_array($decoded)) {
+      return json_encode($decoded);
+    }
+  }
+  return null;
+}
+
 function map_task_row($row, $subs) {
   return [
     'id' => (int)$row['id'],
-    'title' => (string)$row['title'],
-    'desc' => $row['description'],
+    'title' => pv_decode_string($row['title']),
+    'desc' => pv_decode_string($row['description']),
+    'description' => pv_decode_string($row['description']),
   'start' => $row['start_date'] ? str_replace(' ', 'T', $row['start_date']) : null,
   'end' => $row['end_date'] ? str_replace(' ', 'T', $row['end_date']) : null,
     'color' => $row['color'],
   'subject_id' => isset($row['subject_id']) ? (int)$row['subject_id'] : null,
   'series_id' => isset($row['series_id']) ? (int)$row['series_id'] : null,
-    'location' => array_key_exists('location',$row) ? $row['location'] : null,
+    'created_at' => array_key_exists('created_at', $row) && $row['created_at'] ? str_replace(' ', 'T', $row['created_at']) : null,
+    'updated_at' => array_key_exists('updated_at', $row) && $row['updated_at'] ? str_replace(' ', 'T', $row['updated_at']) : null,
+    'location' => array_key_exists('location',$row) ? pv_decode_string($row['location']) : null,
     'reminder_minutes' => array_key_exists('reminder_minutes',$row) ? (is_null($row['reminder_minutes'])? null : (int)$row['reminder_minutes']) : null,
     'is_private' => array_key_exists('is_private',$row) ? (bool)$row['is_private'] : null,
     'meta' => (function($row){
@@ -48,10 +74,12 @@ function map_task_row($row, $subs) {
 }
 
 // helpers para detectar colunas no DB e adaptar queries quando host não foi migrado
-function pv_db_name(PDO $pdo){
+function pv_db_name($pdo){
+  if (!($pdo instanceof PDO)) { return ''; }
   try { $r = $pdo->query('SELECT DATABASE() AS db')->fetch(); return $r && !empty($r['db']) ? $r['db'] : ''; } catch(Throwable $e){ return ''; }
 }
-function pv_column_exists(PDO $pdo, string $db, string $table, string $column){
+function pv_column_exists($pdo, string $db, string $table, string $column){
+  if (!($pdo instanceof PDO)) { return false; }
   try {
     $st = $pdo->prepare('SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=:db AND TABLE_NAME=:t AND COLUMN_NAME=:c LIMIT 1');
     $st->execute([':db'=>$db, ':t'=>$table, ':c'=>$column]);
@@ -116,6 +144,8 @@ try {
   $hasMeta      = $dbName ? pv_column_exists($conn, $dbName, 'tasks', 'meta_json') : false;
 
     // Suporte a criação em lote: occurrences = [{start, end}, ...]
+    $metaPayload = pv_prepare_meta_payload($body['meta'] ?? null);
+
     if (isset($body['occurrences']) && is_array($body['occurrences'])) {
       $title = trim((string)($body['title'] ?? ''));
       $desc = isset($body['desc']) ? InputValidator::limitString((string)$body['desc'], 1000) : null;
@@ -147,7 +177,7 @@ try {
   if ($hasLocation)  $params[] = isset($body['location']) ? (string)$body['location'] : null;
   if ($hasReminder)  $params[] = isset($body['reminder_minutes']) && $body['reminder_minutes'] !== '' ? (int)$body['reminder_minutes'] : null;
   if ($hasPrivate)   $params[] = !empty($body['is_private']) ? 1 : 0;
-  if ($hasMeta)      $params[] = isset($body['meta']) && is_array($body['meta']) ? json_encode($body['meta']) : null;
+  if ($hasMeta)      $params[] = $metaPayload;
         $st->execute($params);
         $ids[] = (int)$conn->lastInsertId();
       }
@@ -181,7 +211,7 @@ try {
   if ($hasLocation)  { $cols[]='location'; $placeholders[]=':loc'; $params[':loc'] = isset($body['location']) ? (string)$body['location'] : null; }
   if ($hasReminder)  { $cols[]='reminder_minutes'; $placeholders[]=':rm'; $params[':rm'] = isset($body['reminder_minutes']) && $body['reminder_minutes']!=='' ? (int)$body['reminder_minutes'] : null; }
   if ($hasPrivate)   { $cols[]='is_private'; $placeholders[]=':prv'; $params[':prv'] = !empty($body['is_private']) ? 1 : 0; }
-  if ($hasMeta)      { $cols[]='meta_json'; $placeholders[]=':mj'; $params[':mj'] = isset($body['meta']) && is_array($body['meta']) ? json_encode($body['meta']) : null; }
+  if ($hasMeta)      { $cols[]='meta_json'; $placeholders[]=':mj'; $params[':mj'] = $metaPayload; }
     $sql = 'INSERT INTO tasks (' . implode(',', $cols) . ') VALUES (' . implode(',', $placeholders) . ')';
     $st = $conn->prepare($sql);
     $st->execute($params);
@@ -233,7 +263,7 @@ try {
   if ($hasLocation && array_key_exists('location',$body)) { $fields[] = 'location = :loc'; $params[':loc'] = isset($body['location']) ? (string)$body['location'] : null; }
   if ($hasReminder && array_key_exists('reminder_minutes',$body)) { $fields[] = 'reminder_minutes = :rm'; $params[':rm'] = $body['reminder_minutes']!=='' ? (int)$body['reminder_minutes'] : null; }
   if ($hasPrivate && array_key_exists('is_private',$body)) { $fields[] = 'is_private = :prv'; $params[':prv'] = !empty($body['is_private']) ? 1 : 0; }
-  if ($hasMeta && array_key_exists('meta',$body)) { $fields[] = 'meta_json = :mj'; $params[':mj'] = is_array($body['meta']) ? json_encode($body['meta']) : null; }
+  if ($hasMeta && array_key_exists('meta',$body)) { $fields[] = 'meta_json = :mj'; $params[':mj'] = pv_prepare_meta_payload($body['meta']); }
     if (isset($body['done'])) { $fields[] = 'done = :f'; $params[':f'] = !empty($body['done']) ? 1 : 0; }
 
     if ($fields) {

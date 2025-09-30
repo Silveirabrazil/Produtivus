@@ -11,6 +11,24 @@
 
 	function setFontName(name){ return apply('fontName', name); }
 	function setFontSize(size){ return apply('fontSize', size); }
+	// Define tamanho de fonte por pixel, substituindo <font size> por span com style
+	function setFontSizePx(px){
+		px = Math.max(8, Math.min(96, parseInt(px||16)));
+		try{
+			// força criação de <font size="7"> e substitui por span com px
+			document.execCommand('fontSize', false, 7);
+			const editor = document.querySelector('.pv-editor [data-editor-area]');
+			if (editor) {
+				editor.querySelectorAll('font[size="7"]').forEach(f=>{
+					const span = document.createElement('span');
+					span.style.fontSize = px + 'px';
+					while (f.firstChild) span.appendChild(f.firstChild);
+					f.replaceWith(span);
+				});
+			}
+			return true;
+		}catch(e){ return false; }
+	}
 	function setForeColor(color){ return apply('foreColor', color); }
 	function setBackColor(color){ return apply('hiliteColor', color); }
 	function formatBlock(tag){ return apply('formatBlock', tag); }
@@ -58,6 +76,7 @@
 		apply,
 		setFontName,
 		setFontSize,
+		setFontSizePx,
 		setForeColor,
 		setBackColor,
 		formatBlock,

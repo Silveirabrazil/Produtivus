@@ -1,0 +1,6 @@
+/* BOTÕES (placeholder simplificado) */
+.btn { display:inline-flex; align-items:center; gap:.4rem; font-weight:600; font-size:.9rem; border:0; cursor:pointer; padding:.55rem 1rem; border-radius:var(--radius,0.6rem); background:var(--color-brand,#3A9FA9); color:#fff; text-decoration:none; transition:background .18s ease, box-shadow .18s ease; }
+.btn:hover { background:var(--color-brand-accent,#318a92); }
+.btn--secondary { background:#365562; }
+.btn--danger { background:var(--color-danger,#dc3545); }
+.btn:disabled { opacity:.45; cursor:not-allowed; }

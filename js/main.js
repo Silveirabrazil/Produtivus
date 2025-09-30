@@ -18,13 +18,13 @@
                 const url = new URL(window.location.href);
                 url.searchParams.set('noprotect', '1');
                 const o = document.createElement('div');
-                o.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99999;display:flex;align-items:center;justify-content:center;';
-                o.innerHTML = '<div style="background:#fff;border-radius:12px;max-width:520px;width:92%;padding:16px 18px;box-shadow:0 12px 36px rgba(0,0,0,.25);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif">\
-                    <h2 style="margin:0 0 6px 0;font-size:1.1rem">Detectamos recarregamentos consecutivos</h2>\
-                    <p style="margin:.25rem 0 .75rem 0;color:#555;font-size:.95rem">Se isso estiver te impedindo de usar a página, tente abrir com a proteção temporariamente desativada. Isso não faz login automático, apenas desliga a checagem até você recarregar.</p>\
-                    <div style="display:flex;gap:.5rem;justify-content:flex-end">\
-                        <button id="pv-close-loop-overlay" style="appearance:none;border:1px solid #6c757d;background:#fff;color:#333;padding:.45rem .8rem;border-radius:8px;cursor:pointer">Fechar</button>\
-                        <a id="pv-open-noprotect" href="'+url.toString().replace(/"/g,'&quot;')+'" style="display:inline-block;text-decoration:none;background:#0d6efd;color:#fff;padding:.45rem .8rem;border-radius:8px">Abrir sem proteção</a>\
+                o.className = 'overlay-basico';
+                o.innerHTML = '<div class="caixa-basica">\
+                    <h2 class="caixa-basica__titulo">Detectamos recarregamentos consecutivos</h2>\
+                    <p class="caixa-basica__texto">Se isso estiver te impedindo de usar a página, tente abrir com a proteção temporariamente desativada. Isso não faz login automático, apenas desliga a checagem até você recarregar.</p>\
+                    <div class="grupo-acoes">\
+                        <button id="pv-close-loop-overlay" class="botao-outline">Fechar</button>\
+                        <a id="pv-open-noprotect" href="'+url.toString().replace(/"/g,'&quot;')+'" class="botao-link">Abrir sem proteção</a>\
                     </div>\
                 </div>';
                 document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(o); });
@@ -33,7 +33,16 @@
         }
     } catch {}
 })();
+// Marca o body como 'preload' o quanto antes para evitar flash
+try { if (document.body && document.body.classList) document.body.classList.add('preload'); } catch {}
+
 document.addEventListener('DOMContentLoaded', function() {
+    try {
+        // Sinaliza que a página está pronta para revelar (fade-in)
+        document.body.classList.add('is-ready');
+        // Remove preload após a transição (fallback 600ms)
+        setTimeout(()=>{ try { document.body.classList.remove('preload'); } catch {} }, 600);
+    } catch {}
     // Flag global para aplicar configs locais (por padrão desligado para manter Bootstrap puro)
     const PV_APLICAR_CONFIGS_LOCAIS = false;
     // Inicialização das tarefas: agora é responsabilidade de js/modules/tasks/tasks.js
@@ -61,7 +70,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const disablePT = (window.PV_DISABLE_PAGE_TRANSITIONS === true) || (document.body && document.body.dataset && document.body.dataset.disablePageTransitions === 'true');
         if (!disablePT) {
             const s = document.createElement('script');
-            s.src = 'js/modules/page-transitions.js';
+            // Determina base correta mesmo quando página está em /html/
+            const p = (location.pathname||'').toLowerCase();
+            const base = p.includes('/html/') ? '../' : '';
+            s.src = base + 'js/modules/page-transitions.js';
             s.defer = true;
             document.body.appendChild(s);
         }
@@ -225,43 +237,8 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     try { fileInputsToButtons(document); } catch {}
 
-        // Padronização de dropdowns: garante padrão Bootstrap 5 usando botões
-        const standardizeDropdowns = (root = document) => {
-            const SCOPE_EXCLUDE = 'header, nav, .navbar, .pill-nav, .nav, .user-menu, #mm-vue-app, .mm-toolbar';
-            // Seleciona togglers típicos, incluindo os do Mindmaps (<details class="mm-dropdown">)
-            const togglers = root.querySelectorAll('[data-bs-toggle="dropdown"], [data-toggle="dropdown"], .dropdown > .dropdown-toggle, .dropdown > button.dropdown-toggle, .dropdown > a.dropdown-toggle, .mm-dropdown > .dropdown-toggle, .mm-dropdown > summary.dropdown-toggle, #mm-vue-app summary.dropdown-toggle');
-            togglers.forEach(tg => {
-                if (!(tg instanceof Element)) return;
-                if (tg.closest(SCOPE_EXCLUDE)) return;
-
-                // Garantir atributo data-bs-toggle (BS5); se vier como data-toggle (legado), normaliza
-                if (!tg.hasAttribute('data-bs-toggle')) {
-                    if (tg.getAttribute('data-toggle') === 'dropdown') {
-                        tg.setAttribute('data-bs-toggle', 'dropdown');
-                        tg.removeAttribute('data-toggle');
-                    }
-                }
-
-                // Garantir que o toggler é um botão bootstrap consistente e com a cor solicitada (#F8F9FA -> .btn-light)
-                if (!tg.classList.contains('btn')) tg.classList.add('btn');
-                if (!tg.classList.contains('btn-sm')) tg.classList.add('btn-sm');
-                if (!tg.classList.contains('dropdown-toggle')) tg.classList.add('dropdown-toggle');
-                // Remover variantes prévias e aplicar .btn-light (mantém look claro do menu)
-                BTN_VARIANTS.forEach(v => { tg.classList.remove('btn-' + v); tg.classList.remove('btn-outline-' + v); });
-                tg.classList.add('btn-light');
-
-                // Assegurar aria-expanded padrão
-                if (!tg.hasAttribute('aria-expanded')) tg.setAttribute('aria-expanded', 'false');
-
-                // Ajuste leve no container: preferir .btn-group quando já há menu irmão
-                const parent = tg.parentElement;
-                if (parent && !parent.classList.contains('btn-group')) {
-                    const hasMenuSibling = Array.from(parent.children).some(ch => ch.classList && ch.classList.contains('dropdown-menu'));
-                    if (hasMenuSibling) parent.classList.add('btn-group');
-                }
-            });
-        };
-    try { standardizeDropdowns(document); } catch {}
+        // A função standardizeDropdowns foi removida. A lógica de dropdown agora é tratada
+        // em módulos específicos como js/modules/editor-toolbar.js.
 
         // Observar elementos adicionados dinamicamente
         try {
@@ -272,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         cleanup(node);
                         runNormalize(node);
                         enforcePrimary(node);
-                        standardizeDropdowns(node);
+                        // standardizeDropdowns(node); // Removido
                         fileInputsToButtons(node);
                     });
                 });
@@ -281,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch {}
     } catch (e) { /* no-op */ }
 });
-    // Nenhuma referência ao calendário legado aqui.
+// Nenhuma referência ao calendário legado aqui.
 
 // Reforço específico: ao detectar o app de Mapas Mentais (#mm-vue-app), garantir classes no dock
 (function(){
